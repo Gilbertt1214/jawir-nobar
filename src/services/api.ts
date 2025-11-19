@@ -1,5 +1,6 @@
-const API_BASE_URL = 'https://tv.lk21official.live';
-const API_FALLBACK_URL = 'https://tv.nontondrama.lol';
+// Using unofficial API from https://github.com/febriadj/lk21-api
+const API_BASE_URL = 'https://lk21-api.cyclic.app';
+const API_FALLBACK_URL = 'https://lk21-api.cyclic.app'; // Same API, no fallback needed
 
 export interface Movie {
   id: string;
@@ -51,59 +52,60 @@ class MovieAPI {
   }
 
   async getLatestMovies(page = 1): Promise<PaginatedResponse<Movie>> {
-    return this.fetchWithFallback(`/api/movies/latest?page=${page}`);
+    return this.fetchWithFallback(`/movies?page=${page}`);
   }
 
   async getPopularMovies(page = 1): Promise<PaginatedResponse<Movie>> {
-    return this.fetchWithFallback(`/api/movies/popular?page=${page}`);
+    return this.fetchWithFallback(`/popular/movies?page=${page}`);
   }
 
   async getLatestSeries(page = 1): Promise<PaginatedResponse<Movie>> {
-    return this.fetchWithFallback(`/api/series/latest?page=${page}`);
+    return this.fetchWithFallback(`/series?page=${page}`);
   }
 
   async getMovieById(id: string): Promise<Movie> {
-    return this.fetchWithFallback(`/api/movies/${id}`);
+    return this.fetchWithFallback(`/movies/${id}`);
   }
 
   async getSeriesById(id: string): Promise<Movie> {
-    return this.fetchWithFallback(`/api/series/${id}`);
+    return this.fetchWithFallback(`/series/${id}`);
   }
 
   async getEpisodes(seriesId: string): Promise<Episode[]> {
-    return this.fetchWithFallback(`/api/series/${seriesId}/episodes`);
+    const response = await this.fetchWithFallback(`/series/${seriesId}`);
+    return response.episodes || [];
   }
 
   async getEpisodeById(seriesId: string, episodeId: string): Promise<Episode> {
-    return this.fetchWithFallback(`/api/series/${seriesId}/episodes/${episodeId}`);
+    return this.fetchWithFallback(`/series/${seriesId}/streams?episode=${episodeId}`);
   }
 
   async searchMovies(query: string, page = 1): Promise<PaginatedResponse<Movie>> {
-    return this.fetchWithFallback(`/api/search?q=${encodeURIComponent(query)}&page=${page}`);
+    return this.fetchWithFallback(`/search/${encodeURIComponent(query)}?page=${page}`);
   }
 
   async getMoviesByGenre(genre: string, page = 1): Promise<PaginatedResponse<Movie>> {
-    return this.fetchWithFallback(`/api/movies/genre/${encodeURIComponent(genre)}?page=${page}`);
+    return this.fetchWithFallback(`/genres/${encodeURIComponent(genre)}?page=${page}`);
   }
 
   async getMoviesByCountry(country: string, page = 1): Promise<PaginatedResponse<Movie>> {
-    return this.fetchWithFallback(`/api/movies/country/${encodeURIComponent(country)}?page=${page}`);
+    return this.fetchWithFallback(`/countries/${encodeURIComponent(country)}?page=${page}`);
   }
 
   async getMoviesByYear(year: string, page = 1): Promise<PaginatedResponse<Movie>> {
-    return this.fetchWithFallback(`/api/movies/year/${year}?page=${page}`);
+    return this.fetchWithFallback(`/years/${year}?page=${page}`);
   }
 
   async getAllGenres(): Promise<string[]> {
-    return this.fetchWithFallback('/api/genres');
+    return this.fetchWithFallback('/genres');
   }
 
   async getAllCountries(): Promise<string[]> {
-    return this.fetchWithFallback('/api/countries');
+    return this.fetchWithFallback('/countries');
   }
 
   async getYears(): Promise<string[]> {
-    return this.fetchWithFallback('/api/years');
+    return this.fetchWithFallback('/years');
   }
 }
 
