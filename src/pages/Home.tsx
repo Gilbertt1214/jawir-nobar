@@ -269,7 +269,7 @@ export default function Home() {
                     asChild
                     variant="ghost"
                     size="sm"
-                    className="self-start sm:self-auto hover:bg-primary/10 transition-all group"
+                    className="self-start sm:self-auto hover:bg-primary/10 transition-all group hover:bg-yellow-500 hover:text-black"
                 >
                     <Link to={link}>
                         <span className="hidden sm:inline">View All</span>
@@ -526,7 +526,7 @@ export default function Home() {
                                 asChild
                                 variant="ghost"
                                 size="sm"
-                                className="self-start lg:self-auto hover:bg-primary/10 transition-all group"
+                                className="self-start lg:self-auto hover:bg-primary/10 transition-all group hover:bg-yellow-500 hover:text-black"
                             >
                                 <Link
                                     to={`/browse/anime?type=${animeType}&audio=${animeAudio}`}
