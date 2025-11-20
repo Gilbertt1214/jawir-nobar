@@ -1,6 +1,6 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { movieAPI } from "@/services/api"; // Pastikan ini adalah path ke file api.ts Anda
+import { movieAPI } from "@/services/api";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, AlertCircle, RefreshCw, ExternalLink } from "lucide-react";
@@ -10,7 +10,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState, useEffect } from "react";
 
 export default function AnimeDetail() {
-    // Ganti useParams untuk menggunakan endpoint, number, subOrDub
     const { endpoint, number, subOrDub } = useParams<{
         endpoint: string;
         number: string;
@@ -20,7 +19,6 @@ export default function AnimeDetail() {
     const [selectedProvider, setSelectedProvider] = useState(0);
     const [providerError, setProviderError] = useState(false);
 
-    // Debug logging
     useEffect(() => {
         console.log("AnimeDetail mounted with params:", {
             endpoint,
@@ -29,11 +27,10 @@ export default function AnimeDetail() {
         });
     }, [endpoint, number, subOrDub]);
 
-    // Validasi parameters
     if (!endpoint || !number || !subOrDub) {
         console.error("Missing parameters:", { endpoint, number, subOrDub });
         return (
-            <div className="container mx-auto px-4 py-8">
+            <div className="container mx-auto px-4 py-6">
                 <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
@@ -41,7 +38,7 @@ export default function AnimeDetail() {
                         <br />
                         Required: endpoint={endpoint}, number={number},
                         subOrDub={subOrDub}
-                        <Link to="/" className="ml-2 underline">
+                        <Link to="/" className="ml-2 underline block mt-2">
                             Back to home
                         </Link>
                     </AlertDescription>
@@ -50,16 +47,15 @@ export default function AnimeDetail() {
         );
     }
 
-    // Validate subOrDub value
     if (subOrDub !== "sub" && subOrDub !== "dub") {
         console.error("Invalid subOrDub value:", subOrDub);
         return (
-            <div className="container mx-auto px-4 py-8">
+            <div className="container mx-auto px-4 py-6">
                 <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
                         Invalid type: {subOrDub}. Must be 'sub' or 'dub'.
-                        <Link to="/" className="ml-2 underline">
+                        <Link to="/" className="ml-2 underline block mt-2">
                             Back to home
                         </Link>
                     </AlertDescription>
@@ -68,7 +64,6 @@ export default function AnimeDetail() {
         );
     }
 
-    // Gunakan useQuery untuk mengambil detail anime dari API Otakudesu
     const {
         data: animeDetail,
         isLoading: animeLoading,
@@ -76,45 +71,31 @@ export default function AnimeDetail() {
     } = useQuery({
         queryKey: ["otakudesuAnimeDetail", endpoint],
         queryFn: () => movieAPI.getOtakudesuAnimeDetail(endpoint),
-        enabled: !!endpoint, // Hanya jalankan jika endpoint tersedia
-        retry: 1, // Coba ulang 1 kali jika gagal
+        enabled: !!endpoint,
+        retry: 1,
     });
 
-    // Cari episode saat ini berdasarkan number
     const currentEpisode = animeDetail?.episodeList.find(
         (ep) => ep.episodeNumber === parseInt(number, 10)
     );
 
-    // Dapatkan MAL ID dari detail anime
-    const malId = animeDetail?.malId; // Gunakan MAL ID dari response API Otakudesu
+    const malId = animeDetail?.malId;
 
-    // Define anime streaming providers (gunakan MAL ID jika tersedia)
     const streamingProviders = [
         {
             name: "VidLink",
             url: malId
                 ? `https://vidlink.pro/anime/${malId}/${number}/${subOrDub}?player=jw`
-                : `https://vidlink.pro/anime/unknown/${number}/${subOrDub}?player=jw`, // Fallback jika MAL ID tidak ditemukan
+                : `https://vidlink.pro/anime/unknown/${number}/${subOrDub}?player=jw`,
             available: true,
         },
         {
             name: "VidLink (Alt)",
             url: malId
                 ? `https://vidlink.pro/anime/${malId}/${number}/${subOrDub}`
-                : `https://vidlink.pro/anime/unknown/${number}/${subOrDub}`, // Fallback jika MAL ID tidak ditemukan
+                : `https://vidlink.pro/anime/unknown/${number}/${subOrDub}`,
             available: true,
         },
-        // Tambahkan provider lain jika diperlukan, atau hapus yang tidak valid
-        // {
-        //     name: "Embed Player",
-        //     url: `https://embed.anime/${malId}/${number}/${subOrDub}`, // Ini bukan URL valid
-        //     available: true,
-        // },
-        // {
-        //     name: "Stream Player",
-        //     url: `https://stream.anime/${malId}/${number}/${subOrDub}`, // Ini bukan URL valid
-        //     available: true,
-        // },
     ];
 
     const handleProviderChange = (index: number) => {
@@ -130,7 +111,6 @@ export default function AnimeDetail() {
 
     const handleRefresh = () => {
         setProviderError(false);
-        // Force re-render of iframe
         const temp = selectedProvider;
         setSelectedProvider(-1);
         setTimeout(() => setSelectedProvider(temp), 100);
@@ -143,12 +123,12 @@ export default function AnimeDetail() {
             selectedProvider
         );
         return (
-            <div className="container mx-auto px-4 py-8">
+            <div className="container mx-auto px-4 py-6">
                 <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
                         Selected provider not found. Please try again.
-                        <Link to="/" className="ml-2 underline">
+                        <Link to="/" className="ml-2 underline block mt-2">
                             Back to home
                         </Link>
                     </AlertDescription>
@@ -159,17 +139,21 @@ export default function AnimeDetail() {
 
     if (animeLoading) {
         return (
-            <div className="container mx-auto px-4 py-8">
-                <Button variant="ghost" onClick={() => navigate(-1)}>
+            <div className="container mx-auto px-4 py-6">
+                <Button
+                    variant="ghost"
+                    onClick={() => navigate(-1)}
+                    className="mb-4"
+                >
                     <ArrowLeft className="mr-2 h-4 w-4" />
                     Back
                 </Button>
-                <div className="max-w-6xl mx-auto">
-                    <div className="mb-6">
-                        <h1 className="text-3xl font-bold mb-2">Loading...</h1>
+                <div className="max-w-3xl mx-auto">
+                    <div className="mb-4">
+                        <h1 className="text-2xl font-bold mb-2">Loading...</h1>
                     </div>
                     <Card>
-                        <CardContent className="p-8 flex justify-center items-center">
+                        <CardContent className="p-6 flex justify-center items-center">
                             <p>Loading anime details...</p>
                         </CardContent>
                     </Card>
@@ -181,8 +165,12 @@ export default function AnimeDetail() {
     if (animeError) {
         console.error("Failed to fetch anime details:", animeError);
         return (
-            <div className="container mx-auto px-4 py-8">
-                <Button variant="ghost" onClick={() => navigate(-1)}>
+            <div className="container mx-auto px-4 py-6">
+                <Button
+                    variant="ghost"
+                    onClick={() => navigate(-1)}
+                    className="mb-4"
+                >
                     <ArrowLeft className="mr-2 h-4 w-4" />
                     Back
                 </Button>
@@ -191,7 +179,7 @@ export default function AnimeDetail() {
                     <AlertDescription>
                         Failed to load anime details:{" "}
                         {animeError.message || "An error occurred"}
-                        <Link to="/" className="ml-2 underline">
+                        <Link to="/" className="ml-2 underline block mt-2">
                             Back to home
                         </Link>
                     </AlertDescription>
@@ -202,8 +190,12 @@ export default function AnimeDetail() {
 
     if (!animeDetail) {
         return (
-            <div className="container mx-auto px-4 py-8">
-                <Button variant="ghost" onClick={() => navigate(-1)}>
+            <div className="container mx-auto px-4 py-6">
+                <Button
+                    variant="ghost"
+                    onClick={() => navigate(-1)}
+                    className="mb-4"
+                >
                     <ArrowLeft className="mr-2 h-4 w-4" />
                     Back
                 </Button>
@@ -211,7 +203,7 @@ export default function AnimeDetail() {
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
                         Anime not found.
-                        <Link to="/" className="ml-2 underline">
+                        <Link to="/" className="ml-2 underline block mt-2">
                             Back to home
                         </Link>
                     </AlertDescription>
@@ -222,8 +214,12 @@ export default function AnimeDetail() {
 
     if (!currentEpisode) {
         return (
-            <div className="container mx-auto px-4 py-8">
-                <Button variant="ghost" onClick={() => navigate(-1)}>
+            <div className="container mx-auto px-4 py-6">
+                <Button
+                    variant="ghost"
+                    onClick={() => navigate(-1)}
+                    className="mb-4"
+                >
                     <ArrowLeft className="mr-2 h-4 w-4" />
                     Back
                 </Button>
@@ -233,7 +229,7 @@ export default function AnimeDetail() {
                         Episode {number} not found for this anime.
                         <Link
                             to={`/anime/${endpoint}`}
-                            className="ml-2 underline"
+                            className="ml-2 underline block mt-2"
                         >
                             Back to Anime Details
                         </Link>
@@ -243,7 +239,6 @@ export default function AnimeDetail() {
         );
     }
 
-    // Temukan episode sebelumnya dan berikutnya
     const sortedEpisodes = [...animeDetail.episodeList].sort(
         (a, b) => a.episodeNumber - b.episodeNumber
     );
@@ -258,56 +253,70 @@ export default function AnimeDetail() {
             : null;
 
     return (
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-6">
             {/* Navigation */}
-            <div className="flex items-center gap-4 mb-6">
-                <Button variant="ghost" onClick={() => navigate(-1)}>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 mb-4">
+                <Button
+                    variant="ghost"
+                    onClick={() => navigate(-1)}
+                    className="w-full sm:w-auto"
+                >
                     <ArrowLeft className="mr-2 h-4 w-4" />
                     Back
                 </Button>
                 <Link to="/">
-                    <Button variant="ghost">Home</Button>
+                    <Button variant="ghost" className="w-full sm:w-auto">
+                        Home
+                    </Button>
                 </Link>
             </div>
 
-            <div className="max-w-6xl mx-auto">
+            <div className="max-w-3xl mx-auto">
                 {/* Title & Info Card */}
-                <div className="mb-6">
-                    <h1 className="text-3xl font-bold mb-2">
+                <div className="mb-4">
+                    <h1 className="text-2xl md:text-3xl font-bold mb-2">
                         {animeDetail.title} - Episode {number}
                     </h1>
-                    <div className="flex flex-wrap items-center gap-2">
-                        <Badge variant="outline">
+                    <div className="flex flex-wrap gap-2 mb-3">
+                        <Badge variant="outline" className="text-xs py-1 px-2">
                             Status: {animeDetail.status}
                         </Badge>
-                        <Badge variant="outline">
+                        <Badge variant="outline" className="text-xs py-1 px-2">
                             Type: {animeDetail.type}
                         </Badge>
-                        <Badge variant="outline">
+                        <Badge variant="outline" className="text-xs py-1 px-2">
                             Episodes: {animeDetail.totalEpisodes}
                         </Badge>
-                        <Badge variant="outline">
+                        <Badge variant="outline" className="text-xs py-1 px-2">
                             Year: {animeDetail.year}
                         </Badge>
                         {malId && (
-                            <Badge variant="outline">MAL ID: {malId}</Badge>
+                            <Badge
+                                variant="outline"
+                                className="text-xs py-1 px-2"
+                            >
+                                MAL ID: {malId}
+                            </Badge>
                         )}
                         <Badge
                             variant={
                                 subOrDub === "sub" ? "default" : "secondary"
                             }
+                            className="text-xs py-1 px-2"
                         >
                             {subOrDub === "sub" ? "Subtitled" : "Dubbed"}
                         </Badge>
                     </div>
-                    <p className="mt-2 text-sm text-muted-foreground line-clamp-2">
+                    <p className="text-sm text-muted-foreground line-clamp-2">
                         {animeDetail.synopsis}
                     </p>
                 </div>
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Watch Episode {number}</CardTitle>
+                        <CardTitle className="text-lg">
+                            Watch Episode {number}
+                        </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <Alert className="mb-4">
@@ -326,11 +335,12 @@ export default function AnimeDetail() {
                                 handleProviderChange(Number(v))
                             }
                         >
-                            <TabsList className="grid grid-cols-2 lg:grid-cols-4 mb-4">
+                            <TabsList className="grid grid-cols-2 mb-4">
                                 {streamingProviders.map((provider, index) => (
                                     <TabsTrigger
                                         key={index}
                                         value={String(index)}
+                                        className="text-xs py-2"
                                     >
                                         {provider.name}
                                     </TabsTrigger>
@@ -341,7 +351,7 @@ export default function AnimeDetail() {
                                 <TabsContent key={index} value={String(index)}>
                                     <div className="space-y-4">
                                         {/* Provider Info */}
-                                        <div className="flex items-center justify-between mb-2">
+                                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-2">
                                             <span className="text-sm text-muted-foreground">
                                                 Current Provider:{" "}
                                                 {provider.name}
@@ -355,18 +365,19 @@ export default function AnimeDetail() {
                                                         "_blank"
                                                     )
                                                 }
+                                                className="px-3 py-1 text-xs"
                                             >
-                                                <ExternalLink className="h-4 w-4 mr-2" />
-                                                Open in New Tab
+                                                <ExternalLink className="h-4 w-4 mr-1" />
+                                                New Tab
                                             </Button>
                                         </div>
 
                                         {/* Video Player */}
                                         {providerError ? (
                                             <div className="relative aspect-video bg-black rounded-lg overflow-hidden flex items-center justify-center">
-                                                <div className="text-center text-white space-y-4 p-8">
+                                                <div className="text-center text-white space-y-4 p-4">
                                                     <AlertCircle className="h-12 w-12 mx-auto text-red-500" />
-                                                    <p className="text-lg">
+                                                    <p className="text-base">
                                                         This provider is not
                                                         available
                                                     </p>
@@ -375,12 +386,13 @@ export default function AnimeDetail() {
                                                         loaded. Try another
                                                         provider.
                                                     </p>
-                                                    <div className="flex gap-2 justify-center">
+                                                    <div className="flex flex-col sm:flex-row gap-2 justify-center">
                                                         <Button
                                                             variant="secondary"
                                                             onClick={
                                                                 handleRefresh
                                                             }
+                                                            className="text-xs"
                                                         >
                                                             <RefreshCw className="h-4 w-4 mr-2" />
                                                             Try Again
@@ -396,6 +408,7 @@ export default function AnimeDetail() {
                                                                     nextProvider
                                                                 );
                                                             }}
+                                                            className="text-xs"
                                                         >
                                                             Next Provider
                                                         </Button>
@@ -436,6 +449,7 @@ export default function AnimeDetail() {
                                                         nextProvider
                                                     );
                                                 }}
+                                                className="text-xs"
                                             >
                                                 Try Next Provider →
                                             </Button>
@@ -443,6 +457,7 @@ export default function AnimeDetail() {
                                                 variant="outline"
                                                 size="sm"
                                                 onClick={handleRefresh}
+                                                className="text-xs"
                                             >
                                                 <RefreshCw className="h-4 w-4 mr-2" />
                                                 Refresh Player
@@ -453,6 +468,7 @@ export default function AnimeDetail() {
                                                 onClick={() =>
                                                     window.location.reload()
                                                 }
+                                                className="text-xs"
                                             >
                                                 Reload Page
                                             </Button>
@@ -464,19 +480,23 @@ export default function AnimeDetail() {
 
                         {/* Episode Navigation */}
                         <div className="mt-6 p-4 bg-muted/50 rounded-lg">
-                            <div className="flex items-center justify-between">
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                                 <div>
                                     <span className="text-sm text-muted-foreground">
                                         Episode Navigation
                                     </span>
                                 </div>
-                                <div className="flex gap-2">
+                                <div className="flex flex-wrap gap-2">
                                     {previousEpisode && (
                                         <Link
                                             to={`/anime/${endpoint}/${previousEpisode.episodeNumber}/${subOrDub}`}
                                         >
-                                            <Button variant="outline" size="sm">
-                                                ← Episode{" "}
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="text-xs"
+                                            >
+                                                ← Ep{" "}
                                                 {previousEpisode.episodeNumber}
                                             </Button>
                                         </Link>
@@ -485,9 +505,12 @@ export default function AnimeDetail() {
                                         <Link
                                             to={`/anime/${endpoint}/${nextEpisode.episodeNumber}/${subOrDub}`}
                                         >
-                                            <Button variant="outline" size="sm">
-                                                Episode{" "}
-                                                {nextEpisode.episodeNumber} →
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="text-xs"
+                                            >
+                                                Ep {nextEpisode.episodeNumber} →
                                             </Button>
                                         </Link>
                                     )}
@@ -495,34 +518,42 @@ export default function AnimeDetail() {
                             </div>
 
                             {/* Switch Sub/Dub */}
-                            <div className="mt-4 flex items-center gap-2">
+                            <div className="mt-4 flex flex-col sm:flex-row items-start sm:items-center gap-2">
                                 <span className="text-sm text-muted-foreground">
                                     Audio:
                                 </span>
-                                <Link to={`/anime/${endpoint}/${number}/sub`}>
-                                    <Button
-                                        variant={
-                                            subOrDub === "sub"
-                                                ? "default"
-                                                : "outline"
-                                        }
-                                        size="sm"
+                                <div className="flex gap-2">
+                                    <Link
+                                        to={`/anime/${endpoint}/${number}/sub`}
                                     >
-                                        Subtitled
-                                    </Button>
-                                </Link>
-                                <Link to={`/anime/${endpoint}/${number}/dub`}>
-                                    <Button
-                                        variant={
-                                            subOrDub === "dub"
-                                                ? "default"
-                                                : "outline"
-                                        }
-                                        size="sm"
+                                        <Button
+                                            variant={
+                                                subOrDub === "sub"
+                                                    ? "default"
+                                                    : "outline"
+                                            }
+                                            size="sm"
+                                            className="text-xs"
+                                        >
+                                            Sub
+                                        </Button>
+                                    </Link>
+                                    <Link
+                                        to={`/anime/${endpoint}/${number}/dub`}
                                     >
-                                        Dubbed
-                                    </Button>
-                                </Link>
+                                        <Button
+                                            variant={
+                                                subOrDub === "dub"
+                                                    ? "default"
+                                                    : "outline"
+                                            }
+                                            size="sm"
+                                            className="text-xs"
+                                        >
+                                            Dub
+                                        </Button>
+                                    </Link>
+                                </div>
                             </div>
                         </div>
                     </CardContent>

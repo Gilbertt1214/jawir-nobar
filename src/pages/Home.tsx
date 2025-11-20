@@ -1,239 +1,593 @@
-import { useQuery } from '@tanstack/react-query';
-import { movieAPI } from '@/services/api';
-import { MovieCarousel } from '@/components/MovieCarousel';
-import { SkeletonGrid } from '@/components/SkeletonCard';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle, Info } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useQuery } from "@tanstack/react-query";
+import { movieAPI } from "@/services/api";
+import { MovieCarousel } from "@/components/MovieCarousel";
+import { SkeletonGrid } from "@/components/SkeletonCard";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+    AlertCircle,
+    Info,
+    Play,
+    Star,
+    TrendingUp,
+    Sparkles,
+    Film,
+    Tv,
+    Globe,
+    Heart,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
 
 export default function Home() {
-  const [pageLatest, setPageLatest] = useState(1);
-  const { data: latestMovies, isLoading: loadingLatest, error: errorLatest } = useQuery({
-    queryKey: ['latest-movies', pageLatest],
-    queryFn: () => movieAPI.getLatestMovies(pageLatest),
-  });
+    // Query states
+    const [pageLatest, setPageLatest] = useState(1);
+    const [pagePopular, setPagePopular] = useState(1);
+    const [pageSeries, setPageSeries] = useState(1);
+    const [pageAnime, setPageAnime] = useState(1);
+    const [pageIndo, setPageIndo] = useState(1);
+    const [pageKdrama, setPageKdrama] = useState(1);
 
-  const [pagePopular, setPagePopular] = useState(1);
-  const { data: popularMovies, isLoading: loadingPopular, error: errorPopular } = useQuery({
-    queryKey: ['popular-movies', pagePopular],
-    queryFn: () => movieAPI.getPopularMovies(pagePopular),
-  });
+    // Anime filters
+    const [animeType, setAnimeType] = useState<"all" | "tv" | "movie">("all");
+    const [animeAudio, setAnimeAudio] = useState<"all" | "sub" | "dub">("all");
 
-  const [pageSeries, setPageSeries] = useState(1);
-  const { data: latestSeries, isLoading: loadingSeries, error: errorSeries } = useQuery({
-    queryKey: ['latest-series', pageSeries],
-    queryFn: () => movieAPI.getLatestSeries(pageSeries),
-  });
+    // Data queries
+    const {
+        data: latestMovies,
+        isLoading: loadingLatest,
+        error: errorLatest,
+    } = useQuery({
+        queryKey: ["latest-movies", pageLatest],
+        queryFn: () => movieAPI.getLatestMovies(pageLatest),
+    });
 
-  const [pageAnime, setPageAnime] = useState(1);
-  const [animeType, setAnimeType] = useState<'all'|'tv'|'movie'>('all');
-  const [animeAudio, setAnimeAudio] = useState<'all'|'sub'|'dub'>('all');
-  const { data: anime, isLoading: loadingAnime, error: errorAnime } = useQuery({
-    queryKey: ['anime', pageAnime, animeType, animeAudio],
-    queryFn: () => movieAPI.getAnime(pageAnime, { type: animeType, audio: animeAudio }),
-  });
+    const {
+        data: popularMovies,
+        isLoading: loadingPopular,
+        error: errorPopular,
+    } = useQuery({
+        queryKey: ["popular-movies", pagePopular],
+        queryFn: () => movieAPI.getPopularMovies(pagePopular),
+    });
 
-  const [pageIndo, setPageIndo] = useState(1);
-  const { data: indo, isLoading: loadingIndo, error: errorIndo } = useQuery({
-    queryKey: ['indo-movies', pageIndo],
-    queryFn: () => movieAPI.getIndonesianMovies(pageIndo),
-  });
+    const {
+        data: latestSeries,
+        isLoading: loadingSeries,
+        error: errorSeries,
+    } = useQuery({
+        queryKey: ["latest-series", pageSeries],
+        queryFn: () => movieAPI.getLatestSeries(pageSeries),
+    });
 
-  const [pageKdrama, setPageKdrama] = useState(1);
-  const { data: kdrama, isLoading: loadingKDrama, error: errorKDrama } = useQuery({
-    queryKey: ['korean-drama', pageKdrama],
-    queryFn: () => movieAPI.getKoreanDrama(pageKdrama),
-  });
+    const {
+        data: anime,
+        isLoading: loadingAnime,
+        error: errorAnime,
+    } = useQuery({
+        queryKey: ["anime", pageAnime, animeType, animeAudio],
+        queryFn: () =>
+            movieAPI.getAnime(pageAnime, {
+                type: animeType,
+                audio: animeAudio,
+            }),
+    });
 
-  const { data: adult, isLoading: loadingAdult, error: errorAdult } = useQuery({
-    queryKey: ['adult-movies', 1],
-    queryFn: () => movieAPI.getAdultMovies(1),
-  });
+    const {
+        data: indo,
+        isLoading: loadingIndo,
+        error: errorIndo,
+    } = useQuery({
+        queryKey: ["indo-movies", pageIndo],
+        queryFn: () => movieAPI.getIndonesianMovies(pageIndo),
+    });
 
-  const [listLatest, setListLatest] = useState<any[]>([]);
-  const [listPopular, setListPopular] = useState<any[]>([]);
-  const [listSeries, setListSeries] = useState<any[]>([]);
-  const [listAnime, setListAnime] = useState<any[]>([]);
-  const [listIndo, setListIndo] = useState<any[]>([]);
-  const [listKdrama, setListKdrama] = useState<any[]>([]);
-  const heroList = (listLatest.length ? listLatest : (listPopular.length ? listPopular : []));
-  const [heroIndex, setHeroIndex] = useState(0);
-  const heroItem = heroList[heroIndex];
-  const [heroLoaded, setHeroLoaded] = useState(false);
+    const {
+        data: kdrama,
+        isLoading: loadingKDrama,
+        error: errorKDrama,
+    } = useQuery({
+        queryKey: ["korean-drama", pageKdrama],
+        queryFn: () => movieAPI.getKoreanDrama(pageKdrama),
+    });
 
-  useEffect(() => {
-    if (!heroList.length) return;
-    const id = setInterval(() => setHeroIndex(i => (i + 1) % heroList.length), 6000);
-    return () => clearInterval(id);
-  }, [heroList.length]);
+    const {
+        data: adult,
+        isLoading: loadingAdult,
+        error: errorAdult,
+    } = useQuery({
+        queryKey: ["adult-movies", 1],
+        queryFn: () => movieAPI.getAdultMovies(1),
+    });
 
-  useEffect(() => { if (latestMovies?.data) setListLatest(prev => { const map = new Map(prev.map((m:any)=>[m.id,m])); for (const x of latestMovies.data) map.set(x.id,x); return Array.from(map.values()); }); }, [latestMovies]);
-  useEffect(() => { if (popularMovies?.data) setListPopular(prev => { const map = new Map(prev.map((m:any)=>[m.id,m])); for (const x of popularMovies.data) map.set(x.id,x); return Array.from(map.values()); }); }, [popularMovies]);
-  useEffect(() => { if (latestSeries?.data) setListSeries(prev => { const map = new Map(prev.map((m:any)=>[m.id,m])); for (const x of latestSeries.data) map.set(x.id,x); return Array.from(map.values()); }); }, [latestSeries]);
-  useEffect(() => { if (anime?.data) setListAnime(prev => { const map = new Map(prev.map((m:any)=>[m.id,m])); for (const x of anime.data) map.set(x.id,x); return Array.from(map.values()); }); }, [anime]);
-  useEffect(() => { if (indo?.data) setListIndo(prev => { const map = new Map(prev.map((m:any)=>[m.id,m])); for (const x of indo.data) map.set(x.id,x); return Array.from(map.values()); }); }, [indo]);
-  useEffect(() => { if (kdrama?.data) setListKdrama(prev => { const map = new Map(prev.map((m:any)=>[m.id,m])); for (const x of kdrama.data) map.set(x.id,x); return Array.from(map.values()); }); }, [kdrama]);
+    // Local state for accumulated data
+    const [listLatest, setListLatest] = useState<any[]>([]);
+    const [listPopular, setListPopular] = useState<any[]>([]);
+    const [listSeries, setListSeries] = useState<any[]>([]);
+    const [listAnime, setListAnime] = useState<any[]>([]);
+    const [listIndo, setListIndo] = useState<any[]>([]);
+    const [listKdrama, setListKdrama] = useState<any[]>([]);
 
-  const isLoading = loadingLatest || loadingPopular || loadingSeries || loadingAnime || loadingIndo || loadingKDrama || loadingAdult;
-  const hasError = errorLatest || errorPopular || errorSeries || errorAnime || errorIndo || errorKDrama || errorAdult;
+    // Hero carousel state
+    const heroList = listLatest.length
+        ? listLatest.slice(0, 5)
+        : listPopular.length
+        ? listPopular.slice(0, 5)
+        : [];
+    const [heroIndex, setHeroIndex] = useState(0);
+    const heroItem = heroList[heroIndex];
 
-  if (isLoading) {
-    return (
-      <div className="container mx-auto px-4 py-8 space-y-8">
-        <div className="space-y-4">
-          <div className="h-8 w-48 bg-muted animate-pulse rounded" />
-          <SkeletonGrid count={6} />
-        </div>
-      </div>
-    );
-  }
+    // Hero auto-scroll effect
+    useEffect(() => {
+        if (!heroList.length) return;
+        const interval = setInterval(() => {
+            setHeroIndex((i) => (i + 1) % heroList.length);
+        }, 6000);
+        return () => clearInterval(interval);
+    }, [heroList.length]);
 
-  if (hasError) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            Failed to load movies. Please check your internet connection and try again.
-          </AlertDescription>
-        </Alert>
-      </div>
-    );
-  }
+    // Data accumulation effects
+    useEffect(() => {
+        if (latestMovies?.data) {
+            setListLatest((prev) => {
+                const map = new Map(prev.map((m: any) => [m.id, m]));
+                latestMovies.data.forEach((x) => map.set(x.id, x));
+                return Array.from(map.values());
+            });
+        }
+    }, [latestMovies]);
 
-  return (
-      <>
-          {/* Hero Section */}
-          <section className="relative h-[400px] md:h-[500px] mb-12 overflow-hidden">
-              <div className="absolute inset-0 overflow-hidden">
-                <div className="flex h-full transition-transform duration-700 ease-in-out" style={{ transform: `translateX(-${heroIndex * 100}%)` }}>
-                  {heroList.map((item, idx) => (
-                    <div key={item.id ?? idx} className="relative min-w-full h-full">
-                      {item.cover ? (
-                        <img
-                          src={item.cover}
-                          onLoad={() => { if (idx === heroIndex) setHeroLoaded(true); }}
-                          className="w-full h-full object-cover"
-                          alt={item.title}
-                        />
-                      ) : (
-                        <div className="w-full h-full" style={{ backgroundImage: "linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)))" }} />
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
+    useEffect(() => {
+        if (popularMovies?.data) {
+            setListPopular((prev) => {
+                const map = new Map(prev.map((m: any) => [m.id, m]));
+                popularMovies.data.forEach((x) => map.set(x.id, x));
+                return Array.from(map.values());
+            });
+        }
+    }, [popularMovies]);
+
+    useEffect(() => {
+        if (latestSeries?.data) {
+            setListSeries((prev) => {
+                const map = new Map(prev.map((m: any) => [m.id, m]));
+                latestSeries.data.forEach((x) => map.set(x.id, x));
+                return Array.from(map.values());
+            });
+        }
+    }, [latestSeries]);
+
+    useEffect(() => {
+        if (anime?.data) {
+            setListAnime((prev) => {
+                const map = new Map(prev.map((m: any) => [m.id, m]));
+                anime.data.forEach((x) => map.set(x.id, x));
+                return Array.from(map.values());
+            });
+        }
+    }, [anime]);
+
+    useEffect(() => {
+        if (indo?.data) {
+            setListIndo((prev) => {
+                const map = new Map(prev.map((m: any) => [m.id, m]));
+                indo.data.forEach((x) => map.set(x.id, x));
+                return Array.from(map.values());
+            });
+        }
+    }, [indo]);
+
+    useEffect(() => {
+        if (kdrama?.data) {
+            setListKdrama((prev) => {
+                const map = new Map(prev.map((m: any) => [m.id, m]));
+                kdrama.data.forEach((x) => map.set(x.id, x));
+                return Array.from(map.values());
+            });
+        }
+    }, [kdrama]);
+
+    // Loading and error states
+    const isLoading =
+        loadingLatest ||
+        loadingPopular ||
+        loadingSeries ||
+        loadingAnime ||
+        loadingIndo ||
+        loadingKDrama ||
+        loadingAdult;
+    const hasError =
+        errorLatest ||
+        errorPopular ||
+        errorSeries ||
+        errorAnime ||
+        errorIndo ||
+        errorKDrama ||
+        errorAdult;
+
+    if (isLoading) {
+        return (
+            <div className="container mx-auto px-4 py-6 space-y-8">
+                {/* Hero Skeleton */}
+                <div className="relative h-[50vh] sm:h-[60vh] md:h-[70vh] lg:h-[80vh] bg-muted animate-pulse rounded-xl" />
+
+                {/* Content Skeletons */}
+                <div className="space-y-8">
+                    <div className="space-y-4">
+                        <div className="h-8 w-48 bg-muted animate-pulse rounded" />
+                        <SkeletonGrid count={6} />
                     </div>
-                  ))}
+                    <div className="space-y-4">
+                        <div className="h-8 w-48 bg-muted animate-pulse rounded" />
+                        <SkeletonGrid count={6} />
+                    </div>
                 </div>
-              </div>
-
-              <div className="relative container mx-auto px-4 h-full flex flex-col justify-end pb-20">
-                {heroItem && (
-                  <div key={heroItem.id} className="space-y-4 max-w-3xl">
-                    <h1 className="text-4xl md:text-6xl font-bold">
-                      {heroItem.title}
-                    </h1>
-                    <div className="flex items-center gap-3 text-muted-foreground">
-                      {heroItem.year && <span>{heroItem.year}</span>}
-                      <span>•</span>
-                      <span className="flex items-center gap-1">
-                        <span className="font-semibold">{heroItem.rating?.toFixed ? heroItem.rating.toFixed(1) : heroItem.rating}</span>
-                        <span>/10</span>
-                      </span>
-                    </div>
-                    <p className="text-lg md:text-xl text-muted-foreground line-clamp-3">
-                      {heroItem.synopsis || 'Temukan film dan seri terbaru untuk ditonton.'}
-                    </p>
-                    <div className="flex gap-3">
-                      <Button asChild size="lg">
-                        <Link to={`/${heroItem.type}/${heroItem.id}`}>
-                          <Info />
-                          Lihat Detail
-                        </Link>
-                      </Button>
-                    </div>
-                  </div>
-                )}
-
-
-
-                {heroList.length > 1 && (
-                  <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
-                    {heroList.map((_, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => setHeroIndex(idx)}
-                        aria-label={`Slide ${idx + 1}`}
-                        className={`h-2 w-2 rounded-full ${idx === heroIndex ? 'bg-primary' : 'bg-white/50'}`}
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
-          </section>
-
-          <div className="container mx-auto px-4 py-8 space-y-12">
-            {latestMovies?.data && latestMovies.data.length > 0 && (
-              <div className="space-y-4">
-                <MovieCarousel title="Latest Movies" movies={listLatest} />
-                <Button asChild variant="outline"><Link to="/browse/latest-movies">Lihat lebih banyak</Link></Button>
-              </div>
-            )}
-
-            {popularMovies?.data && popularMovies.data.length > 0 && (
-              <div className="space-y-4">
-                <MovieCarousel title="Popular Movies" movies={listPopular} />
-                <Button asChild variant="outline"><Link to="/browse/popular-movies">Lihat lebih banyak</Link></Button>
-              </div>
-            )}
-
-            {latestSeries?.data && latestSeries.data.length > 0 && (
-              <div className="space-y-4">
-                <MovieCarousel title="Latest Series" movies={listSeries} />
-                <Button asChild variant="outline"><Link to="/browse/latest-series">Lihat lebih banyak</Link></Button>
-              </div>
-            )}
-
-            <div className="space-y-4">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-sm text-muted-foreground">Anime Filter:</span>
-                <Button variant={animeType === 'all' ? 'default' : 'outline'} size="sm" onClick={() => setAnimeType('all')}>Semua</Button>
-                <Button variant={animeType === 'tv' ? 'default' : 'outline'} size="sm" onClick={() => setAnimeType('tv')}>TV Series</Button>
-                <Button variant={animeType === 'movie' ? 'default' : 'outline'} size="sm" onClick={() => setAnimeType('movie')}>Movie</Button>
-                <span className="mx-2 text-muted-foreground">|</span>
-                <Button variant={animeAudio === 'all' ? 'default' : 'outline'} size="sm" onClick={() => setAnimeAudio('all')}>All</Button>
-                <Button variant={animeAudio === 'sub' ? 'default' : 'outline'} size="sm" onClick={() => setAnimeAudio('sub')}>Sub</Button>
-                <Button variant={animeAudio === 'dub' ? 'default' : 'outline'} size="sm" onClick={() => setAnimeAudio('dub')}>Dub</Button>
-              </div>
-              {anime?.data && anime.data.length > 0 && (
-                <div className="space-y-4">
-                  <MovieCarousel title="Anime" movies={listAnime} />
-                  <Button asChild variant="outline"><Link to={`/browse/anime?type=${animeType}&audio=${animeAudio}`}>Lihat lebih banyak</Link></Button>
-                </div>
-              )}
             </div>
+        );
+    }
 
-            {indo?.data && indo.data.length > 0 && (
-              <div className="space-y-4">
-                <MovieCarousel title="Indonesian Movies" movies={listIndo} />
-                <Button asChild variant="outline"><Link to="/browse/indonesian-movies">Lihat lebih banyak</Link></Button>
-              </div>
-            )}
+    if (hasError) {
+        return (
+            <div className="container mx-auto px-4 py-8">
+                <Alert variant="destructive" className="max-w-2xl mx-auto">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>
+                        Failed to load movies. Please check your internet
+                        connection and try again.
+                    </AlertDescription>
+                </Alert>
+            </div>
+        );
+    }
 
-            {kdrama?.data && kdrama.data.length > 0 && (
-              <div className="space-y-4">
-                <MovieCarousel title="Korean Drama" movies={listKdrama} />
-                <Button asChild variant="outline"><Link to="/browse/korean-drama">Lihat lebih banyak</Link></Button>
-              </div>
-            )}
+    // Section component for cleaner code
+    const Section = ({
+        title,
+        icon,
+        movies,
+        link,
+        children,
+    }: {
+        title: string;
+        icon?: React.ReactNode;
+        movies: any[];
+        link: string;
+        children?: React.ReactNode;
+    }) => (
+        <section className="space-y-4 md:space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                    <div className="h-8 w-1 bg-gradient-to-b from-primary to-primary/50 rounded-full" />
+                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
+                        {title}
+                    </h2>
+                    {icon && <div className="text-primary">{icon}</div>}
+                </div>
+                {children}
+                <Button
+                    asChild
+                    variant="ghost"
+                    size="sm"
+                    className="self-start sm:self-auto hover:bg-primary/10 transition-all group"
+                >
+                    <Link to={link}>
+                        <span className="hidden sm:inline">View All</span>
+                        <span className="sm:hidden">See More</span>
+                        <svg
+                            className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M9 5l7 7-7 7"
+                            />
+                        </svg>
+                    </Link>
+                </Button>
+            </div>
+            <MovieCarousel title="" movies={movies} />
+        </section>
+    );
 
-            {adult?.data && adult.data.length > 0 && (
-              <div className="space-y-4">
-                <MovieCarousel title="Romance" movies={adult.data} />
-                <Button asChild variant="outline"><Link to="/browse/adult-movies">Lihat lebih banyak</Link></Button>
-              </div>
-            )}
-          </div>
-      </>
-  );
+    return (
+        <div className="min-h-screen bg-background">
+            {/* Hero Section */}
+            <section className="relative h-[50vh] sm:h-[60vh] md:h-[70vh] lg:h-[80vh] overflow-hidden">
+                {/* Background Images */}
+                <div className="absolute inset-0">
+                    <div
+                        className="flex h-full transition-transform duration-1000 ease-out"
+                        style={{
+                            transform: `translateX(-${heroIndex * 100}%)`,
+                        }}
+                    >
+                        {heroList.map((item, idx) => (
+                            <div
+                                key={item.id ?? idx}
+                                className="relative min-w-full h-full"
+                            >
+                                {item.cover ? (
+                                    <>
+                                        <img
+                                            src={item.cover}
+                                            className="w-full h-full object-cover"
+                                            alt={item.title}
+                                            loading={
+                                                idx === 0 ? "eager" : "lazy"
+                                            }
+                                        />
+                                        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/60 to-transparent" />
+                                    </>
+                                ) : (
+                                    <div className="w-full h-full bg-gradient-to-br from-primary/20 to-accent/20" />
+                                )}
+                                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Hero Content */}
+                <div className="relative container mx-auto px-4 h-full flex items-end pb-8 sm:pb-12 md:pb-16">
+                    {heroItem && (
+                        <div className="space-y-3 sm:space-y-4 md:space-y-6 max-w-full sm:max-w-2xl lg:max-w-3xl">
+                            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold tracking-tight line-clamp-2 drop-shadow-lg">
+                                {heroItem.title}
+                            </h1>
+
+                            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                                {heroItem.year && (
+                                    <span className="px-3 py-1 rounded-full bg-background/80 backdrop-blur-sm text-xs sm:text-sm font-medium">
+                                        {heroItem.year}
+                                    </span>
+                                )}
+                                {heroItem.rating && (
+                                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-background/80 backdrop-blur-sm">
+                                        <Star className="w-3 h-3 sm:w-4 sm:h-4 fill-primary text-primary" />
+                                        <span className="text-xs sm:text-sm font-bold">
+                                            {heroItem.rating.toFixed
+                                                ? heroItem.rating.toFixed(1)
+                                                : heroItem.rating}
+                                        </span>
+                                    </div>
+                                )}
+                                {heroItem.quality && (
+                                    <span className="px-3 py-1 rounded-full bg-primary/20 backdrop-blur-sm text-xs sm:text-sm font-medium text-primary">
+                                        {heroItem.quality}
+                                    </span>
+                                )}
+                            </div>
+
+                            <p className="text-sm sm:text-base md:text-lg text-foreground/80 line-clamp-2 sm:line-clamp-3 max-w-xl lg:max-w-2xl">
+                                {heroItem.synopsis ||
+                                    "Discover the latest movies and series to watch."}
+                            </p>
+
+                            <div className="flex flex-wrap gap-2 sm:gap-3 pt-2">
+                                <Button
+                                    asChild
+                                    size="default"
+                                    className="gap-2 shadow-lg hover:shadow-xl transition-all hover:scale-105 text-sm sm:text-base"
+                                >
+                                    <Link
+                                        to={`/${heroItem.type}/${heroItem.id}`}
+                                    >
+                                        <Play className="w-4 h-4" />
+                                        <span className="hidden xs:inline">
+                                            Watch Now
+                                        </span>
+                                        <span className="xs:hidden">Play</span>
+                                    </Link>
+                                </Button>
+                                <Button
+                                    asChild
+                                    size="default"
+                                    variant="outline"
+                                    className="gap-2 backdrop-blur-sm bg-background/60 hover:bg-background/80 shadow-lg transition-all hover:scale-105 text-sm sm:text-base"
+                                >
+                                    <Link
+                                        to={`/${heroItem.type}/${heroItem.id}`}
+                                    >
+                                        <Info className="w-4 h-4" />
+                                        <span className="hidden xs:inline">
+                                            More Info
+                                        </span>
+                                        <span className="xs:hidden">Info</span>
+                                    </Link>
+                                </Button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                {/* Hero Indicators */}
+                {heroList.length > 1 && (
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                        {heroList.map((_, idx) => (
+                            <button
+                                key={idx}
+                                onClick={() => setHeroIndex(idx)}
+                                aria-label={`Go to slide ${idx + 1}`}
+                                className={cn(
+                                    "h-1.5 rounded-full transition-all duration-300",
+                                    idx === heroIndex
+                                        ? "bg-primary w-8"
+                                        : "bg-white/40 hover:bg-white/60 w-4"
+                                )}
+                            />
+                        ))}
+                    </div>
+                )}
+            </section>
+
+            {/* Main Content */}
+            <main className="container mx-auto px-4 py-8 sm:py-12 space-y-12 sm:space-y-16">
+                {/* Latest Movies */}
+                {listLatest.length > 0 && (
+                    <Section
+                        title="Latest Movies"
+                        icon={<Sparkles className="w-5 h-5 animate-pulse" />}
+                        movies={listLatest}
+                        link="/browse/latest-movies"
+                    />
+                )}
+
+                {/* Popular Movies */}
+                {listPopular.length > 0 && (
+                    <Section
+                        title="Popular Movies"
+                        icon={<TrendingUp className="w-5 h-5" />}
+                        movies={listPopular}
+                        link="/browse/popular-movies"
+                    />
+                )}
+
+                {/* Latest Series */}
+                {listSeries.length > 0 && (
+                    <Section
+                        title="Latest Series"
+                        icon={<Tv className="w-5 h-5" />}
+                        movies={listSeries}
+                        link="/browse/latest-series"
+                    />
+                )}
+
+                {/* Anime Section with Filters */}
+                {(listAnime.length > 0 || loadingAnime) && (
+                    <section className="space-y-4 md:space-y-6">
+                        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                            <div className="flex items-center gap-3">
+                                <div className="h-8 w-1 bg-gradient-to-b from-primary to-primary/50 rounded-full" />
+                                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
+                                    Anime
+                                </h2>
+                                <Film className="w-5 h-5 text-primary" />
+                            </div>
+
+                            {/* Filter Buttons */}
+                            <div className="flex flex-wrap items-center gap-2">
+                                <div className="flex items-center p-1 rounded-lg bg-muted/50">
+                                    {(["all", "tv", "movie"] as const).map(
+                                        (type) => (
+                                            <Button
+                                                key={type}
+                                                variant={
+                                                    animeType === type
+                                                        ? "default"
+                                                        : "ghost"
+                                                }
+                                                size="sm"
+                                                onClick={() =>
+                                                    setAnimeType(type)
+                                                }
+                                                className="capitalize text-xs sm:text-sm transition-all"
+                                            >
+                                                {type === "all"
+                                                    ? "All"
+                                                    : type === "tv"
+                                                    ? "TV"
+                                                    : "Movie"}
+                                            </Button>
+                                        )
+                                    )}
+                                </div>
+
+                                <div className="flex items-center p-1 rounded-lg bg-muted/50">
+                                    {(["all", "sub", "dub"] as const).map(
+                                        (audio) => (
+                                            <Button
+                                                key={audio}
+                                                variant={
+                                                    animeAudio === audio
+                                                        ? "default"
+                                                        : "ghost"
+                                                }
+                                                size="sm"
+                                                onClick={() =>
+                                                    setAnimeAudio(audio)
+                                                }
+                                                className="capitalize text-xs sm:text-sm transition-all"
+                                            >
+                                                {audio === "all"
+                                                    ? "All"
+                                                    : audio.toUpperCase()}
+                                            </Button>
+                                        )
+                                    )}
+                                </div>
+                            </div>
+
+                            <Button
+                                asChild
+                                variant="ghost"
+                                size="sm"
+                                className="self-start lg:self-auto hover:bg-primary/10 transition-all group"
+                            >
+                                <Link
+                                    to={`/browse/anime?type=${animeType}&audio=${animeAudio}`}
+                                >
+                                    <span className="hidden sm:inline">
+                                        View All
+                                    </span>
+                                    <span className="sm:hidden">See More</span>
+                                    <svg
+                                        className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M9 5l7 7-7 7"
+                                        />
+                                    </svg>
+                                </Link>
+                            </Button>
+                        </div>
+
+                        {listAnime.length > 0 && (
+                            <MovieCarousel title="" movies={listAnime} />
+                        )}
+                    </section>
+                )}
+
+                {/* Indonesian Movies */}
+                {listIndo.length > 0 && (
+                    <Section
+                        title="Indonesian Movies"
+                        icon={<Globe className="w-5 h-5" />}
+                        movies={listIndo}
+                        link="/browse/indonesian-movies"
+                    />
+                )}
+
+                {/* Korean Drama */}
+                {listKdrama.length > 0 && (
+                    <Section
+                        title="Korean Drama"
+                        icon={<Heart className="w-5 h-5" />}
+                        movies={listKdrama}
+                        link="/browse/korean-drama"
+                    />
+                )}
+
+                {/* Romance */}
+                {adult?.data && adult.data.length > 0 && (
+                    <Section
+                        title="Romance"
+                        icon={<Heart className="w-5 h-5 text-pink-500" />}
+                        movies={adult.data}
+                        link="/browse/adult-movies"
+                    />
+                )}
+            </main>
+        </div>
+    );
 }

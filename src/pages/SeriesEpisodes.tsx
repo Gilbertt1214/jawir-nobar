@@ -27,9 +27,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { useState, useMemo } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-
-// Import tipe dari API
-import { Episode, Movie as Series } from "@/services/api";
+import { Episode, Movie } from "@/services/api"; 
 
 interface SeasonDetail {
     id: number;
@@ -48,18 +46,22 @@ export default function SeriesEpisodes() {
         "episode"
     );
 
-    // Fetch series details (includes season info)
+    // ✅ Gunakan tipe 'Movie' karena 'Series' tidak didefinisikan
     const {
-        data: series,
+        data: series, // ❗️ Ini sebenarnya adalah objek 'Movie' dengan type: 'series'
         isLoading: seriesLoading,
         error: seriesError,
-    } = useQuery<Series, Error>({
+    } = useQuery<Movie, Error>({
         queryKey: ["series", id],
         queryFn: async () => {
             if (!id) throw new Error("Series ID is required");
             const response = await movieAPI.getSeriesById(id);
             if (!response) {
                 throw new Error("Series not found");
+            }
+            // ❗️ Pastikan ini adalah series, bukan movie
+            if (response.type !== "series") {
+                throw new Error("Requested item is not a series");
             }
             return response;
         },
@@ -68,13 +70,14 @@ export default function SeriesEpisodes() {
     });
 
     // Extract season details from series data
+    // ✅ Akses 'seasons' dari `series.seasons`, tapi pastikan tipe `series` adalah `any` untuk mengakses properti TMDB
     const seasonDetails = useMemo(() => {
-        if (!series?.seasons) return {};
+        // ❗️ Type assertion karena 'seasons' bukan bagian dari tipe `Movie`
+        const tmdbData = series as any;
+        if (!tmdbData?.seasons) return {};
         const details: Record<number, SeasonDetail> = {};
-        series.seasons.forEach((s: any) => {
-            // Gunakan 'any' untuk sementara karena struktur TMDB bisa kompleks
+        tmdbData.seasons.forEach((s: any) => {
             if (s.season_number > 0) {
-                // Abaikan season 0 (Specials) jika diinginkan
                 details[s.season_number] = {
                     id: s.season_number,
                     name: s.name || `Season ${s.season_number}`,
@@ -101,13 +104,11 @@ export default function SeriesEpisodes() {
             if (!id) throw new Error("Series ID is required");
             const eps = await movieAPI.getEpisodes(id);
 
-            // Validasi bahwa data adalah array
             if (!Array.isArray(eps)) {
                 console.error("Episodes data is not an array:", eps);
                 return [];
             }
 
-            // Validasi setiap episode
             const validEpisodes = eps.filter(
                 (ep) =>
                     ep &&
@@ -124,7 +125,7 @@ export default function SeriesEpisodes() {
             return validEpisodes;
         },
         enabled: !!id,
-        staleTime: 5 * 60 * 1000, // 5 menit
+        staleTime: 5 * 60 * 1000,
         retry: 2,
     });
 
@@ -144,7 +145,6 @@ export default function SeriesEpisodes() {
             groups[ep.seasonNumber].push(ep);
         });
 
-        // Sort episodes within each season
         Object.keys(groups).forEach((seasonNum) => {
             const season = Number(seasonNum);
             groups[season].sort((a, b) => {
@@ -366,7 +366,7 @@ export default function SeriesEpisodes() {
                                                             .slice(0, 3)
                                                             .map((g, i) => (
                                                                 <Badge
-                                                                    key={i} // Gunakan index jika genre bisa duplikat
+                                                                    key={i}
                                                                     variant="secondary"
                                                                     className="font-medium"
                                                                 >

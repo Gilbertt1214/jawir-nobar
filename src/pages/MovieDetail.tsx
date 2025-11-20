@@ -82,13 +82,13 @@ export default function MovieDetail() {
 
     if (isLoading) {
         return (
-            <div className="container mx-auto px-4 py-8">
-                <div className="grid md:grid-cols-3 gap-8">
+            <div className="container mx-auto px-4 py-6">
+                <div className="grid grid-cols-1 gap-6">
                     <Skeleton className="aspect-[2/3] w-full rounded-lg" />
-                    <div className="md:col-span-2 space-y-4">
-                        <Skeleton className="h-12 w-3/4" />
-                        <Skeleton className="h-6 w-1/2" />
-                        <Skeleton className="h-32 w-full" />
+                    <div className="space-y-4">
+                        <Skeleton className="h-8 w-3/4" />
+                        <Skeleton className="h-4 w-1/2" />
+                        <Skeleton className="h-20 w-full" />
                     </div>
                 </div>
             </div>
@@ -97,12 +97,12 @@ export default function MovieDetail() {
 
     if (error || !movie) {
         return (
-            <div className="container mx-auto px-4 py-8">
+            <div className="container mx-auto px-4 py-6">
                 <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
                         Film atau series tidak ditemukan atau gagal dimuat.
-                        <Link to="/" className="ml-2 underline">
+                        <Link to="/" className="ml-2 underline block mt-2">
                             Kembali ke beranda
                         </Link>
                     </AlertDescription>
@@ -112,9 +112,9 @@ export default function MovieDetail() {
     }
 
     return (
-        <div className="min-h-screen pb-24">
+        <div className="min-h-screen pb-16">
             {/* Backdrop */}
-            <div className="relative h-[400px] -mt-16 overflow-hidden">
+            <div className="relative h-[200px] sm:h-[300px] -mt-16 sm:-mt-24 overflow-hidden">
                 <div
                     className="absolute inset-0 bg-cover bg-center"
                     style={{
@@ -127,8 +127,8 @@ export default function MovieDetail() {
                 </div>
             </div>
 
-            <div className="container mx-auto px-4 -mt-32 relative z-10">
-                <div className="grid md:grid-cols-3 gap-8">
+            <div className="container mx-auto px-4 sm:px-6 -mt-20 sm:-mt-32 relative z-10">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {/* Poster */}
                     <div className="space-y-4">
                         <img
@@ -142,13 +142,13 @@ export default function MovieDetail() {
                         />
                         {movie.trailer && (
                             <Button
-                                className="w-full"
+                                className="w-full text-sm"
                                 size="lg"
                                 onClick={() =>
                                     window.open(movie.trailer, "_blank")
                                 }
                             >
-                                <Play className="mr-2 h-5 w-5" />
+                                <Play className="mr-2 h-4 w-4" />
                                 Watch Trailer
                             </Button>
                         )}
@@ -157,37 +157,37 @@ export default function MovieDetail() {
                     {/* Details */}
                     <div className="md:col-span-2 space-y-6">
                         <div>
-                            <h1 className="text-4xl md:text-5xl font-bold mb-4">
+                            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3">
                                 {movie.title}
                             </h1>
 
-                            <div className="flex flex-wrap items-center gap-4 mb-6">
+                            <div className="flex flex-wrap items-center gap-2 mb-3">
                                 {movie.rating && (
-                                    <div className="flex items-center gap-2">
-                                        <Star className="h-5 w-5 fill-accent text-accent" />
-                                        <span className="text-xl font-semibold">
+                                    <div className="flex items-center gap-1.5">
+                                        <Star className="h-4 w-4 fill-accent text-accent" />
+                                        <span className="font-semibold text-sm">
                                             {movie.rating.toFixed(1)}
                                         </span>
                                     </div>
                                 )}
 
                                 {movie.year && (
-                                    <div className="flex items-center gap-2 text-muted-foreground">
-                                        <Calendar className="h-4 w-4" />
+                                    <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
+                                        <Calendar className="h-3 w-3" />
                                         <span>{movie.year}</span>
                                     </div>
                                 )}
 
                                 {movie.country && (
-                                    <div className="flex items-center gap-2 text-muted-foreground">
-                                        <Globe className="h-4 w-4" />
+                                    <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
+                                        <Globe className="h-3 w-3" />
                                         <span>{movie.country}</span>
                                     </div>
                                 )}
                             </div>
 
                             {movie.genre && movie.genre.length > 0 && (
-                                <div className="flex flex-wrap gap-2 mb-6">
+                                <div className="flex flex-wrap gap-1 mb-3">
                                     {movie.genre.map((g) => (
                                         <Link
                                             key={g}
@@ -197,7 +197,7 @@ export default function MovieDetail() {
                                         >
                                             <Badge
                                                 variant="secondary"
-                                                className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-smooth"
+                                                className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-smooth text-xs py-1 px-2"
                                             >
                                                 {g}
                                             </Badge>
@@ -209,10 +209,10 @@ export default function MovieDetail() {
 
                         {movie.synopsis && (
                             <div>
-                                <h2 className="text-2xl font-semibold mb-3">
+                                <h2 className="text-lg font-semibold mb-2">
                                     Synopsis
                                 </h2>
-                                <p className="text-muted-foreground leading-relaxed">
+                                <p className="text-muted-foreground leading-relaxed text-sm">
                                     {movie.synopsis}
                                 </p>
                             </div>
@@ -221,14 +221,14 @@ export default function MovieDetail() {
                         {/* Cast Section */}
                         {movie.cast && movie.cast.length > 0 && (
                             <div>
-                                <h2 className="text-2xl font-semibold mb-3">
+                                <h2 className="text-lg font-semibold mb-2">
                                     Cast
                                 </h2>
-                                <div className="flex gap-4 overflow-x-auto pb-2">
+                                <div className="flex gap-3 overflow-x-auto pb-2">
                                     {movie.cast.map((actor) => (
                                         <div
                                             key={actor.id}
-                                            className="flex-shrink-0 text-center"
+                                            className="flex-shrink-0 text-center min-w-[70px] sm:min-w-[80px]"
                                         >
                                             <img
                                                 src={
@@ -236,7 +236,7 @@ export default function MovieDetail() {
                                                     "/placeholder.svg"
                                                 }
                                                 alt={actor.name}
-                                                className="w-20 h-20 rounded-full object-cover mb-2"
+                                                className="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover mb-1 sm:mb-2"
                                                 onError={(e) => {
                                                     const target =
                                                         e.target as HTMLImageElement;
@@ -244,11 +244,11 @@ export default function MovieDetail() {
                                                         "/placeholder.svg";
                                                 }}
                                             />
-                                            <p className="text-sm font-medium">
+                                            <p className="text-xs font-medium truncate max-w-[70px] sm:max-w-[80px]">
                                                 {actor.name}
                                             </p>
                                             {actor.character && (
-                                                <p className="text-xs text-muted-foreground">
+                                                <p className="text-xs text-muted-foreground truncate max-w-[70px] sm:max-w-[80px]">
                                                     {actor.character}
                                                 </p>
                                             )}
@@ -261,11 +261,14 @@ export default function MovieDetail() {
                         {/* Episodes for Series */}
                         {movie.type === "series" && (
                             <div>
-                                <h2 className="text-2xl font-semibold mb-3">
+                                <h2 className="text-lg font-semibold mb-2">
                                     Episodes
                                 </h2>
                                 <Link to={`/series/${id}/episodes`}>
-                                    <Button variant="outline">
+                                    <Button
+                                        variant="outline"
+                                        className="text-sm"
+                                    >
                                         <Play className="mr-2 h-4 w-4" />
                                         View All Episodes
                                     </Button>
@@ -277,12 +280,14 @@ export default function MovieDetail() {
                         {movie.type === "movie" && (
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>Watch Movie</CardTitle>
+                                    <CardTitle className="text-lg">
+                                        Watch Movie
+                                    </CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <Alert className="mb-4">
                                         <AlertCircle className="h-4 w-4" />
-                                        <AlertDescription>
+                                        <AlertDescription className="text-xs">
                                             Streaming disediakan oleh pihak
                                             ketiga. Jika player tidak bekerja,
                                             coba provider lain atau refresh
@@ -290,25 +295,49 @@ export default function MovieDetail() {
                                         </AlertDescription>
                                     </Alert>
 
-                                    {/* Provider Selection */}
+                                    {/* Provider Selection - Scrollable Only on Mobile */}
                                     <Tabs
                                         value={String(selectedProvider)}
                                         onValueChange={(v) =>
                                             handleProviderChange(Number(v))
                                         }
                                     >
-                                        <TabsList className="grid grid-cols-3 lg:grid-cols-5 mb-4">
-                                            {streamingProviders.map(
-                                                (provider, index) => (
+                                        <div className="relative">
+                                            {/* Mobile: Scrollable Flex */}
+                                            <TabsList className="flex flex-wrap gap-1 mb-4 overflow-x-auto pb-2">
+                                                {streamingProviders.map(
+                                                    (provider, index) => (
+                                                        <TabsTrigger
+                                                            key={index}
+                                                            value={String(
+                                                                index
+                                                            )}
+                                                            className="flex-shrink-0 text-xs py-1.5 px-3 whitespace-nowrap"
+                                                        >
+                                                            {provider.name}
+                                                        </TabsTrigger>
+                                                    )
+                                                )}
+                                            </TabsList>
+
+                                            {/* Desktop: Grid (optional fallback, but we keep flex for consistency) */}
+                                            {/* Jika ingin grid di desktop, gunakan ini instead:
+                                            <TabsList className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 mb-4">
+                                                {streamingProviders.map((provider, index) => (
                                                     <TabsTrigger
                                                         key={index}
                                                         value={String(index)}
+                                                        className="text-xs py-1.5"
                                                     >
                                                         {provider.name}
                                                     </TabsTrigger>
-                                                )
-                                            )}
-                                        </TabsList>
+                                                ))}
+                                            </TabsList>
+                                            */}
+
+                                            {/* Gradient hint for scroll */}
+                                            <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent pointer-events-none" />
+                                        </div>
 
                                         {streamingProviders.map(
                                             (provider, index) => (
@@ -318,8 +347,11 @@ export default function MovieDetail() {
                                                 >
                                                     <div className="space-y-4">
                                                         {/* Provider Info */}
-                                                        <div className="flex items-center justify-between mb-2">
-                                                            <Badge variant="outline">
+                                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+                                                            <Badge
+                                                                variant="outline"
+                                                                className="text-xs py-1"
+                                                            >
                                                                 Provider:{" "}
                                                                 {provider.name}
                                                             </Badge>
@@ -332,18 +364,19 @@ export default function MovieDetail() {
                                                                         "_blank"
                                                                     )
                                                                 }
+                                                                className="text-xs px-2 py-1"
                                                             >
-                                                                <ExternalLink className="h-4 w-4 mr-2" />
-                                                                Open in New Tab
+                                                                <ExternalLink className="h-4 w-4 mr-1" />
+                                                                New Tab
                                                             </Button>
                                                         </div>
 
                                                         {/* Video Player */}
                                                         {providerError ? (
-                                                            <div className="relative aspect-video bg-black rounded-lg overflow-hidden flex items-center justify-center">
-                                                                <div className="text-center text-white space-y-4">
-                                                                    <AlertCircle className="h-12 w-12 mx-auto text-red-500" />
-                                                                    <p>
+                                                            <div className="relative aspect-video bg-black rounded-lg overflow-hidden flex items-center justify-center min-h-[200px]">
+                                                                <div className="text-center text-white space-y-3 p-4">
+                                                                    <AlertCircle className="h-10 w-10 mx-auto text-red-500" />
+                                                                    <p className="text-sm">
                                                                         Provider
                                                                         ini
                                                                         tidak
@@ -357,6 +390,7 @@ export default function MovieDetail() {
                                                                                 false
                                                                             )
                                                                         }
+                                                                        className="text-xs"
                                                                     >
                                                                         <RefreshCw className="h-4 w-4 mr-2" />
                                                                         Coba
@@ -385,7 +419,7 @@ export default function MovieDetail() {
                                                         )}
 
                                                         {/* Alternative Actions */}
-                                                        <div className="flex gap-2 mt-4">
+                                                        <div className="flex flex-wrap gap-2 mt-2">
                                                             <Button
                                                                 variant="outline"
                                                                 size="sm"
@@ -405,6 +439,7 @@ export default function MovieDetail() {
                                                                         false
                                                                     );
                                                                 }}
+                                                                className="text-xs"
                                                             >
                                                                 Try Next
                                                                 Provider
@@ -415,6 +450,7 @@ export default function MovieDetail() {
                                                                 onClick={() =>
                                                                     window.location.reload()
                                                                 }
+                                                                className="text-xs"
                                                             >
                                                                 <RefreshCw className="h-4 w-4 mr-2" />
                                                                 Refresh Page
@@ -441,12 +477,14 @@ export default function MovieDetail() {
                         )}
 
                         {/* Comments Section */}
-                        <Card className="mt-8">
+                        <Card className="mt-6">
                             <CardHeader>
-                                <CardTitle>Comments</CardTitle>
+                                <CardTitle className="text-lg">
+                                    Comments
+                                </CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <div className="grid md:grid-cols-2 gap-4 mb-4">
+                                <div className="grid grid-cols-1 gap-3 mb-4">
                                     <Input
                                         placeholder="Your name"
                                         value={name}
@@ -454,6 +492,7 @@ export default function MovieDetail() {
                                             setName(e.target.value)
                                         }
                                         maxLength={50}
+                                        className="text-sm"
                                     />
                                     <Textarea
                                         placeholder="Your message"
@@ -461,12 +500,12 @@ export default function MovieDetail() {
                                         onChange={(e) =>
                                             setMessage(e.target.value)
                                         }
-                                        className="md:col-span-2"
+                                        className="text-sm"
                                         maxLength={500}
                                     />
                                 </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-sm text-muted-foreground">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                    <span className="text-xs text-muted-foreground">
                                         {message.length}/500 characters
                                     </span>
                                     <Button
@@ -474,14 +513,15 @@ export default function MovieDetail() {
                                         disabled={
                                             !name.trim() || !message.trim()
                                         }
+                                        className="text-xs"
                                     >
                                         Send Comment
                                     </Button>
                                 </div>
 
-                                <div className="mt-6 space-y-4">
+                                <div className="mt-4 space-y-3">
                                     {comments.length === 0 ? (
-                                        <p className="text-muted-foreground text-center py-8">
+                                        <p className="text-muted-foreground text-center py-4 text-sm">
                                             Belum ada komentar. Jadilah yang
                                             pertama!
                                         </p>
@@ -489,13 +529,13 @@ export default function MovieDetail() {
                                         comments.map((c, idx) => (
                                             <div
                                                 key={`${c.time}-${idx}`}
-                                                className="p-4 rounded-lg border bg-background"
+                                                className="p-3 rounded-lg border bg-background"
                                             >
-                                                <div className="flex items-center justify-between mb-2">
-                                                    <span className="font-semibold">
+                                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-1">
+                                                    <span className="font-semibold text-sm">
                                                         {c.name}
                                                     </span>
-                                                    <span className="text-xs text-muted-foreground">
+                                                    <span className="text-xs text-muted-foreground text-right">
                                                         {new Date(
                                                             c.time
                                                         ).toLocaleString(
@@ -503,7 +543,7 @@ export default function MovieDetail() {
                                                         )}
                                                     </span>
                                                 </div>
-                                                <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                                                <p className="text-xs text-muted-foreground whitespace-pre-wrap">
                                                     {c.message}
                                                 </p>
                                             </div>
