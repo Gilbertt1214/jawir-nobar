@@ -268,7 +268,7 @@ export default function BrowseCategory() {
                                         })
                                     }
                                 >
-                                    TV
+                                    EPISODE
                                 </Button>
                                 <Button
                                     variant={
