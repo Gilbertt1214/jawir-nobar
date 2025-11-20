@@ -21,51 +21,81 @@ import NotFound from "./pages/NotFound";
 import AnimeDetail from "./pages/AnimeDetail";
 import BrowseCategory from "./pages/BrowseCategory";
 
-
 const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutes
-      refetchOnWindowFocus: false,
+    defaultOptions: {
+        queries: {
+            staleTime: 1000 * 60 * 5, // 5 minutes
+            refetchOnWindowFocus: false,
+        },
     },
-  },
 });
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <div className="flex flex-col min-h-screen">
-            <Navbar />
-            <main className="flex-1">
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/movie/:id" element={<MovieDetail />} />
-                <Route path="/series/:id" element={<MovieDetail />} />
-                <Route path="/series/:id/episodes" element={<SeriesEpisodes />} />
-                <Route path="/series/:seriesId/episodes/:episodeId" element={<EpisodeDetail />} />
-                <Route path="/anime/:malId/:number/:subOrDub" element={<AnimeDetail />} />
-                <Route path="/browse/:category" element={<BrowseCategory />} />
-                <Route path="/search" element={<Search />} />
-                <Route path="/genres" element={<GenreList />} />
-                <Route path="/genre/:genre" element={<GenreMovies />} />
-                <Route path="/countries" element={<CountryList />} />
-                <Route path="/country/:country" element={<CountryMovies />} />
-                <Route path="/years" element={<YearList />} />
-                <Route path="/year/:year" element={<YearMovies />} />
-                <Route path="/anime/:malId/:number/:subOrDub" element={<AnimeDetail />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </main>
-            <Footer />
-          </div>
-        </BrowserRouter>
-      </TooltipProvider>
-    </ThemeProvider>
-  </QueryClientProvider>
+    <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+            <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
+                    <div className="flex flex-col min-h-screen">
+                        <Navbar />
+                        <main className="flex-1">
+                            <Routes>
+                                <Route path="/" element={<Home />} />
+                                <Route
+                                    path="/movie/:id"
+                                    element={<MovieDetail />}
+                                />
+                                <Route
+                                    path="/series/:id"
+                                    element={<MovieDetail />}
+                                />
+                                <Route
+                                    path="/series/:id/episodes"
+                                    element={<SeriesEpisodes />}
+                                />
+                                {/* Rute ini sekarang sesuai untuk query params */}
+                                <Route
+                                    path="/series/:seriesId/watch"
+                                    element={<EpisodeDetail />}
+                                />
+                                <Route
+                                    path="/anime/:malId/:number/:subOrDub"
+                                    element={<AnimeDetail />}
+                                />
+                                <Route
+                                    path="/browse/:category"
+                                    element={<BrowseCategory />}
+                                />
+                                <Route path="/search" element={<Search />} />
+                                <Route path="/genres" element={<GenreList />} />
+                                <Route
+                                    path="/genre/:genre"
+                                    element={<GenreMovies />}
+                                />
+                                <Route
+                                    path="/countries"
+                                    element={<CountryList />}
+                                />
+                                <Route
+                                    path="/country/:country"
+                                    element={<CountryMovies />}
+                                />
+                                <Route path="/years" element={<YearList />} />
+                                <Route
+                                    path="/year/:year"
+                                    element={<YearMovies />}
+                                />
+                                {/* Rute ini harus berada di paling bawah */}
+                                <Route path="*" element={<NotFound />} />
+                            </Routes>
+                        </main>
+                        <Footer />
+                    </div>
+                </BrowserRouter>
+            </TooltipProvider>
+        </ThemeProvider>
+    </QueryClientProvider>
 );
 
 export default App;

@@ -4,7 +4,10 @@ const API_HOSTS = [import.meta.env.VITE_API_BASE_URL || "/__vidlink"].filter(
 
 const TMDB_BASE = "https://api.themoviedb.org/3";
 const TMDB_KEY =
-    import.meta.env.VITE_TMDB_API_KEY || "9998d44e51ed7634a06c4198b289bfe4"; // Ganti dengan API key Anda
+    import.meta.env.VITE_TMDB_API_KEY || "9998d44e51ed7634a06c4198b289bfe4";
+
+// Base URL untuk API Otakudesu
+const OTAKUDESU_API_BASE = "https://otakudesu-anime-api.vercel.app/api/v1";
 
 // Alternative streaming providers
 const STREAMING_PROVIDERS = {
@@ -43,6 +46,33 @@ export interface Movie {
     cast?: PersonCast[];
     crew?: PersonCrew[];
     type: "movie" | "series";
+}
+
+// Tipe data baru untuk Anime dari Otakudesu API
+export interface OtakudesuAnime {
+    id: string; // ID Otakudesu
+    title: string;
+    cover: string; // URL gambar cover
+    rating: number;
+    genre: string[];
+    status: string; // "Ongoing", "Completed", dll
+    type: string; // "TV", "Movie", "OVA", dll
+    totalEpisodes: string; // String karena bisa berupa "12" atau "Unknown"
+    year: string;
+    synopsis: string;
+    trailer?: string;
+    episodeList: OtakudesuEpisode[];
+    malId?: string; // Jika tersedia
+    anilistId?: string; // Jika tersedia
+}
+
+export interface OtakudesuEpisode {
+    id: string; // Endpoint episode, misalnya "episode-1"
+    title: string;
+    episodeNumber: number;
+    date: string; // Tanggal rilis, misalnya "2023-10-01"
+    url: string; // URL untuk menonton episode
+    batchUrl?: string; // Jika tersedia
 }
 
 export interface Episode {
@@ -112,7 +142,6 @@ class MovieAPI {
                 available: true,
             });
         } else {
-            // For TV series
             providers.push({
                 name: "VidSrc",
                 url: `${STREAMING_PROVIDERS.vidsrc}/tv/${movieId}`,
@@ -158,6 +187,23 @@ class MovieAPI {
         ];
     }
 
+    // --- Metode Baru untuk Otakudesu API ---
+
+    // Get anime streaming URL using Vidlink (requires MAL ID)
+    getAnimeStreamingUrl(
+        malId: string,
+        episodeNumber: number,
+        subOrDub: "sub" | "dub" = "sub"
+    ): StreamingProvider[] {
+        return [
+            {
+                name: "VidLink Anime",
+                url: `https://vidlink.pro/anime/${malId}/${episodeNumber}/${subOrDub}?player=jw`,
+                available: true,
+            },
+        ];
+    }
+
     private async fetchWithFallback(endpoint: string, options?: RequestInit) {
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 10000);
@@ -190,7 +236,6 @@ class MovieAPI {
             lastError = error;
             console.error("API request failed:", error);
 
-            // Return offline/mock data in development
             if (import.meta.env.DEV) {
                 return this.offlineResponse(endpoint);
             }
@@ -198,6 +243,41 @@ class MovieAPI {
             throw lastError instanceof Error
                 ? lastError
                 : new Error("API request failed");
+        }
+    }
+
+    // Metode untuk mengambil data dari Otakudesu API
+    private async fetchOtakudesu(endpoint: string) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 10000);
+        let lastError: unknown = null;
+
+        try {
+            const url = `${OTAKUDESU_API_BASE}${endpoint}`;
+            const res = await fetch(url, {
+                mode: "cors",
+                signal: controller.signal,
+            });
+
+            clearTimeout(timeout);
+
+            if (!res.ok) {
+                throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+            }
+
+            const ct = res.headers.get("content-type") || "";
+            if (!ct.includes("application/json")) {
+                throw new Error("Non-JSON response from Otakudesu API");
+            }
+
+            return await res.json();
+        } catch (error) {
+            clearTimeout(timeout);
+            lastError = error;
+            console.error("Otakudesu API request failed:", error);
+            throw lastError instanceof Error
+                ? lastError
+                : new Error("Otakudesu API request failed");
         }
     }
 
@@ -220,17 +300,6 @@ class MovieAPI {
                 cover: "/placeholder.svg",
                 rating: 8.4,
                 genre: ["Drama", "Action"],
-                country: "USA",
-                year: "2023",
-                synopsis: "Sample synopsis for development",
-                type,
-            },
-            {
-                id: "615656",
-                title: "Meg 2: The Trench",
-                cover: "/placeholder.svg",
-                rating: 7.0,
-                genre: ["Adventure", "Action"],
                 country: "USA",
                 year: "2023",
                 synopsis: "Sample synopsis for development",
@@ -286,6 +355,118 @@ class MovieAPI {
         }
     }
 
+    // --- Metode Otakudesu API ---
+
+    async getOtakudesuAnimeList(
+        page: number = 1
+    ): Promise<PaginatedResponse<OtakudesuAnime>> {
+        try {
+            const data = await this.fetchOtakudesu(`/anime-list`);
+            // API ini mungkin tidak paginated, jadi kita buat seolah-olah
+            // Jika API benar-benar paginated, ubah endpoint dan logikanya
+            return {
+                data: data.map((a: any) => ({
+                    id: a.endpoint, // Gunakan endpoint sebagai ID
+                    title: a.title,
+                    cover: a.poster,
+                    rating: 0, // Rating mungkin tidak tersedia
+                    genre: a.genres || [],
+                    status: a.status || "Unknown",
+                    type: a.type || "TV",
+                    totalEpisodes: a.total_eps || "Unknown",
+                    year: a.released || "Unknown",
+                    synopsis: a.synopsis || "No synopsis available",
+                    episodeList: [], // Detail episode diambil terpisah
+                })),
+                page: page,
+                totalPages: 1, // Sesuaikan jika API menyediakan info pagination
+                totalItems: data.length,
+            };
+        } catch (error) {
+            console.error("Failed to get anime list from Otakudesu:", error);
+            return { data: [], page: 1, totalPages: 1, totalItems: 0 };
+        }
+    }
+
+    async getOtakudesuAnimeDetail(endpoint: string): Promise<OtakudesuAnime> {
+        try {
+            const data = await this.fetchOtakudesu(`/detail/${endpoint}`);
+            // Format data dari Otakudesu API
+            // Struktur data bisa berbeda, sesuaikan dengan respons API sebenarnya
+            const animeDetail: OtakudesuAnime = {
+                id: endpoint,
+                title: data.title || "Unknown Title",
+                cover: data.poster || "/placeholder.svg",
+                rating: data.score || 0,
+                genre: data.genres || [],
+                status: data.status || "Unknown",
+                type: data.type || "TV",
+                totalEpisodes: data.total_eps || "Unknown",
+                year: data.released || "Unknown",
+                synopsis: data.synopsis || "No synopsis available",
+                episodeList: (data.episode_list || []).map((ep: any) => ({
+                    id: ep.endpoint || `episode-${ep.episode_number}`,
+                    title: ep.title || `Episode ${ep.episode_number}`,
+                    episodeNumber: ep.episode_number || 0,
+                    date: ep.date || "Unknown",
+                    url: ep.url || "#",
+                    batchUrl: ep.batch_url, // Jika ada
+                })),
+                // Cek apakah MAL ID tersedia
+                malId: data.mal_id || undefined,
+                anilistId: data.anilist_id || undefined,
+            };
+
+            return animeDetail;
+        } catch (error) {
+            console.error("Failed to get anime detail from Otakudesu:", error);
+            throw error;
+        }
+    }
+
+    async getOtakudesuAnimeEpisodes(
+        endpoint: string
+    ): Promise<OtakudesuEpisode[]> {
+        try {
+            const animeDetail = await this.getOtakudesuAnimeDetail(endpoint);
+            return animeDetail.episodeList;
+        } catch (error) {
+            console.error(
+                "Failed to get anime episodes from Otakudesu:",
+                error
+            );
+            return [];
+        }
+    }
+
+    async searchOtakudesuAnime(query: string): Promise<OtakudesuAnime[]> {
+        try {
+            const data = await this.fetchOtakudesu(
+                `/search/${encodeURIComponent(query)}`
+            );
+            // Format hasil pencarian
+            return data.map((a: any) => ({
+                id: a.endpoint,
+                title: a.title,
+                cover: a.poster,
+                rating: a.score || 0,
+                genre: a.genres || [],
+                status: a.status || "Unknown",
+                type: a.type || "TV",
+                totalEpisodes: a.total_eps || "Unknown",
+                year: a.released || "Unknown",
+                synopsis: a.synopsis || "No synopsis available",
+                episodeList: [], // Detail episode diambil terpisah
+                malId: a.mal_id || undefined,
+                anilistId: a.anilist_id || undefined,
+            }));
+        } catch (error) {
+            console.error("Failed to search anime on Otakudesu:", error);
+            return [];
+        }
+    }
+
+    // --- Metode TMDB (lama) ---
     async getLatestMovies(page = 1): Promise<PaginatedResponse<Movie>> {
         try {
             const r = await this.fetchWithFallback(
@@ -508,47 +689,63 @@ class MovieAPI {
             const tv = await this.fetchWithFallback(
                 `/tv/${seriesId}?api_key=${TMDB_KEY}`
             );
+
+            // Filter out season 0 (specials) and invalid seasons
             const seasons = (tv.seasons || []).filter(
-                (s: any) => s.season_number > 0
+                (s: any) => s.season_number > 0 && s.episode_count > 0
             );
+
+            if (seasons.length === 0) {
+                console.warn(`No valid seasons found for series ${seriesId}`);
+                return [];
+            }
+
             const eps: Episode[] = [];
 
+            // Fetch episodes for each season with error handling
             for (const s of seasons) {
                 try {
                     const r = await this.fetchWithFallback(
                         `/tv/${seriesId}/season/${s.season_number}?api_key=${TMDB_KEY}`
                     );
 
-                    eps.push(
-                        ...(r.episodes || []).map((e: any) => {
-                            const providers = this.getEpisodeStreamingUrl(
-                                seriesId,
-                                s.season_number,
-                                e.episode_number
-                            );
-                            return {
-                                id: `${s.season_number}-${e.episode_number}`,
-                                title: e.name,
-                                episodeNumber: e.episode_number,
-                                seasonNumber: s.season_number,
-                                cover: e.still_path
-                                    ? `https://image.tmdb.org/t/p/w500${e.still_path}`
-                                    : "/placeholder.svg",
-                                streamUrl: providers[0]?.url || "#",
-                            };
-                        })
-                    );
+                    if (r.episodes && Array.isArray(r.episodes)) {
+                        eps.push(
+                            ...r.episodes.map((e: any) => {
+                                const providers = this.getEpisodeStreamingUrl(
+                                    seriesId,
+                                    s.season_number,
+                                    e.episode_number
+                                );
+                                return {
+                                    id: `${s.season_number}-${e.episode_number}`,
+                                    title:
+                                        e.name || `Episode ${e.episode_number}`,
+                                    episodeNumber: e.episode_number,
+                                    seasonNumber: s.season_number,
+                                    cover: e.still_path
+                                        ? `https://image.tmdb.org/t/p/w500${e.still_path}`
+                                        : "/placeholder.svg",
+                                    streamUrl: providers[0]?.url || "#",
+                                };
+                            })
+                        );
+                    }
                 } catch (error) {
                     console.error(
-                        `Failed to get season ${s.season_number}:`,
+                        `Failed to get season ${s.season_number} for series ${seriesId}:`,
                         error
                     );
+                    // Continue with next season instead of failing completely
                 }
             }
 
             return eps;
         } catch (error) {
-            console.error("Failed to get episodes:", error);
+            console.error(
+                `Failed to get episodes for series ${seriesId}:`,
+                error
+            );
             return [];
         }
     }
@@ -874,10 +1071,15 @@ class MovieAPI {
     ): Promise<PaginatedResponse<Movie>> {
         await this.ensureGenreMap();
         const animation = (this.genreMap || {})["Animation"];
+
+        if (!animation || (!animation.tv && !animation.movie)) {
+            console.error("Animation genre not found in genre map");
+            return { data: [], page: 1, totalPages: 1, totalItems: 0 };
+        }
+
         const results: Movie[] = [];
         const type = opts?.type || "all";
         const audio = opts?.audio || "all";
-        const pagesToFetch = 3;
 
         const pushFiltered = (items: any[], map: (x: any) => Movie) => {
             for (const x of items) {
@@ -889,54 +1091,52 @@ class MovieAPI {
         };
 
         try {
+            // Fetch TV anime
             if ((type === "tv" || type === "all") && animation?.tv) {
-                for (let p = page; p < page + pagesToFetch; p++) {
-                    const r = await this.fetchWithFallback(
-                        `/discover/tv?with_genres=${animation.tv}&with_origin_country=JP&page=${p}&api_key=${TMDB_KEY}`
-                    );
-                    pushFiltered(r.results || [], (t: any) => ({
-                        id: String(t.id),
-                        title: t.name,
-                        cover: t.poster_path
-                            ? `https://image.tmdb.org/t/p/w500${t.poster_path}`
-                            : "/placeholder.svg",
-                        rating: t.vote_average || 0,
-                        genre: ["Animation"],
-                        country:
-                            (t.origin_country && t.origin_country[0]) || "JP",
-                        year: (t.first_air_date || "").slice(0, 4),
-                        synopsis: t.overview || "No synopsis available",
-                        type: "series" as const,
-                    }));
-                }
+                const r = await this.fetchWithFallback(
+                    `/discover/tv?with_genres=${animation.tv}&with_origin_country=JP&sort_by=popularity.desc&page=${page}&api_key=${TMDB_KEY}`
+                );
+
+                pushFiltered(r.results || [], (t: any) => ({
+                    id: String(t.id),
+                    title: t.name,
+                    cover: t.poster_path
+                        ? `https://image.tmdb.org/t/p/w500${t.poster_path}`
+                        : "/placeholder.svg",
+                    rating: t.vote_average || 0,
+                    genre: ["Animation"],
+                    country: "Japan",
+                    year: (t.first_air_date || "").slice(0, 4),
+                    synopsis: t.overview || "No synopsis available",
+                    type: "series" as const,
+                }));
             }
 
+            // Fetch movie anime
             if ((type === "movie" || type === "all") && animation?.movie) {
-                for (let p = page; p < page + pagesToFetch; p++) {
-                    const r = await this.fetchWithFallback(
-                        `/discover/movie?with_genres=${animation.movie}&with_origin_country=JP&page=${p}&api_key=${TMDB_KEY}`
-                    );
-                    pushFiltered(r.results || [], (m: any) => ({
-                        id: String(m.id),
-                        title: m.title,
-                        cover: m.poster_path
-                            ? `https://image.tmdb.org/t/p/w500${m.poster_path}`
-                            : "/placeholder.svg",
-                        rating: m.vote_average || 0,
-                        genre: ["Animation"],
-                        country:
-                            (m.origin_country && m.origin_country[0]) || "JP",
-                        year: (m.release_date || "").slice(0, 4),
-                        synopsis: m.overview || "No synopsis available",
-                        type: "movie" as const,
-                    }));
-                }
+                const r = await this.fetchWithFallback(
+                    `/discover/movie?with_genres=${animation.movie}&with_origin_country=JP&sort_by=popularity.desc&page=${page}&api_key=${TMDB_KEY}`
+                );
+
+                pushFiltered(r.results || [], (m: any) => ({
+                    id: String(m.id),
+                    title: m.title,
+                    cover: m.poster_path
+                        ? `https://image.tmdb.org/t/p/w500${m.poster_path}`
+                        : "/placeholder.svg",
+                    rating: m.vote_average || 0,
+                    genre: ["Animation"],
+                    country: "Japan",
+                    year: (m.release_date || "").slice(0, 4),
+                    synopsis: m.overview || "No synopsis available",
+                    type: "movie" as const,
+                }));
             }
 
             return {
                 data: results,
                 page,
-                totalPages: 1,
+                totalPages: 20, // TMDB typically has many pages
                 totalItems: results.length,
             };
         } catch (error) {
@@ -948,38 +1148,36 @@ class MovieAPI {
     async getAdultMovies(page = 1): Promise<PaginatedResponse<Movie>> {
         await this.ensureGenreMap();
         const romanceId = (this.genreMap || {})["Romance"]?.movie;
-        const pagesToFetch = 3;
-        const results: Movie[] = [];
+
+        if (!romanceId) {
+            console.error("Romance genre not found");
+            return { data: [], page: 1, totalPages: 1, totalItems: 0 };
+        }
 
         try {
-            for (let p = page; p < page + pagesToFetch; p++) {
-                const r = await this.fetchWithFallback(
-                    `/discover/movie?with_genres=${romanceId}&include_adult=true&certification_country=US&certification.gte=R&sort_by=popularity.desc&page=${p}&api_key=${TMDB_KEY}`
-                );
-                results.push(
-                    ...(r.results || []).map((m: any) => ({
-                        id: String(m.id),
-                        title: m.title,
-                        cover: m.poster_path
-                            ? `https://image.tmdb.org/t/p/w500${m.poster_path}`
-                            : "/placeholder.svg",
-                        rating: m.vote_average || 0,
-                        genre: ["Romance", "Adult"],
-                        country:
-                            (m.origin_country && m.origin_country[0]) ||
-                            "Unknown",
-                        year: (m.release_date || "").slice(0, 4),
-                        synopsis: m.overview || "No synopsis available",
-                        type: "movie" as const,
-                    }))
-                );
-            }
+            const r = await this.fetchWithFallback(
+                `/discover/movie?with_genres=${romanceId}&include_adult=false&certification_country=US&sort_by=popularity.desc&page=${page}&api_key=${TMDB_KEY}`
+            );
+
+            const results = (r.results || []).map((m: any) => ({
+                id: String(m.id),
+                title: m.title,
+                cover: m.poster_path
+                    ? `https://image.tmdb.org/t/p/w500${m.poster_path}`
+                    : "/placeholder.svg",
+                rating: m.vote_average || 0,
+                genre: ["Romance"],
+                country: (m.origin_country && m.origin_country[0]) || "Unknown",
+                year: (m.release_date || "").slice(0, 4),
+                synopsis: m.overview || "No synopsis available",
+                type: "movie" as const,
+            }));
 
             return {
                 data: results,
-                page,
-                totalPages: 1,
-                totalItems: results.length,
+                page: r.page || page,
+                totalPages: r.total_pages || 1,
+                totalItems: r.total_results || results.length,
             };
         } catch (error) {
             console.error("Failed to get adult movies:", error);
@@ -990,7 +1188,7 @@ class MovieAPI {
     async getIndonesianMovies(page = 1): Promise<PaginatedResponse<Movie>> {
         try {
             const r = await this.fetchWithFallback(
-                `/discover/movie?with_origin_country=ID&page=${page}&api_key=${TMDB_KEY}`
+                `/discover/movie?with_origin_country=ID&sort_by=popularity.desc&page=${page}&api_key=${TMDB_KEY}`
             );
             const data: Movie[] = (r.results || []).map((m: any) => ({
                 id: String(m.id),
@@ -1021,38 +1219,36 @@ class MovieAPI {
     async getKoreanDrama(page = 1): Promise<PaginatedResponse<Movie>> {
         await this.ensureGenreMap();
         const drama = (this.genreMap || {})["Drama"];
-        const results: Movie[] = [];
-        const pagesToFetch = 3;
+
+        if (!drama?.tv) {
+            console.error("Drama genre not found for TV");
+            return { data: [], page: 1, totalPages: 1, totalItems: 0 };
+        }
 
         try {
-            if (drama?.tv) {
-                for (let p = page; p < page + pagesToFetch; p++) {
-                    const r = await this.fetchWithFallback(
-                        `/discover/tv?with_genres=${drama.tv}&with_origin_country=KR&page=${p}&api_key=${TMDB_KEY}`
-                    );
-                    results.push(
-                        ...(r.results || []).map((t: any) => ({
-                            id: String(t.id),
-                            title: t.name,
-                            cover: t.poster_path
-                                ? `https://image.tmdb.org/t/p/w500${t.poster_path}`
-                                : "/placeholder.svg",
-                            rating: t.vote_average || 0,
-                            genre: ["Drama"],
-                            country: "Korea",
-                            year: (t.first_air_date || "").slice(0, 4),
-                            synopsis: t.overview || "No synopsis available",
-                            type: "series" as const,
-                        }))
-                    );
-                }
-            }
+            const r = await this.fetchWithFallback(
+                `/discover/tv?with_genres=${drama.tv}&with_origin_country=KR&sort_by=popularity.desc&page=${page}&api_key=${TMDB_KEY}`
+            );
+
+            const results = (r.results || []).map((t: any) => ({
+                id: String(t.id),
+                title: t.name,
+                cover: t.poster_path
+                    ? `https://image.tmdb.org/t/p/w500${t.poster_path}`
+                    : "/placeholder.svg",
+                rating: t.vote_average || 0,
+                genre: ["Drama"],
+                country: "Korea",
+                year: (t.first_air_date || "").slice(0, 4),
+                synopsis: t.overview || "No synopsis available",
+                type: "series" as const,
+            }));
 
             return {
                 data: results,
-                page,
-                totalPages: 1,
-                totalItems: results.length,
+                page: r.page || page,
+                totalPages: r.total_pages || 1,
+                totalItems: r.total_results || results.length,
             };
         } catch (error) {
             console.error("Failed to get Korean drama:", error);

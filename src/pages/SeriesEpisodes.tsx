@@ -1,7 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { movieAPI } from "@/services/api";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -20,9 +20,7 @@ import {
     List,
     Search,
     Calendar,
-    Film,
     Star,
-    Clock,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -30,13 +28,15 @@ import { AlertCircle } from "lucide-react";
 import { useState, useMemo } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-interface Episode {
-    id: string;
-    title: string;
-    episodeNumber: number;
-    seasonNumber: number;
-    cover: string;
-    streamUrl: string;
+// Import tipe dari API
+import { Episode, Movie as Series } from "@/services/api";
+
+interface SeasonDetail {
+    id: number;
+    name: string;
+    cover?: string;
+    episodeCount: number;
+    year?: string;
 }
 
 export default function SeriesEpisodes() {
@@ -48,56 +48,96 @@ export default function SeriesEpisodes() {
         "episode"
     );
 
-    // Fetch series details
-    const { data: series, isLoading: seriesLoading } = useQuery({
+    // Fetch series details (includes season info)
+    const {
+        data: series,
+        isLoading: seriesLoading,
+        error: seriesError,
+    } = useQuery<Series, Error>({
         queryKey: ["series", id],
         queryFn: async () => {
-            console.log("Fetching series details for ID:", id);
-            const result = await movieAPI.getSeriesById(id!);
-            console.log("Series details:", result);
-            return result;
+            if (!id) throw new Error("Series ID is required");
+            const response = await movieAPI.getSeriesById(id);
+            if (!response) {
+                throw new Error("Series not found");
+            }
+            return response;
         },
         enabled: !!id,
+        retry: 2,
     });
+
+    // Extract season details from series data
+    const seasonDetails = useMemo(() => {
+        if (!series?.seasons) return {};
+        const details: Record<number, SeasonDetail> = {};
+        series.seasons.forEach((s: any) => {
+            // Gunakan 'any' untuk sementara karena struktur TMDB bisa kompleks
+            if (s.season_number > 0) {
+                // Abaikan season 0 (Specials) jika diinginkan
+                details[s.season_number] = {
+                    id: s.season_number,
+                    name: s.name || `Season ${s.season_number}`,
+                    cover: s.poster_path
+                        ? `https://image.tmdb.org/t/p/w300${s.poster_path}`
+                        : undefined,
+                    episodeCount: s.episode_count || 0,
+                    year: s.air_date ? s.air_date.substring(0, 4) : undefined,
+                };
+            }
+        });
+        return details;
+    }, [series]);
 
     // Fetch episodes
     const {
         data: episodes = [],
         isLoading: episodesLoading,
-        error,
+        error: episodesError,
         refetch,
-    } = useQuery({
+    } = useQuery<Episode[], Error>({
         queryKey: ["episodes", id],
         queryFn: async () => {
-            console.log("=== START FETCHING EPISODES ===");
-            console.log("Series ID:", id);
-            try {
-                const eps = await movieAPI.getEpisodes(id!);
-                console.log("Total episodes fetched:", eps.length);
-                console.log("Raw episodes data:", eps);
-                console.log(
-                    "Episodes by season:",
-                    eps.reduce((acc: any, ep) => {
-                        acc[ep.seasonNumber] = (acc[ep.seasonNumber] || 0) + 1;
-                        return acc;
-                    }, {})
-                );
-                console.log("=== END FETCHING EPISODES ===");
-                return eps;
-            } catch (err) {
-                console.error("Error fetching episodes:", err);
-                throw err;
+            if (!id) throw new Error("Series ID is required");
+            const eps = await movieAPI.getEpisodes(id);
+
+            // Validasi bahwa data adalah array
+            if (!Array.isArray(eps)) {
+                console.error("Episodes data is not an array:", eps);
+                return [];
             }
+
+            // Validasi setiap episode
+            const validEpisodes = eps.filter(
+                (ep) =>
+                    ep &&
+                    typeof ep.seasonNumber === "number" &&
+                    typeof ep.episodeNumber === "number"
+            );
+
+            if (validEpisodes.length !== eps.length) {
+                console.warn(
+                    `Some episodes were filtered out due to invalid data.`
+                );
+            }
+
+            return validEpisodes;
         },
         enabled: !!id,
-        staleTime: 5 * 60 * 1000, // 5 minutes
-        retry: 1,
+        staleTime: 5 * 60 * 1000, // 5 menit
+        retry: 2,
     });
+
+    // Gabungkan error dari kedua query jika perlu
+    const error = seriesError || episodesError;
 
     // Group episodes by season
     const seasonGroups = useMemo(() => {
         const groups: Record<number, Episode[]> = {};
+
         episodes.forEach((ep) => {
+            if (!ep || typeof ep.seasonNumber !== "number") return;
+
             if (!groups[ep.seasonNumber]) {
                 groups[ep.seasonNumber] = [];
             }
@@ -105,8 +145,9 @@ export default function SeriesEpisodes() {
         });
 
         // Sort episodes within each season
-        Object.keys(groups).forEach((season) => {
-            groups[Number(season)].sort((a, b) => {
+        Object.keys(groups).forEach((seasonNum) => {
+            const season = Number(seasonNum);
+            groups[season].sort((a, b) => {
                 switch (sortBy) {
                     case "newest":
                         return b.episodeNumber - a.episodeNumber;
@@ -125,34 +166,26 @@ export default function SeriesEpisodes() {
         .map(Number)
         .sort((a, b) => a - b);
 
-    // Filter episodes based on search and season
+    // Filter episodes
     const filteredEpisodes = useMemo(() => {
         let filtered = [...episodes];
 
-        // Filter by search query
         if (searchQuery) {
+            const query = searchQuery.toLowerCase();
             filtered = filtered.filter(
                 (ep) =>
-                    ep.title
-                        .toLowerCase()
-                        .includes(searchQuery.toLowerCase()) ||
-                    `episode ${ep.episodeNumber}`
-                        .toLowerCase()
-                        .includes(searchQuery.toLowerCase()) ||
-                    `s${ep.seasonNumber}e${ep.episodeNumber}`
-                        .toLowerCase()
-                        .includes(searchQuery.toLowerCase())
+                    ep.title?.toLowerCase().includes(query) ||
+                    `episode ${ep.episodeNumber}`.includes(query) ||
+                    `s${ep.seasonNumber}e${ep.episodeNumber}`.includes(query)
             );
         }
 
-        // Filter by season
         if (selectedSeason !== "all") {
             filtered = filtered.filter(
                 (ep) => ep.seasonNumber === Number(selectedSeason)
             );
         }
 
-        // Sort episodes
         filtered.sort((a, b) => {
             if (a.seasonNumber !== b.seasonNumber) {
                 return a.seasonNumber - b.seasonNumber;
@@ -170,7 +203,7 @@ export default function SeriesEpisodes() {
         return filtered;
     }, [episodes, searchQuery, selectedSeason, sortBy]);
 
-    // Stats calculation
+    // Stats
     const stats = useMemo(() => {
         const totalEpisodes = episodes.length;
         const totalSeasons = seasons.length;
@@ -186,27 +219,26 @@ export default function SeriesEpisodes() {
 
     const isLoading = seriesLoading || episodesLoading;
 
-    // Debug info
-    console.log("=== COMPONENT STATE ===");
-    console.log("Series ID:", id);
-    console.log("Is Loading:", isLoading);
-    console.log("Series Loading:", seriesLoading);
-    console.log("Episodes Loading:", episodesLoading);
-    console.log("Episodes count:", episodes.length);
-    console.log("Has error:", !!error);
-    console.log("Error:", error);
-    console.log("======================");
+    if (!id) {
+        return (
+            <div className="container mx-auto px-4 py-8">
+                <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>
+                        Invalid series ID. Please go back and try again.
+                    </AlertDescription>
+                </Alert>
+            </div>
+        );
+    }
 
     if (isLoading) {
         return (
             <div className="container mx-auto px-4 py-8">
-                <div className="mb-4 text-muted-foreground">
-                    Loading episodes...
-                </div>
                 <Skeleton className="h-10 w-32 mb-4" />
                 <Skeleton className="h-32 w-full mb-6" />
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                    {[...Array(10)].map((_, i) => (
                         <Skeleton key={i} className="h-48" />
                     ))}
                 </div>
@@ -214,7 +246,7 @@ export default function SeriesEpisodes() {
         );
     }
 
-    if (error || !episodes || episodes.length === 0) {
+    if (error) {
         return (
             <div className="container mx-auto px-4 py-8">
                 <Link to={`/series/${id}`}>
@@ -226,13 +258,12 @@ export default function SeriesEpisodes() {
                 <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
-                        {episodes?.length === 0
-                            ? "Tidak ada episode yang tersedia untuk series ini. Mungkin data episode belum tersedia di TMDB."
-                            : "Gagal memuat episode. Silakan coba lagi."}
+                        Failed to load series or episodes.{" "}
+                        {error.message || "An error occurred."}
                         <div className="mt-4 flex gap-2">
                             <Link to={`/series/${id}`}>
                                 <Button variant="outline" size="sm">
-                                    Kembali ke detail series
+                                    Back to Series Details
                                 </Button>
                             </Link>
                             <Button
@@ -240,8 +271,35 @@ export default function SeriesEpisodes() {
                                 size="sm"
                                 onClick={() => refetch()}
                             >
-                                Coba Lagi
+                                Retry
                             </Button>
+                        </div>
+                    </AlertDescription>
+                </Alert>
+            </div>
+        );
+    }
+
+    if (episodes.length === 0) {
+        return (
+            <div className="container mx-auto px-4 py-8">
+                <Link to={`/series/${id}`}>
+                    <Button variant="ghost" className="mb-4">
+                        <ArrowLeft className="h-4 w-4 mr-2" />
+                        Back to Series
+                    </Button>
+                </Link>
+                <Alert>
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>
+                        No episodes available for this series. Episode data may
+                        not be available yet in TMDB.
+                        <div className="mt-4">
+                            <Link to={`/series/${id}`}>
+                                <Button variant="outline" size="sm">
+                                    Back to Series Details
+                                </Button>
+                            </Link>
                         </div>
                     </AlertDescription>
                 </Alert>
@@ -260,7 +318,7 @@ export default function SeriesEpisodes() {
                     </Button>
                 </Link>
 
-                {/* Series Info Card - Refined */}
+                {/* Series Info Card */}
                 {series && (
                     <Card className="mb-6 bg-gradient-to-br from-background to-muted/20 border-muted">
                         <CardContent className="p-8">
@@ -290,24 +348,25 @@ export default function SeriesEpisodes() {
                                                     </span>
                                                 </div>
                                             )}
-                                            {series.rating && (
-                                                <div className="flex items-center gap-1.5">
-                                                    <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
-                                                    <span className="text-sm font-medium">
-                                                        {series.rating.toFixed(
-                                                            1
-                                                        )}
-                                                    </span>
-                                                </div>
-                                            )}
+                                            {series.rating != null &&
+                                                series.rating > 0 && (
+                                                    <div className="flex items-center gap-1.5">
+                                                        <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
+                                                        <span className="text-sm font-medium">
+                                                            {series.rating.toFixed(
+                                                                1
+                                                            )}
+                                                        </span>
+                                                    </div>
+                                                )}
                                             {series.genre &&
                                                 series.genre.length > 0 && (
                                                     <div className="flex gap-2">
                                                         {series.genre
                                                             .slice(0, 3)
-                                                            .map((g) => (
+                                                            .map((g, i) => (
                                                                 <Badge
-                                                                    key={g}
+                                                                    key={i} // Gunakan index jika genre bisa duplikat
                                                                     variant="secondary"
                                                                     className="font-medium"
                                                                 >
@@ -319,7 +378,7 @@ export default function SeriesEpisodes() {
                                         </div>
                                     </div>
 
-                                    {/* Stats - Improved Design */}
+                                    {/* Stats */}
                                     <div className="grid grid-cols-3 gap-6">
                                         <div className="text-center">
                                             <div className="text-4xl font-bold mb-1 bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">
@@ -389,7 +448,7 @@ export default function SeriesEpisodes() {
                     </Card>
                 )}
 
-                {/* Controls Bar - Refined */}
+                {/* Controls Bar */}
                 <Card>
                     <CardContent className="p-5">
                         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
@@ -434,7 +493,11 @@ export default function SeriesEpisodes() {
                                 {/* Sort */}
                                 <Select
                                     value={sortBy}
-                                    onValueChange={(v) => setSortBy(v as any)}
+                                    onValueChange={(v) =>
+                                        setSortBy(
+                                            v as "episode" | "newest" | "oldest"
+                                        )
+                                    }
                                 >
                                     <SelectTrigger className="w-[160px] h-10">
                                         <SelectValue placeholder="Sort by" />
@@ -494,162 +557,129 @@ export default function SeriesEpisodes() {
 
             {/* Episodes Display */}
             {seasons.length > 1 && selectedSeason === "all" && !searchQuery ? (
-                // Tabbed view by season - Refined Tabs
+                // Tabbed view by season
                 <Tabs defaultValue={String(seasons[0])} className="w-full">
                     <div className="mb-6">
                         <ScrollArea className="w-full">
                             <TabsList className="inline-flex h-12 items-center justify-start rounded-lg bg-muted p-1 w-auto">
-                                {seasons.map((season) => (
-                                    <TabsTrigger
-                                        key={season}
-                                        value={String(season)}
-                                        className="inline-flex items-center gap-2 px-4 py-2 whitespace-nowrap"
-                                    >
-                                        Season {season}
-                                        <Badge
-                                            variant="secondary"
-                                            className="ml-1 text-xs"
+                                {seasons.map((season) => {
+                                    const seasonInfo = seasonDetails[season];
+                                    return (
+                                        <TabsTrigger
+                                            key={season}
+                                            value={String(season)}
+                                            className="inline-flex items-center gap-2 px-4 py-2 whitespace-nowrap"
                                         >
-                                            {seasonGroups[season].length}
-                                        </Badge>
-                                    </TabsTrigger>
-                                ))}
+                                            <div className="flex flex-col items-center">
+                                                {seasonInfo?.cover && (
+                                                    <img
+                                                        src={seasonInfo.cover}
+                                                        alt={`Cover ${seasonInfo.name}`}
+                                                        className="w-8 h-12 object-cover rounded mb-1"
+                                                        onError={(e) => {
+                                                            const target =
+                                                                e.target as HTMLImageElement;
+                                                            target.style.display =
+                                                                "none";
+                                                        }}
+                                                    />
+                                                )}
+                                                <span>Season {season}</span>
+                                                {seasonInfo?.episodeCount && (
+                                                    <span className="text-xs text-muted-foreground">
+                                                        {
+                                                            seasonInfo.episodeCount
+                                                        }{" "}
+                                                        eps
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <Badge
+                                                variant="secondary"
+                                                className="ml-1 text-xs"
+                                            >
+                                                {seasonGroups[season].length}
+                                            </Badge>
+                                        </TabsTrigger>
+                                    );
+                                })}
                             </TabsList>
                         </ScrollArea>
                     </div>
 
-                    {seasons.map((season) => (
-                        <TabsContent
-                            key={season}
-                            value={String(season)}
-                            className="mt-0"
-                        >
-                            {viewMode === "grid" ? (
-                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                                    {seasonGroups[season].map((episode) => (
-                                        <Link
-                                            key={episode.id}
-                                            to={`/series/${id}/watch?season=${episode.seasonNumber}&episode=${episode.episodeNumber}`}
-                                        >
-                                            <Card className="overflow-hidden group cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full border-muted">
-                                                <div className="relative aspect-video overflow-hidden bg-muted">
+                    {seasons.map((season) => {
+                        const seasonInfo = seasonDetails[season];
+                        return (
+                            <TabsContent
+                                key={season}
+                                value={String(season)}
+                                className="mt-0"
+                            >
+                                {/* Info Card for Season */}
+                                {seasonInfo && (
+                                    <Card className="mb-4">
+                                        <CardContent className="p-4">
+                                            <div className="flex items-start gap-4">
+                                                {seasonInfo.cover && (
                                                     <img
-                                                        src={
-                                                            episode.cover ||
-                                                            "/placeholder.svg"
-                                                        }
-                                                        alt={episode.title}
-                                                        className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
+                                                        src={seasonInfo.cover}
+                                                        alt={`Cover ${seasonInfo.name}`}
+                                                        className="w-16 h-24 object-cover rounded-lg"
                                                         onError={(e) => {
                                                             const target =
                                                                 e.target as HTMLImageElement;
-                                                            target.src =
-                                                                "/placeholder.svg";
+                                                            target.style.display =
+                                                                "none";
                                                         }}
                                                     />
-                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300" />
-                                                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                                        <div className="bg-primary/90 backdrop-blur-sm rounded-full p-3 shadow-xl">
-                                                            <Play className="h-6 w-6 text-primary-foreground fill-current" />
-                                                        </div>
-                                                    </div>
-                                                    <Badge className="absolute top-2 left-2 font-semibold shadow-lg bg-red-600 hover:bg-red-600">
-                                                        EP{" "}
-                                                        {episode.episodeNumber}
-                                                    </Badge>
-                                                </div>
-                                                <CardContent className="p-3">
-                                                    <h3 className="font-semibold text-sm line-clamp-2 mb-1 group-hover:text-primary transition-colors leading-tight">
-                                                        {episode.title ||
-                                                            `Episode ${episode.episodeNumber}`}
+                                                )}
+                                                <div>
+                                                    <h3 className="text-xl font-bold">
+                                                        {seasonInfo.name}
                                                     </h3>
-                                                    <p className="text-xs text-muted-foreground">
-                                                        Season{" "}
-                                                        {episode.seasonNumber} •
-                                                        Episode{" "}
-                                                        {episode.episodeNumber}
+                                                    <p className="text-sm text-muted-foreground">
+                                                        {
+                                                            seasonInfo.episodeCount
+                                                        }{" "}
+                                                        Episodes •{" "}
+                                                        {seasonInfo.year}
                                                     </p>
-                                                </CardContent>
-                                            </Card>
-                                        </Link>
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="space-y-3">
-                                    {seasonGroups[season].map((episode) => (
-                                        <Link
-                                            key={episode.id}
-                                            to={`/series/${id}/watch?season=${episode.seasonNumber}&episode=${episode.episodeNumber}`}
-                                        >
-                                            <Card className="group cursor-pointer hover:shadow-lg hover:border-primary/50 transition-all duration-300">
-                                                <CardContent className="p-4">
-                                                    <div className="flex items-center gap-4">
-                                                        <div className="relative w-40 h-24 flex-shrink-0 overflow-hidden rounded-lg bg-muted">
-                                                            <img
-                                                                src={
-                                                                    episode.cover ||
-                                                                    "/placeholder.svg"
-                                                                }
-                                                                alt={
-                                                                    episode.title
-                                                                }
-                                                                className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
-                                                                onError={(
-                                                                    e
-                                                                ) => {
-                                                                    const target =
-                                                                        e.target as HTMLImageElement;
-                                                                    target.src =
-                                                                        "/placeholder.svg";
-                                                                }}
-                                                            />
-                                                            <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                                <Play className="h-8 w-8 text-white fill-white" />
-                                                            </div>
-                                                        </div>
-                                                        <div className="flex-1 min-w-0">
-                                                            <div className="flex items-start justify-between gap-3">
-                                                                <div className="flex-1">
-                                                                    <h3 className="font-semibold text-base group-hover:text-primary transition-colors line-clamp-1 mb-1">
-                                                                        {episode.title ||
-                                                                            `Episode ${episode.episodeNumber}`}
-                                                                    </h3>
-                                                                    <p className="text-sm text-muted-foreground">
-                                                                        Season{" "}
-                                                                        {
-                                                                            episode.seasonNumber
-                                                                        }{" "}
-                                                                        •
-                                                                        Episode{" "}
-                                                                        {
-                                                                            episode.episodeNumber
-                                                                        }
-                                                                    </p>
-                                                                </div>
-                                                                <Badge
-                                                                    variant="outline"
-                                                                    className="font-semibold"
-                                                                >
-                                                                    S
-                                                                    {
-                                                                        episode.seasonNumber
-                                                                    }
-                                                                    E
-                                                                    {
-                                                                        episode.episodeNumber
-                                                                    }
-                                                                </Badge>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </CardContent>
-                                            </Card>
-                                        </Link>
-                                    ))}
-                                </div>
-                            )}
-                        </TabsContent>
-                    ))}
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                )}
+
+                                {viewMode === "grid" ? (
+                                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                                        {seasonGroups[season].map((episode) => (
+                                            <Link
+                                                key={episode.id}
+                                                to={`/series/${id}/watch?season=${episode.seasonNumber}&episode=${episode.episodeNumber}`}
+                                            >
+                                                <EpisodeCard
+                                                    episode={episode}
+                                                />
+                                            </Link>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="space-y-3">
+                                        {seasonGroups[season].map((episode) => (
+                                            <Link
+                                                key={episode.id}
+                                                to={`/series/${id}/watch?season=${episode.seasonNumber}&episode=${episode.episodeNumber}`}
+                                            >
+                                                <EpisodeListItem
+                                                    episode={episode}
+                                                />
+                                            </Link>
+                                        ))}
+                                    </div>
+                                )}
+                            </TabsContent>
+                        );
+                    })}
                 </Tabs>
             ) : (
                 // Regular view (filtered/searched results)
@@ -684,44 +714,7 @@ export default function SeriesEpisodes() {
                                     key={episode.id}
                                     to={`/series/${id}/watch?season=${episode.seasonNumber}&episode=${episode.episodeNumber}`}
                                 >
-                                    <Card className="overflow-hidden group cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full border-muted">
-                                        <div className="relative aspect-video overflow-hidden bg-muted">
-                                            <img
-                                                src={
-                                                    episode.cover ||
-                                                    "/placeholder.svg"
-                                                }
-                                                alt={episode.title}
-                                                className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
-                                                onError={(e) => {
-                                                    const target =
-                                                        e.target as HTMLImageElement;
-                                                    target.src =
-                                                        "/placeholder.svg";
-                                                }}
-                                            />
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300" />
-                                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                                <div className="bg-primary/90 backdrop-blur-sm rounded-full p-3 shadow-xl">
-                                                    <Play className="h-6 w-6 text-primary-foreground fill-current" />
-                                                </div>
-                                            </div>
-                                            <Badge className="absolute top-2 left-2 font-semibold shadow-lg bg-red-600 hover:bg-red-600">
-                                                S{episode.seasonNumber} EP
-                                                {episode.episodeNumber}
-                                            </Badge>
-                                        </div>
-                                        <CardContent className="p-3">
-                                            <h3 className="font-semibold text-sm line-clamp-2 mb-1 group-hover:text-primary transition-colors leading-tight">
-                                                {episode.title ||
-                                                    `Episode ${episode.episodeNumber}`}
-                                            </h3>
-                                            <p className="text-xs text-muted-foreground">
-                                                Season {episode.seasonNumber} •
-                                                Episode {episode.episodeNumber}
-                                            </p>
-                                        </CardContent>
-                                    </Card>
+                                    <EpisodeCard episode={episode} showSeason />
                                 </Link>
                             ))}
                         </div>
@@ -732,64 +725,7 @@ export default function SeriesEpisodes() {
                                     key={episode.id}
                                     to={`/series/${id}/watch?season=${episode.seasonNumber}&episode=${episode.episodeNumber}`}
                                 >
-                                    <Card className="group cursor-pointer hover:shadow-lg hover:border-primary/50 transition-all duration-300">
-                                        <CardContent className="p-4">
-                                            <div className="flex items-center gap-4">
-                                                <div className="relative w-40 h-24 flex-shrink-0 overflow-hidden rounded-lg bg-muted">
-                                                    <img
-                                                        src={
-                                                            episode.cover ||
-                                                            "/placeholder.svg"
-                                                        }
-                                                        alt={episode.title}
-                                                        className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
-                                                        onError={(e) => {
-                                                            const target =
-                                                                e.target as HTMLImageElement;
-                                                            target.src =
-                                                                "/placeholder.svg";
-                                                        }}
-                                                    />
-                                                    <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                        <Play className="h-8 w-8 text-white fill-white" />
-                                                    </div>
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="flex items-start justify-between gap-3">
-                                                        <div className="flex-1">
-                                                            <h3 className="font-semibold text-base group-hover:text-primary transition-colors line-clamp-1 mb-1">
-                                                                {episode.title ||
-                                                                    `Episode ${episode.episodeNumber}`}
-                                                            </h3>
-                                                            <p className="text-sm text-muted-foreground">
-                                                                Season{" "}
-                                                                {
-                                                                    episode.seasonNumber
-                                                                }{" "}
-                                                                • Episode{" "}
-                                                                {
-                                                                    episode.episodeNumber
-                                                                }
-                                                            </p>
-                                                        </div>
-                                                        <Badge
-                                                            variant="outline"
-                                                            className="font-semibold"
-                                                        >
-                                                            S
-                                                            {
-                                                                episode.seasonNumber
-                                                            }
-                                                            E
-                                                            {
-                                                                episode.episodeNumber
-                                                            }
-                                                        </Badge>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
+                                    <EpisodeListItem episode={episode} />
                                 </Link>
                             ))}
                         </div>
@@ -797,5 +733,92 @@ export default function SeriesEpisodes() {
                 </>
             )}
         </div>
+    );
+}
+
+// Episode Card Component
+function EpisodeCard({
+    episode,
+    showSeason = false,
+}: {
+    episode: Episode;
+    showSeason?: boolean;
+}) {
+    return (
+        <Card className="overflow-hidden group cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300 h-full border-muted">
+            <div className="relative aspect-video overflow-hidden bg-muted">
+                <img
+                    src={episode.cover || "/placeholder.svg"}
+                    alt={episode.title}
+                    className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
+                    onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = "/placeholder.svg";
+                    }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300" />
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="bg-primary/90 backdrop-blur-sm rounded-full p-3 shadow-xl">
+                        <Play className="h-6 w-6 text-primary-foreground fill-current" />
+                    </div>
+                </div>
+                <Badge className="absolute top-2 left-2 font-semibold shadow-lg bg-red-600 hover:bg-red-600">
+                    {showSeason ? `S${episode.seasonNumber} ` : ""}EP{" "}
+                    {episode.episodeNumber}
+                </Badge>
+            </div>
+            <CardContent className="p-3">
+                <h3 className="font-semibold text-sm line-clamp-2 mb-1 group-hover:text-primary transition-colors leading-tight">
+                    {episode.title || `Episode ${episode.episodeNumber}`}
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                    Season {episode.seasonNumber} • Episode{" "}
+                    {episode.episodeNumber}
+                </p>
+            </CardContent>
+        </Card>
+    );
+}
+
+// Episode List Item Component
+function EpisodeListItem({ episode }: { episode: Episode }) {
+    return (
+        <Card className="group cursor-pointer hover:shadow-lg hover:border-primary/50 transition-all duration-300">
+            <CardContent className="p-4">
+                <div className="flex items-center gap-4">
+                    <div className="relative w-40 h-24 flex-shrink-0 overflow-hidden rounded-lg bg-muted">
+                        <img
+                            src={episode.cover || "/placeholder.svg"}
+                            alt={episode.title}
+                            className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
+                            onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.src = "/placeholder.svg";
+                            }}
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Play className="h-8 w-8 text-white fill-white" />
+                        </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-3">
+                            <div className="flex-1">
+                                <h3 className="font-semibold text-base group-hover:text-primary transition-colors line-clamp-1 mb-1">
+                                    {episode.title ||
+                                        `Episode ${episode.episodeNumber}`}
+                                </h3>
+                                <p className="text-sm text-muted-foreground">
+                                    Season {episode.seasonNumber} • Episode{" "}
+                                    {episode.episodeNumber}
+                                </p>
+                            </div>
+                            <Badge variant="outline" className="font-semibold">
+                                S{episode.seasonNumber}E{episode.episodeNumber}
+                            </Badge>
+                        </div>
+                    </div>
+                </div>
+            </CardContent>
+        </Card>
     );
 }
