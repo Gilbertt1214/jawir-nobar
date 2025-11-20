@@ -6,8 +6,14 @@ const TMDB_BASE = "https://api.themoviedb.org/3";
 const TMDB_KEY =
     import.meta.env.VITE_TMDB_API_KEY || "9998d44e51ed7634a06c4198b289bfe4"; // Ganti dengan API key Anda
 
-// Base URL untuk vidlink.pro
-const VIDLINK_BASE = "https://vidlink.pro";
+// Alternative streaming providers
+const STREAMING_PROVIDERS = {
+    vidsrc: "https://vidsrc.to/embed",
+    vidsrc2: "https://vidsrc.me/embed",
+    embed2: "https://www.2embed.cc/embed",
+    superembed: "https://multiembed.mov/?video_id",
+    autoembed: "https://autoembed.to/movie/tmdb",
+};
 
 export interface PersonCast {
     id: string;
@@ -45,7 +51,7 @@ export interface Episode {
     episodeNumber: number;
     seasonNumber: number;
     cover: string;
-    streamUrl: string; // URL embed dari vidlink
+    streamUrl: string;
 }
 
 export interface PaginatedResponse<T> {
@@ -72,25 +78,54 @@ class MovieAPI {
             : ["https://api.themoviedb.org/3"];
     }
 
-    // Get available streaming URLs for a movie/series from vidlink.pro
+    // Get available streaming URLs for a movie
     getStreamingUrls(
-        tmdbId: string,
+        movieId: string,
         type: "movie" | "series" = "movie"
     ): StreamingProvider[] {
         const providers: StreamingProvider[] = [];
 
         if (type === "movie") {
             providers.push({
-                name: "VidLink Player",
-                url: `${VIDLINK_BASE}/movie/${tmdbId}`,
+                name: "VidSrc",
+                url: `${STREAMING_PROVIDERS.vidsrc}/movie/${movieId}`,
+                available: true,
+            });
+            providers.push({
+                name: "VidSrc Mirror",
+                url: `${STREAMING_PROVIDERS.vidsrc2}/movie/${movieId}`,
+                available: true,
+            });
+            providers.push({
+                name: "2Embed",
+                url: `${STREAMING_PROVIDERS.embed2}/${movieId}`,
+                available: true,
+            });
+            providers.push({
+                name: "SuperEmbed",
+                url: `${STREAMING_PROVIDERS.superembed}=${movieId}&tmdb=1`,
+                available: true,
+            });
+            providers.push({
+                name: "AutoEmbed",
+                url: `${STREAMING_PROVIDERS.autoembed}/${movieId}`,
                 available: true,
             });
         } else {
-            // For TV series (example for first episode, you might need specific season/ep)
-            // In practice, you'd call getEpisodeStreamingUrl for specific episodes
+            // For TV series
             providers.push({
-                name: "VidLink Player",
-                url: `${VIDLINK_BASE}/tv/${tmdbId}/1/1`, // Default to S01E01
+                name: "VidSrc",
+                url: `${STREAMING_PROVIDERS.vidsrc}/tv/${movieId}`,
+                available: true,
+            });
+            providers.push({
+                name: "VidSrc Mirror",
+                url: `${STREAMING_PROVIDERS.vidsrc2}/tv/${movieId}`,
+                available: true,
+            });
+            providers.push({
+                name: "2Embed Series",
+                url: `${STREAMING_PROVIDERS.embed2}/tv/${movieId}`,
                 available: true,
             });
         }
@@ -98,7 +133,7 @@ class MovieAPI {
         return providers;
     }
 
-    // Get episode streaming URL from vidlink.pro
+    // Get episode streaming URL
     getEpisodeStreamingUrl(
         seriesId: string,
         season: number,
@@ -106,8 +141,18 @@ class MovieAPI {
     ): StreamingProvider[] {
         return [
             {
-                name: "VidLink Player",
-                url: `${VIDLINK_BASE}/tv/${seriesId}/${season}/${episode}`,
+                name: "VidSrc",
+                url: `${STREAMING_PROVIDERS.vidsrc}/tv/${seriesId}/${season}/${episode}`,
+                available: true,
+            },
+            {
+                name: "VidSrc Mirror",
+                url: `${STREAMING_PROVIDERS.vidsrc2}/tv/${seriesId}/${season}/${episode}`,
+                available: true,
+            },
+            {
+                name: "2Embed",
+                url: `${STREAMING_PROVIDERS.embed2}/tv/${seriesId}/${season}/${episode}`,
                 available: true,
             },
         ];
@@ -241,33 +286,8 @@ class MovieAPI {
         }
     }
 
-    // Helper untuk menambahkan parameter adult ke URL (hanya untuk TMDB)
-    private buildAdultParams(
-        adult: "include" | "exclude" | "only" | undefined
-    ): string {
-        if (!adult || adult === "exclude") {
-            // Exclude: Tidak termasuk konten dewasa (jika TMDB mendukung)
-            // Karena TMDB tidak mendukung, kita abaikan untuk sekarang
-            return "";
-        } else if (adult === "only") {
-            // Only: Hanya konten dewasa (tidak didukung oleh TMDB)
-            // Kita gunakan ini sebagai indikator untuk mengganti kategori di getAdultMovies
-            return "only";
-        }
-        // Include: Termasuk konten dewasa (default - tidak berpengaruh di TMDB)
-        return "";
-    }
-
-    async getLatestMovies(
-        page = 1,
-        opts?: { adult?: "include" | "exclude" | "only" }
-    ): Promise<PaginatedResponse<Movie>> {
+    async getLatestMovies(page = 1): Promise<PaginatedResponse<Movie>> {
         try {
-            const adultParam = this.buildAdultParams(opts?.adult);
-            // Jika adult = "only", kita kembalikan hasil kosong karena getAdultMovies menanganinya
-            if (adultParam === "only") {
-                return { data: [], page: 1, totalPages: 1, totalItems: 0 };
-            }
             const r = await this.fetchWithFallback(
                 `/movie/now_playing?page=${page}&api_key=${TMDB_KEY}`
             );
@@ -297,15 +317,8 @@ class MovieAPI {
         }
     }
 
-    async getPopularMovies(
-        page = 1,
-        opts?: { adult?: "include" | "exclude" | "only" }
-    ): Promise<PaginatedResponse<Movie>> {
+    async getPopularMovies(page = 1): Promise<PaginatedResponse<Movie>> {
         try {
-            const adultParam = this.buildAdultParams(opts?.adult);
-            if (adultParam === "only") {
-                return { data: [], page: 1, totalPages: 1, totalItems: 0 };
-            }
             const r = await this.fetchWithFallback(
                 `/movie/popular?page=${page}&api_key=${TMDB_KEY}`
             );
@@ -335,15 +348,8 @@ class MovieAPI {
         }
     }
 
-    async getLatestSeries(
-        page = 1,
-        opts?: { adult?: "include" | "exclude" | "only" }
-    ): Promise<PaginatedResponse<Movie>> {
+    async getLatestSeries(page = 1): Promise<PaginatedResponse<Movie>> {
         try {
-            const adultParam = this.buildAdultParams(opts?.adult);
-            if (adultParam === "only") {
-                return { data: [], page: 1, totalPages: 1, totalItems: 0 };
-            }
             const r = await this.fetchWithFallback(
                 `/tv/on_the_air?page=${page}&api_key=${TMDB_KEY}`
             );
@@ -515,12 +521,11 @@ class MovieAPI {
 
                     eps.push(
                         ...(r.episodes || []).map((e: any) => {
-                            const streamUrl =
-                                this.getEpisodeStreamingUrl(
-                                    seriesId,
-                                    s.season_number,
-                                    e.episode_number
-                                )[0]?.url || "#";
+                            const providers = this.getEpisodeStreamingUrl(
+                                seriesId,
+                                s.season_number,
+                                e.episode_number
+                            );
                             return {
                                 id: `${s.season_number}-${e.episode_number}`,
                                 title: e.name,
@@ -529,7 +534,7 @@ class MovieAPI {
                                 cover: e.still_path
                                     ? `https://image.tmdb.org/t/p/w500${e.still_path}`
                                     : "/placeholder.svg",
-                                streamUrl, // URL dari vidlink
+                                streamUrl: providers[0]?.url || "#",
                             };
                         })
                     );
@@ -561,9 +566,7 @@ class MovieAPI {
                 `/tv/${seriesId}/season/${season}/episode/${ep}?api_key=${TMDB_KEY}`
             );
 
-            const streamUrl =
-                this.getEpisodeStreamingUrl(seriesId, season, ep)[0]?.url ||
-                "#";
+            const providers = this.getEpisodeStreamingUrl(seriesId, season, ep);
 
             return {
                 id: `${season}-${ep}`,
@@ -573,7 +576,7 @@ class MovieAPI {
                 cover: d.still_path
                     ? `https://image.tmdb.org/t/p/w500${d.still_path}`
                     : "/placeholder.svg",
-                streamUrl, // URL dari vidlink
+                streamUrl: providers[0]?.url || "#",
             };
         } catch (error) {
             console.error("Failed to get episode by ID:", error);
@@ -583,14 +586,9 @@ class MovieAPI {
 
     async searchMovies(
         query: string,
-        page = 1,
-        opts?: { adult?: "include" | "exclude" | "only" }
+        page = 1
     ): Promise<PaginatedResponse<Movie>> {
         try {
-            const adultParam = this.buildAdultParams(opts?.adult);
-            if (adultParam === "only") {
-                return { data: [], page: 1, totalPages: 1, totalItems: 0 };
-            }
             const r = await this.fetchWithFallback(
                 `/search/multi?query=${encodeURIComponent(
                     query
@@ -639,8 +637,7 @@ class MovieAPI {
 
     async getMoviesByGenre(
         genre: string,
-        page = 1,
-        opts?: { adult?: "include" | "exclude" | "only" }
+        page = 1
     ): Promise<PaginatedResponse<Movie>> {
         await this.ensureGenreMap();
         const key = Object.keys(this.genreMap || {}).find(
@@ -650,11 +647,6 @@ class MovieAPI {
         const out: Movie[] = [];
 
         try {
-            const adultParam = this.buildAdultParams(opts?.adult);
-            if (adultParam === "only") {
-                return { data: [], page: 1, totalPages: 1, totalItems: 0 };
-            }
-
             if (ids.movie) {
                 const r = await this.fetchWithFallback(
                     `/discover/movie?with_genres=${ids.movie}&page=${page}&api_key=${TMDB_KEY}`
@@ -710,14 +702,9 @@ class MovieAPI {
 
     async getMoviesByCountry(
         country: string,
-        page = 1,
-        opts?: { adult?: "include" | "exclude" | "only" }
+        page = 1
     ): Promise<PaginatedResponse<Movie>> {
         try {
-            const adultParam = this.buildAdultParams(opts?.adult);
-            if (adultParam === "only") {
-                return { data: [], page: 1, totalPages: 1, totalItems: 0 };
-            }
             const [m, t] = await Promise.all([
                 this.fetchWithFallback(
                     `/discover/movie?with_origin_country=${encodeURIComponent(
@@ -774,14 +761,9 @@ class MovieAPI {
 
     async getMoviesByYear(
         year: string,
-        page = 1,
-        opts?: { adult?: "include" | "exclude" | "only" }
+        page = 1
     ): Promise<PaginatedResponse<Movie>> {
         try {
-            const adultParam = this.buildAdultParams(opts?.adult);
-            if (adultParam === "only") {
-                return { data: [], page: 1, totalPages: 1, totalItems: 0 };
-            }
             const [m, t] = await Promise.all([
                 this.fetchWithFallback(
                     `/discover/movie?primary_release_year=${encodeURIComponent(
@@ -888,23 +870,14 @@ class MovieAPI {
 
     async getAnime(
         page = 1,
-        opts?: {
-            type?: "tv" | "movie" | "all";
-            audio?: "sub" | "dub" | "all";
-            adult?: "include" | "exclude" | "only";
-        }
+        opts?: { type?: "tv" | "movie" | "all"; audio?: "sub" | "dub" | "all" }
     ): Promise<PaginatedResponse<Movie>> {
         await this.ensureGenreMap();
         const animation = (this.genreMap || {})["Animation"];
         const results: Movie[] = [];
         const type = opts?.type || "all";
         const audio = opts?.audio || "all";
-        const adult = opts?.adult || "exclude";
         const pagesToFetch = 3;
-
-        if (adult === "only") {
-            return { data: [], page: 1, totalPages: 1, totalItems: 0 };
-        }
 
         const pushFiltered = (items: any[], map: (x: any) => Movie) => {
             for (const x of items) {
@@ -972,112 +945,50 @@ class MovieAPI {
         }
     }
 
-    // Fungsi getAdultMovies yang dimodifikasi untuk mengambil data dari TMDB berdasarkan genre yang mungkin lebih intens (misalnya Romance, Thriller)
-    // Ini adalah pendekatan terbaik jika tidak ada API konten eksplisit.
-    // Anda bisa menggabungkan beberapa genre.
     async getAdultMovies(page = 1): Promise<PaginatedResponse<Movie>> {
         await this.ensureGenreMap();
         const romanceId = (this.genreMap || {})["Romance"]?.movie;
-        const thrillerId = (this.genreMap || {})["Thriller"]?.movie; // Tambahkan genre lain jika diinginkan
         const pagesToFetch = 3;
         const results: Movie[] = [];
 
         try {
-            // Ambil dari genre Romance
-            if (romanceId) {
-                for (let p = page; p < page + pagesToFetch; p++) {
-                    const r = await this.fetchWithFallback(
-                        `/discover/movie?with_genres=${romanceId}&sort_by=popularity.desc&page=${p}&api_key=${TMDB_KEY}`
-                    );
-                    results.push(
-                        ...(r.results || []).map((m: any) => ({
-                            id: String(m.id),
-                            title: m.title,
-                            cover: m.poster_path
-                                ? `https://image.tmdb.org/t/p/w500${m.poster_path}`
-                                : "/placeholder.svg",
-                            rating: m.vote_average || 0,
-                            genre: m.genre_ids?.map((id: number) =>
-                                this.getGenreName(id)
-                            ) || ["Romance"],
-                            country:
-                                (m.origin_country && m.origin_country[0]) ||
-                                "Unknown",
-                            year: (m.release_date || "").slice(0, 4),
-                            synopsis: m.overview || "No synopsis available",
-                            type: "movie" as const,
-                        }))
-                    );
-                }
+            for (let p = page; p < page + pagesToFetch; p++) {
+                const r = await this.fetchWithFallback(
+                    `/discover/movie?with_genres=${romanceId}&include_adult=true&certification_country=US&certification.gte=R&sort_by=popularity.desc&page=${p}&api_key=${TMDB_KEY}`
+                );
+                results.push(
+                    ...(r.results || []).map((m: any) => ({
+                        id: String(m.id),
+                        title: m.title,
+                        cover: m.poster_path
+                            ? `https://image.tmdb.org/t/p/w500${m.poster_path}`
+                            : "/placeholder.svg",
+                        rating: m.vote_average || 0,
+                        genre: ["Romance", "Adult"],
+                        country:
+                            (m.origin_country && m.origin_country[0]) ||
+                            "Unknown",
+                        year: (m.release_date || "").slice(0, 4),
+                        synopsis: m.overview || "No synopsis available",
+                        type: "movie" as const,
+                    }))
+                );
             }
-
-            // Ambil dari genre Thriller
-            if (thrillerId) {
-                for (let p = page; p < page + pagesToFetch; p++) {
-                    const r = await this.fetchWithFallback(
-                        `/discover/movie?with_genres=${thrillerId}&sort_by=popularity.desc&page=${p}&api_key=${TMDB_KEY}`
-                    );
-                    results.push(
-                        ...(r.results || []).map((m: any) => ({
-                            id: String(m.id),
-                            title: m.title,
-                            cover: m.poster_path
-                                ? `https://image.tmdb.org/t/p/w500${m.poster_path}`
-                                : "/placeholder.svg",
-                            rating: m.vote_average || 0,
-                            genre: m.genre_ids?.map((id: number) =>
-                                this.getGenreName(id)
-                            ) || ["Thriller"],
-                            country:
-                                (m.origin_country && m.origin_country[0]) ||
-                                "Unknown",
-                            year: (m.release_date || "").slice(0, 4),
-                            synopsis: m.overview || "No synopsis available",
-                            type: "movie" as const,
-                        }))
-                    );
-                }
-            }
-
-            // Hilangkan duplikat berdasarkan ID
-            const uniqueResults = results.filter(
-                (movie, index, self) =>
-                    index === self.findIndex((m) => m.id === movie.id)
-            );
 
             return {
-                data: uniqueResults,
+                data: results,
                 page,
                 totalPages: 1,
-                totalItems: uniqueResults.length,
+                totalItems: results.length,
             };
         } catch (error) {
-            console.error(
-                "Failed to get adult movies (alternative method):",
-                error
-            );
+            console.error("Failed to get adult movies:", error);
             return { data: [], page: 1, totalPages: 1, totalItems: 0 };
         }
     }
 
-    // Helper untuk mendapatkan nama genre dari ID
-    private getGenreName(id: number): string {
-        if (!this.genreMap) return "Unknown";
-        const genre = Object.entries(this.genreMap).find(
-            ([_, value]) => value.movie === id || value.tv === id
-        );
-        return genre ? genre[0] : "Unknown";
-    }
-
-    async getIndonesianMovies(
-        page = 1,
-        opts?: { adult?: "include" | "exclude" | "only" }
-    ): Promise<PaginatedResponse<Movie>> {
+    async getIndonesianMovies(page = 1): Promise<PaginatedResponse<Movie>> {
         try {
-            const adultParam = this.buildAdultParams(opts?.adult);
-            if (adultParam === "only") {
-                return { data: [], page: 1, totalPages: 1, totalItems: 0 };
-            }
             const r = await this.fetchWithFallback(
                 `/discover/movie?with_origin_country=ID&page=${page}&api_key=${TMDB_KEY}`
             );
@@ -1107,19 +1018,11 @@ class MovieAPI {
         }
     }
 
-    async getKoreanDrama(
-        page = 1,
-        opts?: { adult?: "include" | "exclude" | "only" }
-    ): Promise<PaginatedResponse<Movie>> {
+    async getKoreanDrama(page = 1): Promise<PaginatedResponse<Movie>> {
         await this.ensureGenreMap();
         const drama = (this.genreMap || {})["Drama"];
         const results: Movie[] = [];
         const pagesToFetch = 3;
-        const adultParam = this.buildAdultParams(opts?.adult);
-
-        if (adultParam === "only") {
-            return { data: [], page: 1, totalPages: 1, totalItems: 0 };
-        }
 
         try {
             if (drama?.tv) {
