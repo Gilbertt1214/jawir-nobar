@@ -32,7 +32,7 @@ export function Navbar() {
                   className="h-8 w-8"
                 />
                   <span className="hidden sm:inline">
-                      Jawir | Kingdom of Wysteria
+                      Nobar bersama jawir
                   </span>
               </Link>
 

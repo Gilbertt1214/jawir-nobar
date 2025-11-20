@@ -6,6 +6,7 @@ import { ArrowLeft } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
+import { useState } from 'react';
 
 export default function EpisodeDetail() {
   const { seriesId, episodeId } = useParams<{ seriesId: string; episodeId: string }>();
@@ -15,6 +16,8 @@ export default function EpisodeDetail() {
     queryFn: () => movieAPI.getEpisodeById(seriesId!, episodeId!),
     enabled: !!seriesId && !!episodeId,
   });
+
+  const [source, setSource] = useState<'vidlink'|'embedsu'|'multiembed'|'twoembed'>('vidlink');
 
   if (isLoading) {
     return (
@@ -49,9 +52,22 @@ export default function EpisodeDetail() {
 
       <div className="max-w-5xl mx-auto space-y-6">
         {/* Video Player Placeholder */}
+        <div className="mb-3 flex flex-wrap gap-2">
+          <Button variant={source==='vidlink'?'default':'outline'} size="sm" onClick={()=>setSource('vidlink')}>VidLink</Button>
+          <Button variant={source==='embedsu'?'default':'outline'} size="sm" onClick={()=>setSource('embedsu')}>Embed.su</Button>
+          <Button variant={source==='multiembed'?'default':'outline'} size="sm" onClick={()=>setSource('multiembed')}>MultiEmbed</Button>
+          <Button variant={source==='twoembed'?'default':'outline'} size="sm" onClick={()=>setSource('twoembed')}>2Embed</Button>
+        </div>
         <div className="relative aspect-video bg-black rounded-lg overflow-hidden shadow-card-hover">
           <iframe
-            src={episode.streamUrl}
+            src={source==='vidlink'
+              ? `https://vidlink.pro/tv/${seriesId}/${episode.seasonNumber}/${episode.episodeNumber}?player=jw&icons=default&title=true&poster=true`
+              : source==='embedsu'
+              ? `https://embed.su/embed/tv/${seriesId}/${episode.seasonNumber}/${episode.episodeNumber}`
+              : source==='multiembed'
+              ? `https://multiembed.mov/?video_id=${seriesId}&s=${episode.seasonNumber}&e=${episode.episodeNumber}`
+              : `https://www.2embed.stream/embed/tv/${seriesId}/${episode.seasonNumber}/${episode.episodeNumber}`
+            }
             className="absolute inset-0 w-full h-full"
             allowFullScreen
             frameBorder={0}

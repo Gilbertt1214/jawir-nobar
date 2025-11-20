@@ -19,6 +19,7 @@ import YearList from "./pages/YearList";
 import YearMovies from "./pages/YearMovies";
 import NotFound from "./pages/NotFound";
 import AnimeDetail from "./pages/AnimeDetail";
+import BrowseCategory from "./pages/BrowseCategory";
 
 
 const queryClient = new QueryClient({
@@ -47,6 +48,7 @@ const App = () => (
                 <Route path="/series/:id/episodes" element={<SeriesEpisodes />} />
                 <Route path="/series/:seriesId/episodes/:episodeId" element={<EpisodeDetail />} />
                 <Route path="/anime/:malId/:number/:subOrDub" element={<AnimeDetail />} />
+                <Route path="/browse/:category" element={<BrowseCategory />} />
                 <Route path="/search" element={<Search />} />
                 <Route path="/genres" element={<GenreList />} />
                 <Route path="/genre/:genre" element={<GenreMovies />} />

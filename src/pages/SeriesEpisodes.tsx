@@ -72,7 +72,7 @@ export default function SeriesEpisodes() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {episodes.map((episode) => (
-          <Link key={episode.id} to={`/series/${id}/episodes/${episode.id}`}>
+          <Link key={`${episode.seasonNumber}-${episode.episodeNumber}`} to={`/series/${id}/episodes/${episode.seasonNumber}-${episode.episodeNumber}`}>
             <Card className="overflow-hidden group cursor-pointer hover:shadow-card-hover transition-smooth">
               <div className="relative aspect-video overflow-hidden bg-muted">
                 <img
