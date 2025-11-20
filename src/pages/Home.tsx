@@ -470,7 +470,7 @@ export default function Home() {
                             </div>
 
                             {/* Filter Buttons */}
-                            <div className="flex flex-wrap items-center gap-2">
+                            {/* <div className="flex flex-wrap items-center gap-2">
                                 <div className="flex items-center p-1 rounded-lg bg-muted/50">
                                     {(["all", "tv", "movie"] as const).map(
                                         (type) => (
@@ -520,7 +520,7 @@ export default function Home() {
                                         )
                                     )}
                                 </div>
-                            </div>
+                            </div> */}
 
                             <Button
                                 asChild
