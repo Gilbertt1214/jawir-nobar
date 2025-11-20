@@ -76,9 +76,9 @@ export default function Home() {
   }
 
   return (
-      <div className="container mx-auto px-4 py-8 space-y-12">
+      <>
           {/* Hero Section */}
-          <section className="relative h-[400px] md:h-[500px] -mx-4 mb-12 overflow-hidden rounded-b-lg">
+          <section className="relative h-[400px] md:h-[500px] mb-12 overflow-hidden">
               {heroItem?.cover ? (
                 <img
                   src={heroItem.cover}
@@ -114,58 +114,43 @@ export default function Home() {
                     ))}
                   </div>
                 )}
-
-                <div className="absolute bottom-4 right-4 flex gap-2">
-                  <button
-                    onClick={() => setHeroIndex(i => (i - 1 + heroList.length) % heroList.length)}
-                    className="px-3 py-2 rounded bg-background/60 hover:bg-background/80 backdrop-blur transition"
-                    aria-label="Previous background"
-                  >
-                    ‹
-                  </button>
-                  <button
-                    onClick={() => setHeroIndex(i => (i + 1) % heroList.length)}
-                    className="px-3 py-2 rounded bg-background/60 hover:bg-background/80 backdrop-blur transition"
-                    aria-label="Next background"
-                  >
-                    ›
-                  </button>
-                </div>
               </div>
           </section>
 
-          {/* Latest Movies */}
-          {latestMovies?.data && latestMovies.data.length > 0 && (
-              <MovieCarousel title="Latest Movies" movies={latestMovies.data} />
-          )}
+          <div className="container mx-auto px-4 py-8 space-y-12">
+            {/* Latest Movies */}
+            {latestMovies?.data && latestMovies.data.length > 0 && (
+                <MovieCarousel title="Latest Movies" movies={latestMovies.data} />
+            )}
 
-          {/* Popular Movies */}
-          {popularMovies?.data && popularMovies.data.length > 0 && (
-              <MovieCarousel
-                  title="Popular Movies"
-                  movies={popularMovies.data}
-              />
-          )}
+            {/* Popular Movies */}
+            {popularMovies?.data && popularMovies.data.length > 0 && (
+                <MovieCarousel
+                    title="Popular Movies"
+                    movies={popularMovies.data}
+                />
+            )}
 
-          {/* Latest Series */}
-          {latestSeries?.data && latestSeries.data.length > 0 && (
-              <MovieCarousel title="Latest Series" movies={latestSeries.data} />
-          )}
+            {/* Latest Series */}
+            {latestSeries?.data && latestSeries.data.length > 0 && (
+                <MovieCarousel title="Latest Series" movies={latestSeries.data} />
+            )}
 
-          {/* Anime */}
-          {anime?.data && anime.data.length > 0 && (
-              <MovieCarousel title="Anime" movies={anime.data} />
-          )}
+            {/* Anime */}
+            {anime?.data && anime.data.length > 0 && (
+                <MovieCarousel title="Anime" movies={anime.data} />
+            )}
 
-          {/* Indonesian Movies */}
-          {indo?.data && indo.data.length > 0 && (
-              <MovieCarousel title="Indonesian Movies" movies={indo.data} />
-          )}
+            {/* Indonesian Movies */}
+            {indo?.data && indo.data.length > 0 && (
+                <MovieCarousel title="Indonesian Movies" movies={indo.data} />
+            )}
 
-          {/* Korean Drama */}
-          {kdrama?.data && kdrama.data.length > 0 && (
-              <MovieCarousel title="Korean Drama" movies={kdrama.data} />
-          )}
-      </div>
+            {/* Korean Drama */}
+            {kdrama?.data && kdrama.data.length > 0 && (
+                <MovieCarousel title="Korean Drama" movies={kdrama.data} />
+            )}
+          </div>
+      </>
   );
 }
