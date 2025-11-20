@@ -35,7 +35,7 @@ export default function BrowseCategory() {
             case "korean-drama":
                 return "Korean Drama";
             case "adult-movies":
-                return "Adult Movies 21+";
+                return "Romance";
             default:
                 return "Browse";
         }

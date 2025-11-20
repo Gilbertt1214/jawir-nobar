@@ -229,7 +229,7 @@ export default function Home() {
 
             {adult?.data && adult.data.length > 0 && (
               <div className="space-y-4">
-                <MovieCarousel title="Adult Movies 21+" movies={adult.data} />
+                <MovieCarousel title="Romance" movies={adult.data} />
                 <Button asChild variant="outline"><Link to="/browse/adult-movies">Lihat lebih banyak</Link></Button>
               </div>
             )}
