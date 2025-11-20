@@ -56,6 +56,20 @@ export default function SeriesEpisodes() {
         </p>
       </div>
 
+      {episodes.length > 0 && (
+        <div className="mb-8">
+          <h2 className="text-2xl font-semibold mb-3">Watch</h2>
+          <div className="relative aspect-video bg-black rounded-lg overflow-hidden shadow-card-hover">
+            <iframe
+              src={episodes[0].streamUrl}
+              className="absolute inset-0 w-full h-full"
+              allowFullScreen
+              frameBorder={0}
+            />
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {episodes.map((episode) => (
           <Link key={episode.id} to={`/series/${id}/episodes/${episode.id}`}>

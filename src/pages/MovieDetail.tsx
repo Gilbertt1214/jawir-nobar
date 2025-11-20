@@ -1,4 +1,4 @@
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useMatch } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { movieAPI } from '@/services/api';
 import { Button } from '@/components/ui/button';
@@ -7,14 +7,43 @@ import { Star, Calendar, Globe, Play } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { useEffect, useState } from 'react';
 
 export default function MovieDetail() {
   const { id } = useParams<{ id: string }>();
+  const isSeriesRoute = !!useMatch('/series/:id');
   const { data: movie, isLoading, error } = useQuery({
-    queryKey: ['movie', id],
-    queryFn: () => movieAPI.getMovieById(id!),
+    queryKey: [isSeriesRoute ? 'series' : 'movie', id],
+    queryFn: () => (isSeriesRoute ? movieAPI.getSeriesById(id!) : movieAPI.getMovieById(id!)),
     enabled: !!id,
   });
+
+  const [name, setName] = useState('');
+  const [message, setMessage] = useState('');
+  const [comments, setComments] = useState<Array<{ name: string; message: string; time: number }>>([]);
+
+  useEffect(() => {
+    if (!id) return;
+    try {
+      const raw = localStorage.getItem(`comments:movie:${id}`);
+      setComments(raw ? JSON.parse(raw) : []);
+    } catch {
+      setComments([]);
+    }
+  }, [id]);
+
+  const addComment = () => {
+    const n = name.trim();
+    const m = message.trim();
+    if (!n || !m || !id) return;
+    const next = [{ name: n, message: m, time: Date.now() }, ...comments];
+    setComments(next);
+    localStorage.setItem(`comments:movie:${id}`, JSON.stringify(next));
+    setName('');
+    setMessage('');
+  };
 
   if (isLoading) {
     return (
@@ -43,7 +72,7 @@ export default function MovieDetail() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen pb-24">
       {/* Backdrop */}
       <div className="relative h-[400px] -mt-16 overflow-hidden">
         <div 
@@ -127,6 +156,46 @@ export default function MovieDetail() {
                 </Link>
               </div>
             )}
+
+            {movie.type === 'movie' && (
+              <div>
+                <h2 className="text-2xl font-semibold mb-3">Watch</h2>
+                <div className="relative aspect-video bg-black rounded-lg overflow-hidden shadow-card-hover">
+                  <iframe
+                    src={`https://vidlink.pro/movie/${id}?player=jw&icons=default&title=true&poster=true`}
+                    className="absolute inset-0 w-full h-full"
+                    allowFullScreen
+                    frameBorder={0}
+                  />
+                </div>
+              </div>
+            )}
+
+            <div className="mt-8 mb-24 rounded-lg border bg-card p-4 md:p-6">
+              <h2 className="text-2xl font-semibold mb-4">Comments</h2>
+              <div className="grid md:grid-cols-2 gap-4 mb-4">
+                <Input placeholder="Your name" value={name} onChange={(e) => setName(e.target.value)} />
+                <Textarea placeholder="Your message" value={message} onChange={(e) => setMessage(e.target.value)} className="md:col-span-2" />
+              </div>
+              <div className="flex justify-end">
+                <Button onClick={addComment}>Send</Button>
+              </div>
+              <div className="mt-6 space-y-4">
+                {comments.length === 0 ? (
+                  <p className="text-muted-foreground">Belum ada komentar.</p>
+                ) : (
+                  comments.map((c, idx) => (
+                    <div key={`${c.time}-${idx}`} className="p-4 rounded-lg border bg-background">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-semibold">{c.name}</span>
+                        <span className="text-xs text-muted-foreground">{new Date(c.time).toLocaleString()}</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground whitespace-pre-wrap">{c.message}</p>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -4,8 +4,10 @@
     "lib": ["ES2023"],
     "module": "ESNext",
     "skipLibCheck": true,
+    "composite": true,
+    "types": ["node"],
 
-    /* Bundler mode */
+    /* Node resolution for config files */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "isolatedModules": true,

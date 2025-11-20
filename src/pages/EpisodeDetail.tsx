@@ -50,11 +50,12 @@ export default function EpisodeDetail() {
       <div className="max-w-5xl mx-auto space-y-6">
         {/* Video Player Placeholder */}
         <div className="relative aspect-video bg-black rounded-lg overflow-hidden shadow-card-hover">
-          <div className="absolute inset-0 flex items-center justify-center">
-            <p className="text-white text-lg">
-              Video Player - Stream URL: {episode.streamUrl}
-            </p>
-          </div>
+          <iframe
+            src={episode.streamUrl}
+            className="absolute inset-0 w-full h-full"
+            allowFullScreen
+            frameBorder={0}
+          />
         </div>
 
         <div>

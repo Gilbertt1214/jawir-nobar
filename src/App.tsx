@@ -18,6 +18,8 @@ import CountryMovies from "./pages/CountryMovies";
 import YearList from "./pages/YearList";
 import YearMovies from "./pages/YearMovies";
 import NotFound from "./pages/NotFound";
+import AnimeDetail from "./pages/AnimeDetail";
+
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -44,6 +46,7 @@ const App = () => (
                 <Route path="/series/:id" element={<MovieDetail />} />
                 <Route path="/series/:id/episodes" element={<SeriesEpisodes />} />
                 <Route path="/series/:seriesId/episodes/:episodeId" element={<EpisodeDetail />} />
+                <Route path="/anime/:malId/:number/:subOrDub" element={<AnimeDetail />} />
                 <Route path="/search" element={<Search />} />
                 <Route path="/genres" element={<GenreList />} />
                 <Route path="/genre/:genre" element={<GenreMovies />} />
@@ -51,6 +54,7 @@ const App = () => (
                 <Route path="/country/:country" element={<CountryMovies />} />
                 <Route path="/years" element={<YearList />} />
                 <Route path="/year/:year" element={<YearMovies />} />
+                <Route path="/anime/:malId/:number/:subOrDub" element={<AnimeDetail />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>

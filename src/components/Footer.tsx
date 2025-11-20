@@ -9,7 +9,7 @@ export function Footer() {
           <div className="space-y-4">
             <Link to="/" className="flex items-center gap-2 font-bold text-xl">
               <Film className="h-6 w-6 text-primary" />
-              <span>MovieHub</span>
+              <span>Jawir nobar</span>
             </Link>
             <p className="text-sm text-muted-foreground">
               Your ultimate destination for movies and series streaming.
@@ -24,7 +24,7 @@ export function Footer() {
                   Genres
                 </Link>
               </li>
-              <li>
+              {/* <li>
                 <Link to="/countries" className="text-muted-foreground hover:text-primary transition-smooth">
                   Countries
                 </Link>
@@ -33,7 +33,7 @@ export function Footer() {
                 <Link to="/years" className="text-muted-foreground hover:text-primary transition-smooth">
                   Years
                 </Link>
-              </li>
+              </li> */}
             </ul>
           </div>
 
@@ -81,7 +81,7 @@ export function Footer() {
         </div>
 
         <div className="mt-8 pt-8 border-t text-center text-sm text-muted-foreground">
-          <p>&copy; 2025 MovieHub. All rights reserved.</p>
+          <p>&copy; 2025 Jawir nobar. All rights reserved.</p>
         </div>
       </div>
     </footer>

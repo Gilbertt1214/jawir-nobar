@@ -57,8 +57,8 @@ export function MovieCard({ movie }: MovieCardProps) {
               ))}
             </div>
           )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
     </Link>
   );
 }
