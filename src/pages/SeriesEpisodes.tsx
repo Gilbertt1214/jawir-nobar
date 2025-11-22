@@ -27,7 +27,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { useState, useMemo } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Episode, Movie } from "@/services/api"; 
+import { Episode, Movie } from "@/services/api";
 
 interface SeasonDetail {
     id: number;

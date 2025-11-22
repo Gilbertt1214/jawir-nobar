@@ -18,7 +18,19 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+
+interface Comment {
+    name: string;
+    message: string;
+    time: number;
+}
 
 export default function MovieDetail() {
     const { id } = useParams<{ id: string }>();
@@ -39,9 +51,7 @@ export default function MovieDetail() {
 
     const [name, setName] = useState("");
     const [message, setMessage] = useState("");
-    const [comments, setComments] = useState<
-        Array<{ name: string; message: string; time: number }>
-    >([]);
+    const [comments, setComments] = useState<Comment[]>([]);
     const [selectedProvider, setSelectedProvider] = useState(0);
     const [providerError, setProviderError] = useState(false);
 
@@ -71,8 +81,8 @@ export default function MovieDetail() {
         setMessage("");
     };
 
-    const handleProviderChange = (index: number) => {
-        setSelectedProvider(index);
+    const handleProviderChange = (value: string) => {
+        setSelectedProvider(Number(value));
         setProviderError(false);
     };
 
@@ -285,182 +295,131 @@ export default function MovieDetail() {
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <Alert className="mb-4">
-                                        <AlertCircle className="h-4 w-4" />
-                                        <AlertDescription className="text-xs">
-                                            Streaming disediakan oleh pihak
-                                            ketiga. Jika player tidak bekerja,
-                                            coba provider lain atau refresh
-                                            halaman.
-                                        </AlertDescription>
-                                    </Alert>
+                                    <div className="space-y-4">
+                                        {/* Provider Dropdown */}
+                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                            <Select
+                                                value={String(selectedProvider)}
+                                                onValueChange={
+                                                    handleProviderChange
+                                                }
+                                            >
+                                                <SelectTrigger className="w-full sm:w-[250px]">
+                                                    <SelectValue placeholder="Select provider" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {streamingProviders.map(
+                                                        (provider, index) => (
+                                                            <SelectItem
+                                                                key={index}
+                                                                value={String(
+                                                                    index
+                                                                )}
+                                                            >
+                                                                {provider.name}
+                                                            </SelectItem>
+                                                        )
+                                                    )}
+                                                </SelectContent>
+                                            </Select>
 
-                                    {/* Provider Selection - Scrollable Only on Mobile */}
-                                    <Tabs
-                                        value={String(selectedProvider)}
-                                        onValueChange={(v) =>
-                                            handleProviderChange(Number(v))
-                                        }
-                                    >
-                                        <div className="relative">
-                                            {/* Mobile: Scrollable Flex */}
-                                            <TabsList className="flex flex-wrap gap-1 mb-4 overflow-x-auto pb-2">
-                                                {streamingProviders.map(
-                                                    (provider, index) => (
-                                                        <TabsTrigger
-                                                            key={index}
-                                                            value={String(
-                                                                index
-                                                            )}
-                                                            className="flex-shrink-0 text-xs py-1.5 px-3 whitespace-nowrap"
-                                                        >
-                                                            {provider.name}
-                                                        </TabsTrigger>
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={() =>
+                                                    window.open(
+                                                        streamingProviders[
+                                                            selectedProvider
+                                                        ]?.url,
+                                                        "_blank"
                                                     )
-                                                )}
-                                            </TabsList>
-
-                                            {/* Desktop: Grid (optional fallback, but we keep flex for consistency) */}
-                                            {/* Jika ingin grid di desktop, gunakan ini instead:
-                                            <TabsList className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 mb-4">
-                                                {streamingProviders.map((provider, index) => (
-                                                    <TabsTrigger
-                                                        key={index}
-                                                        value={String(index)}
-                                                        className="text-xs py-1.5"
-                                                    >
-                                                        {provider.name}
-                                                    </TabsTrigger>
-                                                ))}
-                                            </TabsList>
-                                            */}
-
-                                            {/* Gradient hint for scroll */}
-                                            <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent pointer-events-none" />
+                                                }
+                                                className="text-xs px-2 py-1"
+                                            >
+                                                <ExternalLink className="h-4 w-4 mr-1" />
+                                                New Tab
+                                            </Button>
                                         </div>
 
-                                        {streamingProviders.map(
-                                            (provider, index) => (
-                                                <TabsContent
-                                                    key={index}
-                                                    value={String(index)}
-                                                >
-                                                    <div className="space-y-4">
-                                                        {/* Provider Info */}
-                                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
-                                                            <Badge
-                                                                variant="outline"
-                                                                className="text-xs py-1"
-                                                            >
-                                                                Provider:{" "}
-                                                                {provider.name}
-                                                            </Badge>
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                onClick={() =>
-                                                                    window.open(
-                                                                        provider.url,
-                                                                        "_blank"
-                                                                    )
-                                                                }
-                                                                className="text-xs px-2 py-1"
-                                                            >
-                                                                <ExternalLink className="h-4 w-4 mr-1" />
-                                                                New Tab
-                                                            </Button>
-                                                        </div>
-
-                                                        {/* Video Player */}
-                                                        {providerError ? (
-                                                            <div className="relative aspect-video bg-black rounded-lg overflow-hidden flex items-center justify-center min-h-[200px]">
-                                                                <div className="text-center text-white space-y-3 p-4">
-                                                                    <AlertCircle className="h-10 w-10 mx-auto text-red-500" />
-                                                                    <p className="text-sm">
-                                                                        Provider
-                                                                        ini
-                                                                        tidak
-                                                                        tersedia
-                                                                        saat ini
-                                                                    </p>
-                                                                    <Button
-                                                                        variant="secondary"
-                                                                        onClick={() =>
-                                                                            setProviderError(
-                                                                                false
-                                                                            )
-                                                                        }
-                                                                        className="text-xs"
-                                                                    >
-                                                                        <RefreshCw className="h-4 w-4 mr-2" />
-                                                                        Coba
-                                                                        Lagi
-                                                                    </Button>
-                                                                </div>
-                                                            </div>
-                                                        ) : (
-                                                            <div className="relative aspect-video bg-black rounded-lg overflow-hidden shadow-card-hover">
-                                                                <iframe
-                                                                    key={`${provider.url}-${index}`}
-                                                                    src={
-                                                                        provider.url
-                                                                    }
-                                                                    className="absolute inset-0 w-full h-full"
-                                                                    allowFullScreen
-                                                                    frameBorder={
-                                                                        0
-                                                                    }
-                                                                    onError={
-                                                                        handleIframeError
-                                                                    }
-                                                                    sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
-                                                                />
-                                                            </div>
-                                                        )}
-
-                                                        {/* Alternative Actions */}
-                                                        <div className="flex flex-wrap gap-2 mt-2">
-                                                            <Button
-                                                                variant="outline"
-                                                                size="sm"
-                                                                onClick={() => {
-                                                                    setSelectedProvider(
-                                                                        (
-                                                                            prev
-                                                                        ) =>
-                                                                            prev <
-                                                                            streamingProviders.length -
-                                                                                1
-                                                                                ? prev +
-                                                                                  1
-                                                                                : 0
-                                                                    );
-                                                                    setProviderError(
-                                                                        false
-                                                                    );
-                                                                }}
-                                                                className="text-xs"
-                                                            >
-                                                                Try Next
-                                                                Provider
-                                                            </Button>
-                                                            <Button
-                                                                variant="outline"
-                                                                size="sm"
-                                                                onClick={() =>
-                                                                    window.location.reload()
-                                                                }
-                                                                className="text-xs"
-                                                            >
-                                                                <RefreshCw className="h-4 w-4 mr-2" />
-                                                                Refresh Page
-                                                            </Button>
-                                                        </div>
-                                                    </div>
-                                                </TabsContent>
+                                        {/* Video Player */}
+                                        {providerError ? (
+                                            <div className="relative aspect-video bg-black rounded-lg overflow-hidden flex items-center justify-center min-h-[200px]">
+                                                <div className="text-center text-white space-y-3 p-4">
+                                                    <AlertCircle className="h-10 w-10 mx-auto text-red-500" />
+                                                    <p className="text-sm">
+                                                        Provider ini tidak
+                                                        tersedia saat ini
+                                                    </p>
+                                                    <Button
+                                                        variant="secondary"
+                                                        onClick={() =>
+                                                            setProviderError(
+                                                                false
+                                                            )
+                                                        }
+                                                        className="text-xs"
+                                                    >
+                                                        <RefreshCw className="h-4 w-4 mr-2" />
+                                                        Coba Lagi
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            streamingProviders[
+                                                selectedProvider
+                                            ] && (
+                                                <div className="relative aspect-video bg-black rounded-lg overflow-hidden shadow-card-hover">
+                                                    <iframe
+                                                        key={`${streamingProviders[selectedProvider].url}-${selectedProvider}`}
+                                                        src={
+                                                            streamingProviders[
+                                                                selectedProvider
+                                                            ].url
+                                                        }
+                                                        className="absolute inset-0 w-full h-full"
+                                                        allowFullScreen
+                                                        frameBorder={0}
+                                                        onError={
+                                                            handleIframeError
+                                                        }
+                                                    />
+                                                </div>
                                             )
                                         )}
-                                    </Tabs>
+
+                                        {/* Alternative Actions */}
+                                        <div className="flex flex-wrap gap-2">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => {
+                                                    setSelectedProvider(
+                                                        (prev) =>
+                                                            prev <
+                                                            streamingProviders.length -
+                                                                1
+                                                                ? prev + 1
+                                                                : 0
+                                                    );
+                                                    setProviderError(false);
+                                                }}
+                                                className="text-xs"
+                                            >
+                                                Try Next Provider
+                                            </Button>
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() =>
+                                                    window.location.reload()
+                                                }
+                                                className="text-xs"
+                                            >
+                                                <RefreshCw className="h-4 w-4 mr-2" />
+                                                Refresh Page
+                                            </Button>
+                                        </div>
+                                    </div>
 
                                     {/* Fallback Message */}
                                     {streamingProviders.length === 0 && (

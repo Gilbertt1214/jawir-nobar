@@ -6,16 +6,21 @@ const TMDB_BASE = "https://api.themoviedb.org/3";
 const TMDB_KEY =
     import.meta.env.VITE_TMDB_API_KEY || "9998d44e51ed7634a06c4198b289bfe4";
 
-// Base URL untuk API Otakudesu
 const OTAKUDESU_API_BASE = "https://otakudesu-anime-api.vercel.app/api/v1";
 
-// Alternative streaming providers
+// FIXED: Alternative streaming providers with Indonesian subtitle support
 const STREAMING_PROVIDERS = {
     vidsrc: "https://vidsrc.to/embed",
-    vidsrc2: "https://vidsrc.me/embed",
+    vidsrc2: "https://vidsrc.xyz/embed",
     embed2: "https://www.2embed.cc/embed",
     superembed: "https://multiembed.mov/?video_id",
-    autoembed: "https://autoembed.to/movie/tmdb",
+    autoembed: "https://autoembed.cc/embed",
+    vidlink: "https://vidlink.pro/movie",
+    // Indonesian subtitle providers
+    nontongo: "https://www.NontonGo.win/embed",
+    moviesapi: "https://moviesapi.club/movie",
+    vidsrcnl: "https://vidsrc.nl/embed",
+    embedsu: "https://embed.su/embed",
 };
 
 export interface PersonCast {
@@ -48,31 +53,30 @@ export interface Movie {
     type: "movie" | "series";
 }
 
-// Tipe data baru untuk Anime dari Otakudesu API
 export interface OtakudesuAnime {
-    id: string; // ID Otakudesu
+    id: string;
     title: string;
-    cover: string; // URL gambar cover
+    cover: string;
     rating: number;
     genre: string[];
-    status: string; // "Ongoing", "Completed", dll
-    type: string; // "TV", "Movie", "OVA", dll
-    totalEpisodes: string; // String karena bisa berupa "12" atau "Unknown"
+    status: string;
+    type: string;
+    totalEpisodes: string;
     year: string;
     synopsis: string;
     trailer?: string;
     episodeList: OtakudesuEpisode[];
-    malId?: string; // Jika tersedia
-    anilistId?: string; // Jika tersedia
+    malId?: string;
+    anilistId?: string;
 }
 
 export interface OtakudesuEpisode {
-    id: string; // Endpoint episode, misalnya "episode-1"
+    id: string;
     title: string;
     episodeNumber: number;
-    date: string; // Tanggal rilis, misalnya "2023-10-01"
-    url: string; // URL untuk menonton episode
-    batchUrl?: string; // Jika tersedia
+    date: string;
+    url: string;
+    batchUrl?: string;
 }
 
 export interface Episode {
@@ -108,7 +112,7 @@ class MovieAPI {
             : ["https://api.themoviedb.org/3"];
     }
 
-    // Get available streaming URLs for a movie
+    // FIXED: Get available streaming URLs with Indonesian subtitle support
     getStreamingUrls(
         movieId: string,
         type: "movie" | "series" = "movie"
@@ -116,53 +120,102 @@ class MovieAPI {
         const providers: StreamingProvider[] = [];
 
         if (type === "movie") {
-            providers.push({
-                name: "VidSrc",
-                url: `${STREAMING_PROVIDERS.vidsrc}/movie/${movieId}`,
-                available: true,
-            });
-            providers.push({
-                name: "VidSrc Mirror",
-                url: `${STREAMING_PROVIDERS.vidsrc2}/movie/${movieId}`,
-                available: true,
-            });
-            providers.push({
-                name: "2Embed",
-                url: `${STREAMING_PROVIDERS.embed2}/${movieId}`,
-                available: true,
-            });
-            providers.push({
-                name: "SuperEmbed",
-                url: `${STREAMING_PROVIDERS.superembed}=${movieId}&tmdb=1`,
-                available: true,
-            });
-            providers.push({
-                name: "AutoEmbed",
-                url: `${STREAMING_PROVIDERS.autoembed}/${movieId}`,
-                available: true,
-            });
+            providers.push(
+                {
+                    name: "VidSrc",
+                    url: `${STREAMING_PROVIDERS.vidsrc}/movie/${movieId}`,
+                    available: true,
+                },
+                {
+                    name: "VidSrc Mirror",
+                    url: `${STREAMING_PROVIDERS.vidsrc2}/movie/${movieId}`,
+                    available: true,
+                },
+                {
+                    name: "VidSrc NL ",
+                    url: `${STREAMING_PROVIDERS.vidsrcnl}/movie/${movieId}`,
+                    available: true,
+                },
+                {
+                    name: "2Embed",
+                    url: `${STREAMING_PROVIDERS.embed2}/${movieId}`,
+                    available: true,
+                },
+                {
+                    name: "Embed.su ",
+                    url: `${STREAMING_PROVIDERS.embedsu}/movie/${movieId}`,
+                    available: true,
+                },
+                {
+                    name: "SuperEmbed",
+                    url: `${STREAMING_PROVIDERS.superembed}=${movieId}&tmdb=1`,
+                    available: true,
+                },
+                {
+                    name: "AutoEmbed",
+                    url: `${STREAMING_PROVIDERS.autoembed}/movie/tmdb/${movieId}`,
+                    available: true,
+                },
+                {
+                    name: "NontonGo ",
+                    url: `${STREAMING_PROVIDERS.nontongo}/movie/${movieId}`,
+                    available: true,
+                },
+                {
+                    name: "MoviesAPI ",
+                    url: `${STREAMING_PROVIDERS.moviesapi}/${movieId}`,
+                    available: true,
+                },
+                {
+                    name: "VidLink",
+                    url: `${STREAMING_PROVIDERS.vidlink}/${movieId}`,
+                    available: true,
+                }
+            );
         } else {
-            providers.push({
-                name: "VidSrc",
-                url: `${STREAMING_PROVIDERS.vidsrc}/tv/${movieId}`,
-                available: true,
-            });
-            providers.push({
-                name: "VidSrc Mirror",
-                url: `${STREAMING_PROVIDERS.vidsrc2}/tv/${movieId}`,
-                available: true,
-            });
-            providers.push({
-                name: "2Embed Series",
-                url: `${STREAMING_PROVIDERS.embed2}/tv/${movieId}`,
-                available: true,
-            });
+            providers.push(
+                {
+                    name: "VidSrc",
+                    url: `${STREAMING_PROVIDERS.vidsrc}/tv/${movieId}`,
+                    available: true,
+                },
+                {
+                    name: "VidSrc Mirror",
+                    url: `${STREAMING_PROVIDERS.vidsrc2}/tv/${movieId}`,
+                    available: true,
+                },
+                {
+                    name: "VidSrc NL ",
+                    url: `${STREAMING_PROVIDERS.vidsrcnl}/tv/${movieId}`,
+                    available: true,
+                },
+                {
+                    name: "2Embed Series",
+                    url: `${STREAMING_PROVIDERS.embed2}/tv/${movieId}`,
+                    available: true,
+                },
+                {
+                    name: "Embed.su ",
+                    url: `${STREAMING_PROVIDERS.embedsu}/tv/${movieId}`,
+                    available: true,
+                },
+                {
+                    name: "NontonGo ",
+                    url: `${STREAMING_PROVIDERS.nontongo}/tv/${movieId}`,
+                    available: true,
+                },
+                {
+                    name: "VidLink",
+                    url: `https://vidlink.pro/tv/${movieId}`,
+                    available: true,
+                }
+            );
         }
 
         return providers;
     }
 
-    // Get episode streaming URL
+    // FIXED: Get episode streaming URL with Indonesian subtitle support
     getEpisodeStreamingUrl(
         seriesId: string,
         season: number,
@@ -180,16 +233,39 @@ class MovieAPI {
                 available: true,
             },
             {
+                name: "VidSrc NL",
+                url: `${STREAMING_PROVIDERS.vidsrcnl}/tv/${seriesId}/${season}/${episode}`,
+                available: true,
+            },
+            {
                 name: "2Embed",
                 url: `${STREAMING_PROVIDERS.embed2}/tv/${seriesId}/${season}/${episode}`,
+                available: true,
+            },
+            {
+                name: "Embed.su ",
+                url: `${STREAMING_PROVIDERS.embedsu}/tv/${seriesId}/${season}/${episode}`,
+                available: true,
+            },
+            {
+                name: "AutoEmbed",
+                url: `${STREAMING_PROVIDERS.autoembed}/tv/tmdb/${seriesId}?s=${season}&e=${episode}`,
+                available: true,
+            },
+            {
+                name: "NontonGo ",
+                url: `${STREAMING_PROVIDERS.nontongo}/tv/${seriesId}/${season}/${episode}`,
+                available: true,
+            },
+            {
+                name: "VidLink",
+                url: `https://vidlink.pro/tv/${seriesId}/${season}/${episode}`,
                 available: true,
             },
         ];
     }
 
-    // --- Metode Baru untuk Otakudesu API ---
-
-    // Get anime streaming URL using Vidlink (requires MAL ID)
+    // FIXED: Anime streaming URL
     getAnimeStreamingUrl(
         malId: string,
         episodeNumber: number,
@@ -198,7 +274,7 @@ class MovieAPI {
         return [
             {
                 name: "VidLink Anime",
-                url: `https://vidlink.pro/anime/${malId}/${episodeNumber}/${subOrDub}?player=jw`,
+                url: `https://vidlink.pro/anime/${malId}/${episodeNumber}/${subOrDub}`,
                 available: true,
             },
         ];
@@ -246,7 +322,6 @@ class MovieAPI {
         }
     }
 
-    // Metode untuk mengambil data dari Otakudesu API
     private async fetchOtakudesu(endpoint: string) {
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 10000);
@@ -355,31 +430,27 @@ class MovieAPI {
         }
     }
 
-    // --- Metode Otakudesu API ---
-
     async getOtakudesuAnimeList(
         page: number = 1
     ): Promise<PaginatedResponse<OtakudesuAnime>> {
         try {
             const data = await this.fetchOtakudesu(`/anime-list`);
-            // API ini mungkin tidak paginated, jadi kita buat seolah-olah
-            // Jika API benar-benar paginated, ubah endpoint dan logikanya
             return {
                 data: data.map((a: any) => ({
-                    id: a.endpoint, // Gunakan endpoint sebagai ID
+                    id: a.endpoint,
                     title: a.title,
                     cover: a.poster,
-                    rating: 0, // Rating mungkin tidak tersedia
+                    rating: 0,
                     genre: a.genres || [],
                     status: a.status || "Unknown",
                     type: a.type || "TV",
                     totalEpisodes: a.total_eps || "Unknown",
                     year: a.released || "Unknown",
                     synopsis: a.synopsis || "No synopsis available",
-                    episodeList: [], // Detail episode diambil terpisah
+                    episodeList: [],
                 })),
                 page: page,
-                totalPages: 1, // Sesuaikan jika API menyediakan info pagination
+                totalPages: 1,
                 totalItems: data.length,
             };
         } catch (error) {
@@ -388,12 +459,26 @@ class MovieAPI {
         }
     }
 
+    // FIXED: Episode sorting
     async getOtakudesuAnimeDetail(endpoint: string): Promise<OtakudesuAnime> {
         try {
             const data = await this.fetchOtakudesu(`/detail/${endpoint}`);
-            // Format data dari Otakudesu API
-            // Struktur data bisa berbeda, sesuaikan dengan respons API sebenarnya
-            const animeDetail: OtakudesuAnime = {
+
+            const episodeList = (data.episode_list || [])
+                .map((ep: any) => ({
+                    id: ep.endpoint || `episode-${ep.episode_number}`,
+                    title: ep.title || `Episode ${ep.episode_number}`,
+                    episodeNumber: ep.episode_number || 0,
+                    date: ep.date || "Unknown",
+                    url: ep.url || "#",
+                    batchUrl: ep.batch_url,
+                }))
+                .sort(
+                    (a: OtakudesuEpisode, b: OtakudesuEpisode) =>
+                        a.episodeNumber - b.episodeNumber
+                );
+
+            return {
                 id: endpoint,
                 title: data.title || "Unknown Title",
                 cover: data.poster || "/placeholder.svg",
@@ -404,20 +489,10 @@ class MovieAPI {
                 totalEpisodes: data.total_eps || "Unknown",
                 year: data.released || "Unknown",
                 synopsis: data.synopsis || "No synopsis available",
-                episodeList: (data.episode_list || []).map((ep: any) => ({
-                    id: ep.endpoint || `episode-${ep.episode_number}`,
-                    title: ep.title || `Episode ${ep.episode_number}`,
-                    episodeNumber: ep.episode_number || 0,
-                    date: ep.date || "Unknown",
-                    url: ep.url || "#",
-                    batchUrl: ep.batch_url, // Jika ada
-                })),
-                // Cek apakah MAL ID tersedia
+                episodeList: episodeList,
                 malId: data.mal_id || undefined,
                 anilistId: data.anilist_id || undefined,
             };
-
-            return animeDetail;
         } catch (error) {
             console.error("Failed to get anime detail from Otakudesu:", error);
             throw error;
@@ -444,7 +519,6 @@ class MovieAPI {
             const data = await this.fetchOtakudesu(
                 `/search/${encodeURIComponent(query)}`
             );
-            // Format hasil pencarian
             return data.map((a: any) => ({
                 id: a.endpoint,
                 title: a.title,
@@ -456,7 +530,7 @@ class MovieAPI {
                 totalEpisodes: a.total_eps || "Unknown",
                 year: a.released || "Unknown",
                 synopsis: a.synopsis || "No synopsis available",
-                episodeList: [], // Detail episode diambil terpisah
+                episodeList: [],
                 malId: a.mal_id || undefined,
                 anilistId: a.anilist_id || undefined,
             }));
@@ -466,7 +540,6 @@ class MovieAPI {
         }
     }
 
-    // --- Metode TMDB (lama) ---
     async getLatestMovies(page = 1): Promise<PaginatedResponse<Movie>> {
         try {
             const r = await this.fetchWithFallback(
@@ -684,16 +757,16 @@ class MovieAPI {
         }
     }
 
+    // FIXED: Episodes sorted by season and episode number
     async getEpisodes(seriesId: string): Promise<Episode[]> {
         try {
             const tv = await this.fetchWithFallback(
                 `/tv/${seriesId}?api_key=${TMDB_KEY}`
             );
 
-            // Filter out season 0 (specials) and invalid seasons
-            const seasons = (tv.seasons || []).filter(
-                (s: any) => s.season_number > 0 && s.episode_count > 0
-            );
+            const seasons = (tv.seasons || [])
+                .filter((s: any) => s.season_number > 0 && s.episode_count > 0)
+                .sort((a: any, b: any) => a.season_number - b.season_number);
 
             if (seasons.length === 0) {
                 console.warn(`No valid seasons found for series ${seriesId}`);
@@ -702,7 +775,6 @@ class MovieAPI {
 
             const eps: Episode[] = [];
 
-            // Fetch episodes for each season with error handling
             for (const s of seasons) {
                 try {
                     const r = await this.fetchWithFallback(
@@ -710,8 +782,12 @@ class MovieAPI {
                     );
 
                     if (r.episodes && Array.isArray(r.episodes)) {
-                        eps.push(
-                            ...r.episodes.map((e: any) => {
+                        const seasonEpisodes = r.episodes
+                            .sort(
+                                (a: any, b: any) =>
+                                    a.episode_number - b.episode_number
+                            )
+                            .map((e: any) => {
                                 const providers = this.getEpisodeStreamingUrl(
                                     seriesId,
                                     s.season_number,
@@ -728,15 +804,15 @@ class MovieAPI {
                                         : "/placeholder.svg",
                                     streamUrl: providers[0]?.url || "#",
                                 };
-                            })
-                        );
+                            });
+
+                        eps.push(...seasonEpisodes);
                     }
                 } catch (error) {
                     console.error(
                         `Failed to get season ${s.season_number} for series ${seriesId}:`,
                         error
                     );
-                    // Continue with next season instead of failing completely
                 }
             }
 
@@ -1091,7 +1167,6 @@ class MovieAPI {
         };
 
         try {
-            // Fetch TV anime
             if ((type === "tv" || type === "all") && animation?.tv) {
                 const r = await this.fetchWithFallback(
                     `/discover/tv?with_genres=${animation.tv}&with_origin_country=JP&sort_by=popularity.desc&page=${page}&api_key=${TMDB_KEY}`
@@ -1112,7 +1187,6 @@ class MovieAPI {
                 }));
             }
 
-            // Fetch movie anime
             if ((type === "movie" || type === "all") && animation?.movie) {
                 const r = await this.fetchWithFallback(
                     `/discover/movie?with_genres=${animation.movie}&with_origin_country=JP&sort_by=popularity.desc&page=${page}&api_key=${TMDB_KEY}`
@@ -1136,7 +1210,7 @@ class MovieAPI {
             return {
                 data: results,
                 page,
-                totalPages: 20, // TMDB typically has many pages
+                totalPages: 20,
                 totalItems: results.length,
             };
         } catch (error) {

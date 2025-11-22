@@ -6,7 +6,6 @@ import { ArrowLeft, AlertCircle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useState } from "react";
-import { Episode } from "@/services/api";
 
 export default function EpisodeDetail() {
     const { seriesId } = useParams();
@@ -110,7 +109,6 @@ export default function EpisodeDetail() {
             </Link>
 
             <div className="max-w-3xl mx-auto space-y-6">
-
                 {/* Provider Buttons */}
                 <div className="grid grid-cols-2 gap-2 w-full">
                     <Button
@@ -132,7 +130,9 @@ export default function EpisodeDetail() {
                     </Button>
 
                     <Button
-                        variant={source === "multiembed" ? "default" : "outline"}
+                        variant={
+                            source === "multiembed" ? "default" : "outline"
+                        }
                         size="sm"
                         onClick={() => setSource("multiembed")}
                         className="text-[12px] py-1 px-1 w-full truncate"

@@ -6,7 +6,13 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, AlertCircle, RefreshCw, ExternalLink } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { useState, useEffect } from "react";
 
 export default function AnimeDetail() {
@@ -98,7 +104,8 @@ export default function AnimeDetail() {
         },
     ];
 
-    const handleProviderChange = (index: number) => {
+    const handleProviderChange = (value: string) => {
+        const index = Number(value);
         console.log("Changing to provider:", index);
         setSelectedProvider(index);
         setProviderError(false);
@@ -329,154 +336,137 @@ export default function AnimeDetail() {
                         </Alert>
 
                         {/* Provider Selection */}
-                        <Tabs
-                            value={String(selectedProvider)}
-                            onValueChange={(v) =>
-                                handleProviderChange(Number(v))
-                            }
-                        >
-                            <TabsList className="grid grid-cols-2 mb-4">
-                                {streamingProviders.map((provider, index) => (
-                                    <TabsTrigger
-                                        key={index}
-                                        value={String(index)}
-                                        className="text-xs py-2"
-                                    >
-                                        {provider.name}
-                                    </TabsTrigger>
-                                ))}
-                            </TabsList>
-
-                            {streamingProviders.map((provider, index) => (
-                                <TabsContent key={index} value={String(index)}>
-                                    <div className="space-y-4">
-                                        {/* Provider Info */}
-                                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-2">
-                                            <span className="text-sm text-muted-foreground">
-                                                Current Provider:{" "}
-                                                {provider.name}
-                                            </span>
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={() =>
-                                                    window.open(
-                                                        provider.url,
-                                                        "_blank"
-                                                    )
-                                                }
-                                                className="px-3 py-1 text-xs"
-                                            >
-                                                <ExternalLink className="h-4 w-4 mr-1" />
-                                                New Tab
-                                            </Button>
-                                        </div>
-
-                                        {/* Video Player */}
-                                        {providerError ? (
-                                            <div className="relative aspect-video bg-black rounded-lg overflow-hidden flex items-center justify-center">
-                                                <div className="text-center text-white space-y-4 p-4">
-                                                    <AlertCircle className="h-12 w-12 mx-auto text-red-500" />
-                                                    <p className="text-base">
-                                                        This provider is not
-                                                        available
-                                                    </p>
-                                                    <p className="text-sm text-gray-400">
-                                                        The video couldn't be
-                                                        loaded. Try another
-                                                        provider.
-                                                    </p>
-                                                    <div className="flex flex-col sm:flex-row gap-2 justify-center">
-                                                        <Button
-                                                            variant="secondary"
-                                                            onClick={
-                                                                handleRefresh
-                                                            }
-                                                            className="text-xs"
-                                                        >
-                                                            <RefreshCw className="h-4 w-4 mr-2" />
-                                                            Try Again
-                                                        </Button>
-                                                        <Button
-                                                            variant="secondary"
-                                                            onClick={() => {
-                                                                const nextProvider =
-                                                                    (selectedProvider +
-                                                                        1) %
-                                                                    streamingProviders.length;
-                                                                handleProviderChange(
-                                                                    nextProvider
-                                                                );
-                                                            }}
-                                                            className="text-xs"
-                                                        >
-                                                            Next Provider
-                                                        </Button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            <div className="relative aspect-video bg-black rounded-lg overflow-hidden shadow-xl">
-                                                {selectedProvider >= 0 && (
-                                                    <iframe
-                                                        key={`${
-                                                            provider.url
-                                                        }-${index}-${Date.now()}`}
-                                                        src={provider.url}
-                                                        className="absolute inset-0 w-full h-full"
-                                                        allowFullScreen
-                                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                                        frameBorder={0}
-                                                        onError={
-                                                            handleIframeError
-                                                        }
-                                                        sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-presentation"
-                                                    />
-                                                )}
-                                            </div>
+                        <div className="space-y-4">
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                                <Select
+                                    value={String(selectedProvider)}
+                                    onValueChange={handleProviderChange}
+                                >
+                                    <SelectTrigger className="w-full sm:w-[250px]">
+                                        <SelectValue placeholder="Select provider" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {streamingProviders.map(
+                                            (provider, index) => (
+                                                <SelectItem
+                                                    key={index}
+                                                    value={String(index)}
+                                                >
+                                                    {provider.name}
+                                                </SelectItem>
+                                            )
                                         )}
+                                    </SelectContent>
+                                </Select>
 
-                                        {/* Controls */}
-                                        <div className="flex flex-wrap gap-2">
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() =>
+                                        window.open(
+                                            currentProvider.url,
+                                            "_blank"
+                                        )
+                                    }
+                                    className="px-3 py-1 text-xs"
+                                >
+                                    <ExternalLink className="h-4 w-4 mr-1" />
+                                    New Tab
+                                </Button>
+                            </div>
+
+                            {/* Video Player */}
+                            {providerError ? (
+                                <div className="relative aspect-video bg-black rounded-lg overflow-hidden flex items-center justify-center">
+                                    <div className="text-center text-white space-y-4 p-4">
+                                        <AlertCircle className="h-12 w-12 mx-auto text-red-500" />
+                                        <p className="text-base">
+                                            This provider is not available
+                                        </p>
+                                        <p className="text-sm text-gray-400">
+                                            The video couldn't be loaded. Try
+                                            another provider.
+                                        </p>
+                                        <div className="flex flex-col sm:flex-row gap-2 justify-center">
                                             <Button
-                                                variant="outline"
-                                                size="sm"
+                                                variant="secondary"
+                                                onClick={handleRefresh}
+                                                className="text-xs"
+                                            >
+                                                <RefreshCw className="h-4 w-4 mr-2" />
+                                                Try Again
+                                            </Button>
+                                            <Button
+                                                variant="secondary"
                                                 onClick={() => {
                                                     const nextProvider =
                                                         (selectedProvider + 1) %
                                                         streamingProviders.length;
                                                     handleProviderChange(
-                                                        nextProvider
+                                                        String(nextProvider)
                                                     );
                                                 }}
                                                 className="text-xs"
                                             >
-                                                Try Next Provider →
-                                            </Button>
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={handleRefresh}
-                                                className="text-xs"
-                                            >
-                                                <RefreshCw className="h-4 w-4 mr-2" />
-                                                Refresh Player
-                                            </Button>
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() =>
-                                                    window.location.reload()
-                                                }
-                                                className="text-xs"
-                                            >
-                                                Reload Page
+                                                Next Provider
                                             </Button>
                                         </div>
                                     </div>
-                                </TabsContent>
-                            ))}
-                        </Tabs>
+                                </div>
+                            ) : (
+                                <div className="relative aspect-video bg-black rounded-lg overflow-hidden shadow-xl">
+                                    {selectedProvider >= 0 && (
+                                        <iframe
+                                            key={`${
+                                                currentProvider.url
+                                            }-${selectedProvider}-${Date.now()}`}
+                                            src={currentProvider.url}
+                                            className="absolute inset-0 w-full h-full"
+                                            allowFullScreen
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                            frameBorder={0}
+                                            onError={handleIframeError}
+                                        />
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Controls */}
+                            <div className="flex flex-wrap gap-2">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                        const nextProvider =
+                                            (selectedProvider + 1) %
+                                            streamingProviders.length;
+                                        handleProviderChange(
+                                            String(nextProvider)
+                                        );
+                                    }}
+                                    className="text-xs"
+                                >
+                                    Try Next Provider →
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={handleRefresh}
+                                    className="text-xs"
+                                >
+                                    <RefreshCw className="h-4 w-4 mr-2" />
+                                    Refresh Player
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => window.location.reload()}
+                                    className="text-xs"
+                                >
+                                    Reload Page
+                                </Button>
+                            </div>
+                        </div>
 
                         {/* Episode Navigation */}
                         <div className="mt-6 p-4 bg-muted/50 rounded-lg">
