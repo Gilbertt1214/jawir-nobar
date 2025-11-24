@@ -1,11 +1,23 @@
 import { useParams, useSearchParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { movieAPI } from "@/services/api";
+import { movieAPI, type StreamingProvider } from "@/services/api";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, AlertCircle } from "lucide-react";
+import {
+    ArrowLeft,
+    AlertCircle,
+    ChevronDown,
+    MonitorPlay,
+    RefreshCw,
+} from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useState } from "react";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useState, useEffect } from "react";
 
 export default function EpisodeDetail() {
     const { seriesId } = useParams();
@@ -18,11 +30,12 @@ export default function EpisodeDetail() {
             ? `${seasonFromUrl}-${episodeFromUrl}`
             : undefined;
 
+    // Query untuk mendapatkan data episode
     const {
         data: episode,
-        isLoading,
-        error,
-        refetch,
+        isLoading: episodeLoading,
+        error: episodeError,
+        refetch: refetchEpisode,
     } = useQuery({
         queryKey: ["episode", seriesId, apiEpisodeId],
         queryFn: async () => {
@@ -42,7 +55,59 @@ export default function EpisodeDetail() {
         staleTime: 60000,
     });
 
-    const [source, setSource] = useState("vidlink");
+    // Query untuk mendapatkan streaming providers
+    const {
+        data: providers,
+        isLoading: providersLoading,
+        error: providersError,
+        refetch: refetchProviders,
+    } = useQuery({
+        queryKey: [
+            "streamingProviders",
+            seriesId,
+            episode?.seasonNumber,
+            episode?.episodeNumber,
+        ],
+        queryFn: async () => {
+            if (!seriesId || !episode)
+                throw new Error("Episode data not available");
+
+            const streamingProviders = await movieAPI.getEpisodeStreamingUrl(
+                seriesId,
+                episode.seasonNumber,
+                episode.episodeNumber
+            );
+
+            // Sort providers by tier and priority
+            return streamingProviders.sort((a, b) => {
+                if (a.tier !== b.tier) return (a.tier || 4) - (b.tier || 4);
+                return (a as any).priority - (b as any).priority;
+            });
+        },
+        enabled: !!seriesId && !!episode,
+        staleTime: 5 * 60 * 1000, // 5 minutes
+    });
+
+    const [selectedProvider, setSelectedProvider] =
+        useState<StreamingProvider | null>(null);
+
+    // Auto-select first available provider when providers data loads
+    useEffect(() => {
+        if (providers && providers.length > 0 && !selectedProvider) {
+            setSelectedProvider(providers[0]);
+        }
+    }, [providers, selectedProvider]);
+
+    const handleProviderChange = (provider: StreamingProvider) => {
+        setSelectedProvider(provider);
+    };
+
+    const handleRetryProviders = () => {
+        refetchProviders();
+    };
+
+    const isLoading = episodeLoading || providersLoading;
+    const error = episodeError || providersError;
 
     if (isLoading) {
         return (
@@ -55,6 +120,13 @@ export default function EpisodeDetail() {
                 </Link>
 
                 <Skeleton className="h-8 w-48 mb-6" />
+
+                {/* Provider Skeleton */}
+                <div className="flex items-center justify-between mb-4">
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-10 w-40" />
+                </div>
+
                 <Skeleton className="aspect-video w-full rounded-lg mb-6" />
                 <Skeleton className="h-6 w-3/4 mb-3" />
                 <Skeleton className="h-3 w-1/3" />
@@ -89,7 +161,7 @@ export default function EpisodeDetail() {
 
                     <Button
                         variant="outline"
-                        onClick={() => refetch()}
+                        onClick={() => refetchEpisode()}
                         className="w-full sm:w-auto"
                     >
                         Retry
@@ -101,6 +173,7 @@ export default function EpisodeDetail() {
 
     return (
         <div className="w-full max-w-full px-3 py-4">
+            {/* Navigation */}
             <Link to={`/series/${seriesId}/episodes`}>
                 <Button variant="ghost" className="mb-4 w-full sm:w-auto">
                     <ArrowLeft className="mr-2 h-4 w-4" />
@@ -109,64 +182,82 @@ export default function EpisodeDetail() {
             </Link>
 
             <div className="max-w-3xl mx-auto space-y-6">
-                {/* Provider Buttons */}
-                <div className="grid grid-cols-2 gap-2 w-full">
-                    <Button
-                        variant={source === "vidlink" ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setSource("vidlink")}
-                        className="text-[12px] py-1 px-1 w-full truncate"
-                    >
-                        VidLink
-                    </Button>
+                {/* Provider Selection Dropdown */}
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <MonitorPlay className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm font-medium">
+                            Streaming Provider
+                        </span>
 
-                    <Button
-                        variant={source === "embedsu" ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setSource("embedsu")}
-                        className="text-[12px] py-1 px-1 w-full truncate"
-                    >
-                        Embed.su
-                    </Button>
+                        {/* Refresh Providers Button */}
+                        {providers && (
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={handleRetryProviders}
+                                className="h-8 w-8 p-0"
+                                title="Refresh providers"
+                            >
+                                <RefreshCw className="h-3 w-3" />
+                            </Button>
+                        )}
+                    </div>
 
-                    <Button
-                        variant={
-                            source === "multiembed" ? "default" : "outline"
-                        }
-                        size="sm"
-                        onClick={() => setSource("multiembed")}
-                        className="text-[12px] py-1 px-1 w-full truncate"
-                    >
-                        MultiEmbed
-                    </Button>
-
-                    <Button
-                        variant={source === "twoembed" ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setSource("twoembed")}
-                        className="text-[12px] py-1 px-1 w-full truncate"
-                    >
-                        2Embed
-                    </Button>
-                </div>
-
-                {/* Video Player */}
-                <div className="relative aspect-video bg-black rounded-lg overflow-hidden shadow-card-hover">
-                    <iframe
-                        src={
-                            source === "vidlink"
-                                ? `https://vidlink.pro/tv/${seriesId}/${episode.seasonNumber}/${episode.episodeNumber}?player=jw&icons=default&title=true&poster=true`
-                                : source === "embedsu"
-                                ? `https://embed.su/embed/tv/${seriesId}/${episode.seasonNumber}/${episode.episodeNumber}`
-                                : source === "multiembed"
-                                ? `https://multiembed.mov/?video_id=${seriesId}&s=${episode.seasonNumber}&e=${episode.episodeNumber}`
-                                : `https://www.2embed.stream/embed/tv/${seriesId}/${episode.seasonNumber}/${episode.episodeNumber}`
-                        }
-                        className="absolute inset-0 w-full h-full max-h-[260px] sm:max-h-none"
-                        allowFullScreen
-                        frameBorder={0}
-                        title={`Episode ${episode.episodeNumber} - ${episode.title}`}
-                    />
+                    {providers && providers.length > 0 ? (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button
+                                    variant="outline"
+                                    className="gap-2"
+                                    disabled={!selectedProvider}
+                                >
+                                    <span className="truncate max-w-[120px]">
+                                        {selectedProvider?.name ||
+                                            "Select Provider"}
+                                    </span>
+                                    <ChevronDown className="h-4 w-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-64">
+                                {providers.map((provider) => (
+                                    <DropdownMenuItem
+                                        key={provider.name}
+                                        onClick={() =>
+                                            handleProviderChange(provider)
+                                        }
+                                        className="flex justify-between items-center cursor-pointer"
+                                    >
+                                        <div className="flex flex-col items-start flex-1 min-w-0">
+                                            <span className="font-medium truncate w-full">
+                                                {provider.name}
+                                            </span>
+                                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                                <span>{provider.quality}</span>
+                                                {provider.language && (
+                                                    <>
+                                                        <span>•</span>
+                                                        <span>
+                                                            {provider.language}
+                                                        </span>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </div>
+                                        {provider.tier === 1 && (
+                                            <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full ml-2 flex-shrink-0">
+                                                Premium
+                                            </span>
+                                        )}
+                                    </DropdownMenuItem>
+                                ))}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    ) : (
+                        <Button variant="outline" disabled>
+                            No Providers Available
+                        </Button>
+                    )}
                 </div>
 
                 {/* Episode Details */}
@@ -175,10 +266,76 @@ export default function EpisodeDetail() {
                         Episode {episode.episodeNumber}: {episode.title}
                     </h1>
 
-                    <p className="text-muted-foreground text-sm">
-                        Season {episode.seasonNumber}
-                    </p>
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
+                        <span>Season {episode.seasonNumber}</span>
+                        <span>•</span>
+                        <span>Episode {episode.episodeNumber}</span>
+                        {selectedProvider && (
+                            <>
+                                <span>•</span>
+                                <span className="flex items-center gap-1">
+                                    <MonitorPlay className="h-3 w-3" />
+                                    {selectedProvider.name}
+                                    {selectedProvider.quality && (
+                                        <span className="text-xs bg-blue-100 text-blue-800 px-1 rounded">
+                                            {selectedProvider.quality}
+                                        </span>
+                                    )}
+                                </span>
+                            </>
+                        )}
+                    </div>
                 </div>
+
+                {/* Provider Loading/Error States */}
+                {providersLoading && (
+                    <Alert>
+                        <RefreshCw className="h-4 w-4 animate-spin" />
+                        <AlertDescription>
+                            Checking available streaming providers...
+                        </AlertDescription>
+                    </Alert>
+                )}
+
+                {providersError && (
+                    <Alert variant="destructive">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertDescription>
+                            Failed to load streaming providers.
+                            <Button
+                                variant="link"
+                                className="p-0 h-auto ml-1"
+                                onClick={handleRetryProviders}
+                            >
+                                Try again
+                            </Button>
+                        </AlertDescription>
+                    </Alert>
+                )}
+
+                {providers && providers.length === 0 && !providersLoading && (
+                    <Alert variant="destructive">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertDescription>
+                            No streaming providers available for this episode.
+                        </AlertDescription>
+                    </Alert>
+                )}
+
+                {/* Video Player */}
+                {selectedProvider && (
+                    <div className="relative aspect-video bg-black rounded-lg overflow-hidden shadow-card-hover">
+                        <iframe
+                            src={selectedProvider.url}
+                            className="absolute inset-0 w-full h-full max-h-[260px] sm:max-h-none"
+                            allowFullScreen
+                            frameBorder={0}
+                            title={`Episode ${episode.episodeNumber} - ${episode.title}`}
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            referrerPolicy="strict-origin-when-cross-origin"
+                        />
+                    </div>
+                )}
             </div>
         </div>
     );

@@ -6,6 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+
+// Pages - TMDB
 import Home from "./pages/Home";
 import MovieDetail from "./pages/MovieDetail";
 import SeriesEpisodes from "./pages/SeriesEpisodes";
@@ -17,15 +19,22 @@ import CountryList from "./pages/CountryList";
 import CountryMovies from "./pages/CountryMovies";
 import YearList from "./pages/YearList";
 import YearMovies from "./pages/YearMovies";
-import NotFound from "./pages/NotFound";
-import AnimeDetail from "./pages/AnimeDetail";
 import BrowseCategory from "./pages/BrowseCategory";
+
+// Hentai (Nekopoi)
+import HentaiList from "./pages/HentaiList";
+import AnimeDetail from "./pages/AnimeDetail";
+import TestNekoBocc from "./pages/TestNekoBocc";
+
+// Fallback
+import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
     defaultOptions: {
         queries: {
             staleTime: 1000 * 60 * 5, // 5 minutes
             refetchOnWindowFocus: false,
+            retry: 1, // Reduce retries for faster failover
         },
     },
 });
@@ -36,12 +45,20 @@ const App = () => (
             <TooltipProvider>
                 <Toaster />
                 <Sonner />
-                <BrowserRouter>
+                <BrowserRouter
+                    future={{
+                        v7_startTransition: true,
+                        v7_relativeSplatPath: true,
+                    }}
+                >
                     <div className="flex flex-col min-h-screen">
                         <Navbar />
                         <main className="flex-1">
                             <Routes>
+                                {/* Home */}
                                 <Route path="/" element={<Home />} />
+
+                                {/* TMDB Movie & Series */}
                                 <Route
                                     path="/movie/:id"
                                     element={<MovieDetail />}
@@ -54,25 +71,42 @@ const App = () => (
                                     path="/series/:id/episodes"
                                     element={<SeriesEpisodes />}
                                 />
-                                {/* Rute ini sekarang sesuai untuk query params */}
                                 <Route
                                     path="/series/:seriesId/watch"
                                     element={<EpisodeDetail />}
                                 />
+
+                                {/* Hentai - Nekopoi */}
                                 <Route
-                                    path="/anime/:malId/:number/:subOrDub"
+                                    path="/hentai"
+                                    element={<HentaiList />}
+                                />
+                                <Route
+                                    path="/hentai/nekopoi/:id"
                                     element={<AnimeDetail />}
                                 />
+                                <Route
+                                    path="/test-nekobocc"
+                                    element={<TestNekoBocc />}
+                                />
+
+                                {/* Browse (Kategori Khusus) */}
                                 <Route
                                     path="/browse/:category"
                                     element={<BrowseCategory />}
                                 />
+
+                                {/* Pencarian */}
                                 <Route path="/search" element={<Search />} />
+
+                                {/* Genre */}
                                 <Route path="/genres" element={<GenreList />} />
                                 <Route
                                     path="/genre/:genre"
                                     element={<GenreMovies />}
                                 />
+
+                                {/* Negara */}
                                 <Route
                                     path="/countries"
                                     element={<CountryList />}
@@ -81,12 +115,15 @@ const App = () => (
                                     path="/country/:country"
                                     element={<CountryMovies />}
                                 />
+
+                                {/* Tahun */}
                                 <Route path="/years" element={<YearList />} />
                                 <Route
                                     path="/year/:year"
                                     element={<YearMovies />}
                                 />
-                                {/* Rute ini harus berada di paling bawah */}
+
+                                {/* 404 */}
                                 <Route path="*" element={<NotFound />} />
                             </Routes>
                         </main>

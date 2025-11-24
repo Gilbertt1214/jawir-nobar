@@ -32,6 +32,14 @@ interface Comment {
     time: number;
 }
 
+interface StreamingProvider {
+    name: string;
+    url: string;
+    available: boolean;
+    quality?: string;
+    language?: string;
+}
+
 export default function MovieDetail() {
     const { id } = useParams<{ id: string }>();
     const isSeriesRoute = !!useMatch("/series/:id");
@@ -54,11 +62,41 @@ export default function MovieDetail() {
     const [comments, setComments] = useState<Comment[]>([]);
     const [selectedProvider, setSelectedProvider] = useState(0);
     const [providerError, setProviderError] = useState(false);
+    const [streamingProviders, setStreamingProviders] = useState<
+        StreamingProvider[]
+    >([]);
+    const [isLoadingProviders, setIsLoadingProviders] = useState(false);
 
-    // Get streaming providers
-    const streamingProviders = movie
-        ? movieAPI.getStreamingUrls(movie.id, movie.type)
-        : [];
+    // FIXED: Load streaming providers properly
+    useEffect(() => {
+        const loadStreamingProviders = async () => {
+            if (!movie?.id) return;
+
+            setIsLoadingProviders(true);
+            try {
+                const providers = await movieAPI.getStreamingUrls(
+                    movie.id,
+                    movie.type
+                );
+                // FIXED: Ensure providers is always an array
+                const safeProviders = Array.isArray(providers) ? providers : [];
+                setStreamingProviders(safeProviders);
+
+                if (safeProviders.length > 0) {
+                    setSelectedProvider(0);
+                    setProviderError(false);
+                }
+            } catch (err) {
+                console.error("Error loading streaming providers:", err);
+                // FIXED: Set empty array as fallback
+                setStreamingProviders([]);
+            } finally {
+                setIsLoadingProviders(false);
+            }
+        };
+
+        loadStreamingProviders();
+    }, [movie?.id, movie?.type]);
 
     useEffect(() => {
         if (!id) return;
@@ -90,15 +128,28 @@ export default function MovieDetail() {
         setProviderError(true);
     };
 
+    const tryNextProvider = () => {
+        if (streamingProviders.length === 0) return;
+
+        const nextProvider =
+            selectedProvider < streamingProviders.length - 1
+                ? selectedProvider + 1
+                : 0;
+
+        setSelectedProvider(nextProvider);
+        setProviderError(false);
+    };
+
     if (isLoading) {
         return (
             <div className="container mx-auto px-4 py-6">
-                <div className="grid grid-cols-1 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <Skeleton className="aspect-[2/3] w-full rounded-lg" />
-                    <div className="space-y-4">
+                    <div className="md:col-span-2 space-y-4">
                         <Skeleton className="h-8 w-3/4" />
                         <Skeleton className="h-4 w-1/2" />
                         <Skeleton className="h-20 w-full" />
+                        <Skeleton className="h-40 w-full" />
                     </div>
                 </div>
             </div>
@@ -290,59 +341,112 @@ export default function MovieDetail() {
                         {movie.type === "movie" && (
                             <Card>
                                 <CardHeader>
-                                    <CardTitle className="text-lg">
+                                    <CardTitle className="text-lg flex items-center gap-2">
                                         Watch Movie
+                                        {isLoadingProviders && (
+                                            <RefreshCw className="h-4 w-4 animate-spin" />
+                                        )}
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <div className="space-y-4">
                                         {/* Provider Dropdown */}
-                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                                            <Select
-                                                value={String(selectedProvider)}
-                                                onValueChange={
-                                                    handleProviderChange
-                                                }
-                                            >
-                                                <SelectTrigger className="w-full sm:w-[250px]">
-                                                    <SelectValue placeholder="Select provider" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {streamingProviders.map(
-                                                        (provider, index) => (
-                                                            <SelectItem
-                                                                key={index}
-                                                                value={String(
-                                                                    index
-                                                                )}
-                                                            >
-                                                                {provider.name}
-                                                            </SelectItem>
-                                                        )
+                                        {isLoadingProviders ? (
+                                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                                <RefreshCw className="h-4 w-4 animate-spin" />
+                                                Loading providers...
+                                            </div>
+                                        ) : streamingProviders.length > 0 ? (
+                                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                                <Select
+                                                    value={String(
+                                                        selectedProvider
                                                     )}
-                                                </SelectContent>
-                                            </Select>
+                                                    onValueChange={
+                                                        handleProviderChange
+                                                    }
+                                                >
+                                                    <SelectTrigger className="w-full sm:w-[250px]">
+                                                        <SelectValue placeholder="Select provider" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {streamingProviders.map(
+                                                            (
+                                                                provider,
+                                                                index
+                                                            ) => (
+                                                                <SelectItem
+                                                                    key={index}
+                                                                    value={String(
+                                                                        index
+                                                                    )}
+                                                                >
+                                                                    <div className="flex items-center gap-2">
+                                                                        <span>
+                                                                            {
+                                                                                provider.name
+                                                                            }
+                                                                        </span>
+                                                                        {provider.quality && (
+                                                                            <Badge
+                                                                                variant="outline"
+                                                                                className="text-xs"
+                                                                            >
+                                                                                {
+                                                                                    provider.quality
+                                                                                }
+                                                                            </Badge>
+                                                                        )}
+                                                                    </div>
+                                                                </SelectItem>
+                                                            )
+                                                        )}
+                                                    </SelectContent>
+                                                </Select>
 
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={() =>
-                                                    window.open(
-                                                        streamingProviders[
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() =>
+                                                        window.open(
+                                                            streamingProviders[
+                                                                selectedProvider
+                                                            ]?.url,
+                                                            "_blank"
+                                                        )
+                                                    }
+                                                    className="text-xs px-2 py-1"
+                                                    disabled={
+                                                        !streamingProviders[
                                                             selectedProvider
-                                                        ]?.url,
-                                                        "_blank"
-                                                    )
-                                                }
-                                                className="text-xs px-2 py-1"
-                                            >
-                                                <ExternalLink className="h-4 w-4 mr-1" />
-                                                New Tab
-                                            </Button>
-                                        </div>
+                                                        ]
+                                                    }
+                                                >
+                                                    <ExternalLink className="h-4 w-4 mr-1" />
+                                                    New Tab
+                                                </Button>
+                                            </div>
+                                        ) : (
+                                            <Alert>
+                                                <AlertCircle className="h-4 w-4" />
+                                                <AlertDescription>
+                                                    Tidak ada provider streaming
+                                                    yang tersedia.
+                                                </AlertDescription>
+                                            </Alert>
+                                        )}
 
                                         {/* Video Player */}
-                                        {providerError ? (
+                                        {isLoadingProviders ? (
+                                            <div className="relative aspect-video bg-black rounded-lg overflow-hidden flex items-center justify-center min-h-[200px]">
+                                                <div className="text-center text-white space-y-3 p-4">
+                                                    <RefreshCw className="h-8 w-8 mx-auto animate-spin" />
+                                                    <p className="text-sm">
+                                                        Loading player...
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        ) : providerError ? (
                                             <div className="relative aspect-video bg-black rounded-lg overflow-hidden flex items-center justify-center min-h-[200px]">
                                                 <div className="text-center text-white space-y-3 p-4">
                                                     <AlertCircle className="h-10 w-10 mx-auto text-red-500" />
@@ -352,15 +456,13 @@ export default function MovieDetail() {
                                                     </p>
                                                     <Button
                                                         variant="secondary"
-                                                        onClick={() =>
-                                                            setProviderError(
-                                                                false
-                                                            )
+                                                        onClick={
+                                                            tryNextProvider
                                                         }
                                                         className="text-xs"
                                                     >
                                                         <RefreshCw className="h-4 w-4 mr-2" />
-                                                        Coba Lagi
+                                                        Coba Provider Lain
                                                     </Button>
                                                 </div>
                                             </div>
@@ -378,59 +480,88 @@ export default function MovieDetail() {
                                                         }
                                                         className="absolute inset-0 w-full h-full"
                                                         allowFullScreen
+                                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                                         frameBorder={0}
                                                         onError={
                                                             handleIframeError
                                                         }
+                                                        title={`Streaming from ${streamingProviders[selectedProvider].name}`}
                                                     />
                                                 </div>
                                             )
                                         )}
 
                                         {/* Alternative Actions */}
-                                        <div className="flex flex-wrap gap-2">
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() => {
-                                                    setSelectedProvider(
-                                                        (prev) =>
-                                                            prev <
-                                                            streamingProviders.length -
-                                                                1
-                                                                ? prev + 1
-                                                                : 0
-                                                    );
-                                                    setProviderError(false);
-                                                }}
-                                                className="text-xs"
-                                            >
-                                                Try Next Provider
-                                            </Button>
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() =>
-                                                    window.location.reload()
-                                                }
-                                                className="text-xs"
-                                            >
-                                                <RefreshCw className="h-4 w-4 mr-2" />
-                                                Refresh Page
-                                            </Button>
-                                        </div>
-                                    </div>
+                                        {streamingProviders.length > 1 && (
+                                            <div className="flex flex-wrap gap-2">
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={tryNextProvider}
+                                                    className="text-xs"
+                                                    disabled={
+                                                        streamingProviders.length <=
+                                                        1
+                                                    }
+                                                >
+                                                    Try Next Provider (
+                                                    {selectedProvider + 1}/
+                                                    {streamingProviders.length})
+                                                </Button>
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() =>
+                                                        window.location.reload()
+                                                    }
+                                                    className="text-xs"
+                                                >
+                                                    <RefreshCw className="h-4 w-4 mr-2" />
+                                                    Refresh Page
+                                                </Button>
+                                            </div>
+                                        )}
 
-                                    {/* Fallback Message */}
-                                    {streamingProviders.length === 0 && (
-                                        <Alert variant="destructive">
-                                            <AlertCircle className="h-4 w-4" />
-                                            <AlertDescription>
-                                                Tidak ada provider streaming
-                                                yang tersedia saat ini.
-                                            </AlertDescription>
-                                        </Alert>
-                                    )}
+                                        {/* Provider Info */}
+                                        {streamingProviders[
+                                            selectedProvider
+                                        ] && (
+                                            <div className="text-xs text-muted-foreground p-2 bg-muted rounded">
+                                                <strong>
+                                                    Current Provider:
+                                                </strong>{" "}
+                                                {
+                                                    streamingProviders[
+                                                        selectedProvider
+                                                    ].name
+                                                }
+                                                {streamingProviders[
+                                                    selectedProvider
+                                                ].quality && (
+                                                    <span className="ml-2">
+                                                        • Quality:{" "}
+                                                        {
+                                                            streamingProviders[
+                                                                selectedProvider
+                                                            ].quality
+                                                        }
+                                                    </span>
+                                                )}
+                                                {streamingProviders[
+                                                    selectedProvider
+                                                ].language && (
+                                                    <span className="ml-2">
+                                                        • Language:{" "}
+                                                        {
+                                                            streamingProviders[
+                                                                selectedProvider
+                                                            ].language
+                                                        }
+                                                    </span>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
                                 </CardContent>
                             </Card>
                         )}
