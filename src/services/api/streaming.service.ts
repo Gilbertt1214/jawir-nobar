@@ -235,6 +235,15 @@ export class StreamingService {
                 tier: 4,
                 priority: 8,
             },
+             {
+                name: "NontonGo",
+                url: `${STREAMING_PROVIDERS.nontonGo}/${seriesId}/${season}`,
+                quality: "HD",
+                language: "Multi",
+                tier: 4,
+                priority: 11,
+            },
+        
         ];
 
         const availabilityChecks = providers.map(async (provider) => {

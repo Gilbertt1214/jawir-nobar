@@ -11,6 +11,11 @@ import {
     AlertCircle,
     ExternalLink,
     RefreshCw,
+    MessageSquare,
+    Share2,
+    Download,
+    Tv,
+    ChevronRight,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -25,6 +30,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 interface Comment {
     name: string;
@@ -142,14 +148,17 @@ export default function MovieDetail() {
 
     if (isLoading) {
         return (
-            <div className="container mx-auto px-4 py-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <Skeleton className="aspect-[2/3] w-full rounded-lg" />
-                    <div className="md:col-span-2 space-y-4">
-                        <Skeleton className="h-8 w-3/4" />
-                        <Skeleton className="h-4 w-1/2" />
-                        <Skeleton className="h-20 w-full" />
-                        <Skeleton className="h-40 w-full" />
+            <div className="min-h-screen bg-background">
+                <div className="relative h-[40vh] sm:h-[50vh] w-full bg-muted animate-pulse" />
+                <div className="container mx-auto px-4 -mt-32 relative z-10">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <Skeleton className="aspect-[2/3] w-full rounded-xl shadow-lg" />
+                        <div className="md:col-span-2 space-y-6 pt-12">
+                            <Skeleton className="h-10 w-3/4" />
+                            <Skeleton className="h-6 w-1/2" />
+                            <Skeleton className="h-32 w-full" />
+                            <Skeleton className="h-64 w-full" />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -158,13 +167,13 @@ export default function MovieDetail() {
 
     if (error || !movie) {
         return (
-            <div className="container mx-auto px-4 py-6">
-                <Alert variant="destructive">
+            <div className="container mx-auto px-4 py-12 flex items-center justify-center min-h-[50vh]">
+                <Alert variant="destructive" className="max-w-md">
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
-                        Film atau series tidak ditemukan atau gagal dimuat.
-                        <Link to="/" className="ml-2 underline block mt-2">
-                            Kembali ke beranda
+                        Movie or series not found or failed to load.
+                        <Link to="/" className="ml-2 underline block mt-2 font-medium">
+                            Return to Home
                         </Link>
                     </AlertDescription>
                 </Alert>
@@ -173,11 +182,11 @@ export default function MovieDetail() {
     }
 
     return (
-        <div className="min-h-screen pb-16">
+        <div className="min-h-screen bg-background pb-20">
             {/* Backdrop */}
-            <div className="relative h-[200px] sm:h-[300px] -mt-16 sm:-mt-24 overflow-hidden">
+            <div className="relative h-[40vh] sm:h-[50vh] md:h-[60vh] -mt-16 sm:-mt-20 overflow-hidden">
                 <div
-                    className="absolute inset-0 bg-cover bg-center"
+                    className="absolute inset-0 bg-cover bg-center animate-scale-in"
                     style={{
                         backgroundImage: movie.cover
                             ? `url(${movie.cover})`
@@ -185,80 +194,92 @@ export default function MovieDetail() {
                     }}
                 >
                     <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/20" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-background via-transparent to-transparent" />
                 </div>
             </div>
 
-            <div className="container mx-auto px-4 sm:px-6 -mt-20 sm:-mt-32 relative z-10">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {/* Poster */}
-                    <div className="space-y-4">
-                        <img
-                            src={movie.cover || "/placeholder.svg"}
-                            alt={movie.title}
-                            className="w-full aspect-[2/3] object-cover rounded-lg shadow-card-hover"
-                            onError={(e) => {
-                                const target = e.target as HTMLImageElement;
-                                target.src = "/placeholder.svg";
-                            }}
-                        />
-                        {movie.trailer && (
-                            <Button
-                                className="w-full text-sm"
-                                size="lg"
-                                onClick={() =>
-                                    window.open(movie.trailer, "_blank")
-                                }
-                            >
-                                <Play className="mr-2 h-4 w-4" />
-                                Watch Trailer
+            <div className="container mx-auto px-4 sm:px-6 -mt-32 sm:-mt-48 md:-mt-64 relative z-10">
+                <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] lg:grid-cols-[350px_1fr] gap-8">
+                    {/* Poster & Actions */}
+                    <div className="space-y-6 animate-slide-in-bottom">
+                        <div className="relative aspect-[2/3] rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/10 group">
+                            <img
+                                src={movie.cover || "/placeholder.svg"}
+                                alt={movie.title}
+                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    target.src = "/placeholder.svg";
+                                }}
+                            />
+                            {movie.quality && (
+                                <Badge className="absolute top-3 right-3 bg-primary/90 backdrop-blur-md text-xs font-bold px-2 py-1 shadow-lg">
+                                    {movie.quality}
+                                </Badge>
+                            )}
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                            {movie.trailer && (
+                                <Button
+                                    className="w-full gap-2 shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all"
+                                    size="lg"
+                                    onClick={() =>
+                                        window.open(movie.trailer, "_blank")
+                                    }
+                                >
+                                    <Play className="h-4 w-4 fill-current" />
+                                    Trailer
+                                </Button>
+                            )}
+                            <Button variant="outline" className="w-full gap-2 backdrop-blur-sm bg-background/50" size="lg">
+                                <Share2 className="h-4 w-4" />
+                                Share
                             </Button>
-                        )}
+                        </div>
                     </div>
 
                     {/* Details */}
-                    <div className="md:col-span-2 space-y-6">
-                        <div>
-                            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3">
+                    <div className="space-y-8 animate-slide-in-right delay-100">
+                        <div className="space-y-4">
+                            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-gradient leading-tight">
                                 {movie.title}
                             </h1>
 
-                            <div className="flex flex-wrap items-center gap-2 mb-3">
+                            <div className="flex flex-wrap items-center gap-3 text-sm">
                                 {movie.rating && (
-                                    <div className="flex items-center gap-1.5">
-                                        <Star className="h-4 w-4 fill-accent text-accent" />
-                                        <span className="font-semibold text-sm">
-                                            {movie.rating.toFixed(1)}
-                                        </span>
+                                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 font-bold">
+                                        <Star className="h-4 w-4 fill-current" />
+                                        <span>{movie.rating.toFixed(1)}</span>
                                     </div>
                                 )}
-
                                 {movie.year && (
-                                    <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
-                                        <Calendar className="h-3 w-3" />
+                                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-muted-foreground">
+                                        <Calendar className="h-3.5 w-3.5" />
                                         <span>{movie.year}</span>
                                     </div>
                                 )}
-
                                 {movie.country && (
-                                    <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
-                                        <Globe className="h-3 w-3" />
+                                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-muted-foreground">
+                                        <Globe className="h-3.5 w-3.5" />
                                         <span>{movie.country}</span>
                                     </div>
                                 )}
+                                <Badge variant="secondary" className="uppercase tracking-wider">
+                                    {movie.type}
+                                </Badge>
                             </div>
 
                             {movie.genre && movie.genre.length > 0 && (
-                                <div className="flex flex-wrap gap-1 mb-3">
+                                <div className="flex flex-wrap gap-2">
                                     {movie.genre.map((g) => (
                                         <Link
                                             key={g}
-                                            to={`/genre/${encodeURIComponent(
-                                                g
-                                            )}`}
+                                            to={`/genre/${encodeURIComponent(g)}`}
                                         >
                                             <Badge
-                                                variant="secondary"
-                                                className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-smooth text-xs py-1 px-2"
+                                                variant="outline"
+                                                className="hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all cursor-pointer px-3 py-1"
                                             >
                                                 {g}
                                             </Badge>
@@ -269,11 +290,12 @@ export default function MovieDetail() {
                         </div>
 
                         {movie.synopsis && (
-                            <div>
-                                <h2 className="text-lg font-semibold mb-2">
+                            <div className="space-y-2">
+                                <h2 className="text-lg font-semibold flex items-center gap-2">
+                                    <span className="w-1 h-6 bg-primary rounded-full" />
                                     Synopsis
                                 </h2>
-                                <p className="text-muted-foreground leading-relaxed text-sm">
+                                <p className="text-muted-foreground leading-relaxed text-base sm:text-lg">
                                     {movie.synopsis}
                                 </p>
                             </div>
@@ -281,35 +303,33 @@ export default function MovieDetail() {
 
                         {/* Cast Section */}
                         {movie.cast && movie.cast.length > 0 && (
-                            <div>
-                                <h2 className="text-lg font-semibold mb-2">
+                            <div className="space-y-3">
+                                <h2 className="text-lg font-semibold flex items-center gap-2">
+                                    <span className="w-1 h-6 bg-primary rounded-full" />
                                     Cast
                                 </h2>
-                                <div className="flex gap-3 overflow-x-auto pb-2">
+                                <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide mask-linear-fade">
                                     {movie.cast.map((actor) => (
                                         <div
                                             key={actor.id}
-                                            className="flex-shrink-0 text-center min-w-[70px] sm:min-w-[80px]"
+                                            className="flex-shrink-0 text-center w-20 sm:w-24 group"
                                         >
-                                            <img
-                                                src={
-                                                    actor.profile ||
-                                                    "/placeholder.svg"
-                                                }
-                                                alt={actor.name}
-                                                className="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover mb-1 sm:mb-2"
-                                                onError={(e) => {
-                                                    const target =
-                                                        e.target as HTMLImageElement;
-                                                    target.src =
-                                                        "/placeholder.svg";
-                                                }}
-                                            />
-                                            <p className="text-xs font-medium truncate max-w-[70px] sm:max-w-[80px]">
+                                            <div className="relative w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-2 rounded-full overflow-hidden ring-2 ring-transparent group-hover:ring-primary transition-all">
+                                                <img
+                                                    src={actor.profile || "/placeholder.svg"}
+                                                    alt={actor.name}
+                                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                                    onError={(e) => {
+                                                        const target = e.target as HTMLImageElement;
+                                                        target.src = "/placeholder.svg";
+                                                    }}
+                                                />
+                                            </div>
+                                            <p className="text-xs sm:text-sm font-medium truncate group-hover:text-primary transition-colors">
                                                 {actor.name}
                                             </p>
                                             {actor.character && (
-                                                <p className="text-xs text-muted-foreground truncate max-w-[70px] sm:max-w-[80px]">
+                                                <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
                                                     {actor.character}
                                                 </p>
                                             )}
@@ -321,244 +341,150 @@ export default function MovieDetail() {
 
                         {/* Episodes for Series */}
                         {movie.type === "series" && (
-                            <div>
-                                <h2 className="text-lg font-semibold mb-2">
-                                    Episodes
-                                </h2>
-                                <Link to={`/series/${id}/episodes`}>
-                                    <Button
-                                        variant="outline"
-                                        className="text-sm"
-                                    >
-                                        <Play className="mr-2 h-4 w-4" />
-                                        View All Episodes
+                            <div className="p-6 rounded-xl bg-card border shadow-sm">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h2 className="text-lg font-semibold flex items-center gap-2">
+                                        <Tv className="h-5 w-5 text-primary" />
+                                        Episodes
+                                    </h2>
+                                    <Link to={`/series/${id}/episodes`}>
+                                        <Button variant="ghost" size="sm" className="gap-2">
+                                            View All <ChevronRight className="h-4 w-4" />
+                                        </Button>
+                                    </Link>
+                                </div>
+                                <div className="text-center py-8 text-muted-foreground">
+                                    <p>Select an episode to start watching</p>
+                                    <Button className="mt-4" asChild>
+                                        <Link to={`/series/${id}/episodes`}>
+                                            Browse Episodes
+                                        </Link>
                                     </Button>
-                                </Link>
+                                </div>
                             </div>
                         )}
 
                         {/* Watch Section with Multiple Providers */}
                         {movie.type === "movie" && (
-                            <Card>
-                                <CardHeader>
+                            <Card className="overflow-hidden border-0 shadow-2xl bg-black/40 backdrop-blur-xl ring-1 ring-white/10">
+                                <CardHeader className="border-b border-white/5 bg-white/5">
                                     <CardTitle className="text-lg flex items-center gap-2">
+                                        <Play className="h-5 w-5 text-primary fill-current" />
                                         Watch Movie
                                         {isLoadingProviders && (
-                                            <RefreshCw className="h-4 w-4 animate-spin" />
+                                            <RefreshCw className="h-4 w-4 animate-spin ml-auto text-muted-foreground" />
                                         )}
                                     </CardTitle>
                                 </CardHeader>
-                                <CardContent>
-                                    <div className="space-y-4">
-                                        {/* Provider Dropdown */}
-                                        {isLoadingProviders ? (
-                                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                                <RefreshCw className="h-4 w-4 animate-spin" />
-                                                Loading providers...
-                                            </div>
-                                        ) : streamingProviders.length > 0 ? (
-                                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                                                <Select
-                                                    value={String(
-                                                        selectedProvider
-                                                    )}
-                                                    onValueChange={
-                                                        handleProviderChange
-                                                    }
-                                                >
-                                                    <SelectTrigger className="w-full sm:w-[250px]">
-                                                        <SelectValue placeholder="Select provider" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {streamingProviders.map(
-                                                            (
-                                                                provider,
-                                                                index
-                                                            ) => (
-                                                                <SelectItem
-                                                                    key={index}
-                                                                    value={String(
-                                                                        index
-                                                                    )}
-                                                                >
-                                                                    <div className="flex items-center gap-2">
-                                                                        <span>
-                                                                            {
-                                                                                provider.name
-                                                                            }
-                                                                        </span>
-                                                                        {provider.quality && (
-                                                                            <Badge
-                                                                                variant="outline"
-                                                                                className="text-xs"
-                                                                            >
-                                                                                {
-                                                                                    provider.quality
-                                                                                }
-                                                                            </Badge>
-                                                                        )}
-                                                                    </div>
-                                                                </SelectItem>
-                                                            )
-                                                        )}
-                                                    </SelectContent>
-                                                </Select>
-
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    onClick={() =>
-                                                        window.open(
-                                                            streamingProviders[
-                                                                selectedProvider
-                                                            ]?.url,
-                                                            "_blank"
-                                                        )
-                                                    }
-                                                    className="text-xs px-2 py-1"
-                                                    disabled={
-                                                        !streamingProviders[
-                                                            selectedProvider
-                                                        ]
-                                                    }
-                                                >
-                                                    <ExternalLink className="h-4 w-4 mr-1" />
-                                                    New Tab
-                                                </Button>
-                                            </div>
-                                        ) : (
-                                            <Alert>
-                                                <AlertCircle className="h-4 w-4" />
-                                                <AlertDescription>
-                                                    Tidak ada provider streaming
-                                                    yang tersedia.
-                                                </AlertDescription>
-                                            </Alert>
-                                        )}
-
+                                <CardContent className="p-0">
+                                    <div className="space-y-0">
                                         {/* Video Player */}
-                                        {isLoadingProviders ? (
-                                            <div className="relative aspect-video bg-black rounded-lg overflow-hidden flex items-center justify-center min-h-[200px]">
-                                                <div className="text-center text-white space-y-3 p-4">
-                                                    <RefreshCw className="h-8 w-8 mx-auto animate-spin" />
-                                                    <p className="text-sm">
-                                                        Loading player...
-                                                    </p>
+                                        <div className="relative aspect-video bg-black flex items-center justify-center">
+                                            {isLoadingProviders ? (
+                                                <div className="text-center text-white/50 space-y-4">
+                                                    <RefreshCw className="h-10 w-10 mx-auto animate-spin" />
+                                                    <p className="text-sm font-medium">Searching for streams...</p>
                                                 </div>
-                                            </div>
-                                        ) : providerError ? (
-                                            <div className="relative aspect-video bg-black rounded-lg overflow-hidden flex items-center justify-center min-h-[200px]">
-                                                <div className="text-center text-white space-y-3 p-4">
-                                                    <AlertCircle className="h-10 w-10 mx-auto text-red-500" />
-                                                    <p className="text-sm">
-                                                        Provider ini tidak
-                                                        tersedia saat ini
-                                                    </p>
+                                            ) : providerError ? (
+                                                <div className="text-center text-white space-y-4 p-6 max-w-md mx-auto">
+                                                    <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center mx-auto">
+                                                        <AlertCircle className="h-8 w-8 text-red-500" />
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <h3 className="font-semibold text-lg">Stream Unavailable</h3>
+                                                        <p className="text-sm text-white/60">
+                                                            This provider is currently experiencing issues. Please try another one.
+                                                        </p>
+                                                    </div>
                                                     <Button
                                                         variant="secondary"
-                                                        onClick={
-                                                            tryNextProvider
-                                                        }
-                                                        className="text-xs"
+                                                        onClick={tryNextProvider}
+                                                        className="gap-2"
                                                     >
-                                                        <RefreshCw className="h-4 w-4 mr-2" />
-                                                        Coba Provider Lain
+                                                        <RefreshCw className="h-4 w-4" />
+                                                        Try Next Provider
                                                     </Button>
                                                 </div>
-                                            </div>
-                                        ) : (
-                                            streamingProviders[
-                                                selectedProvider
-                                            ] && (
-                                                <div className="relative aspect-video bg-black rounded-lg overflow-hidden shadow-card-hover">
-                                                    <iframe
-                                                        key={`${streamingProviders[selectedProvider].url}-${selectedProvider}`}
-                                                        src={
-                                                            streamingProviders[
-                                                                selectedProvider
-                                                            ].url
-                                                        }
-                                                        className="absolute inset-0 w-full h-full"
-                                                        allowFullScreen
-                                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                                        frameBorder={0}
-                                                        onError={
-                                                            handleIframeError
-                                                        }
-                                                        title={`Streaming from ${streamingProviders[selectedProvider].name}`}
-                                                    />
+                                            ) : streamingProviders[selectedProvider] ? (
+                                                <iframe
+                                                    key={`${streamingProviders[selectedProvider].url}-${selectedProvider}`}
+                                                    src={streamingProviders[selectedProvider].url}
+                                                    className="absolute inset-0 w-full h-full"
+                                                    allowFullScreen
+                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                    frameBorder={0}
+                                                    onError={handleIframeError}
+                                                    title={`Streaming from ${streamingProviders[selectedProvider].name}`}
+                                                />
+                                            ) : (
+                                                <div className="text-center text-white space-y-4 p-6">
+                                                    <AlertCircle className="h-10 w-10 mx-auto text-muted-foreground" />
+                                                    <p className="text-sm text-muted-foreground">No streaming providers available.</p>
                                                 </div>
-                                            )
-                                        )}
+                                            )}
+                                        </div>
 
-                                        {/* Alternative Actions */}
-                                        {streamingProviders.length > 1 && (
-                                            <div className="flex flex-wrap gap-2">
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={tryNextProvider}
-                                                    className="text-xs"
-                                                    disabled={
-                                                        streamingProviders.length <=
-                                                        1
-                                                    }
-                                                >
-                                                    Try Next Provider (
-                                                    {selectedProvider + 1}/
-                                                    {streamingProviders.length})
-                                                </Button>
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={() =>
-                                                        window.location.reload()
-                                                    }
-                                                    className="text-xs"
-                                                >
-                                                    <RefreshCw className="h-4 w-4 mr-2" />
-                                                    Refresh Page
-                                                </Button>
-                                            </div>
-                                        )}
+                                        {/* Controls */}
+                                        {streamingProviders.length > 0 && (
+                                            <div className="p-4 bg-background/50 backdrop-blur-md border-t border-white/5">
+                                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                                    <div className="flex items-center gap-3 flex-1">
+                                                        <Select
+                                                            value={String(selectedProvider)}
+                                                            onValueChange={handleProviderChange}
+                                                        >
+                                                            <SelectTrigger className="w-full sm:w-[200px] bg-background/50 border-white/10">
+                                                                <SelectValue placeholder="Select provider" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                {streamingProviders.map((provider, index) => (
+                                                                    <SelectItem key={index} value={String(index)}>
+                                                                        <div className="flex items-center gap-2">
+                                                                            <span className="font-medium">{provider.name}</span>
+                                                                            {provider.quality && (
+                                                                                <Badge variant="secondary" className="text-[10px] h-5">
+                                                                                    {provider.quality}
+                                                                                </Badge>
+                                                                            )}
+                                                                        </div>
+                                                                    </SelectItem>
+                                                                ))}
+                                                            </SelectContent>
+                                                        </Select>
 
-                                        {/* Provider Info */}
-                                        {streamingProviders[
-                                            selectedProvider
-                                        ] && (
-                                            <div className="text-xs text-muted-foreground p-2 bg-muted rounded">
-                                                <strong>
-                                                    Current Provider:
-                                                </strong>{" "}
-                                                {
-                                                    streamingProviders[
-                                                        selectedProvider
-                                                    ].name
-                                                }
-                                                {streamingProviders[
-                                                    selectedProvider
-                                                ].quality && (
-                                                    <span className="ml-2">
-                                                        • Quality:{" "}
-                                                        {
-                                                            streamingProviders[
-                                                                selectedProvider
-                                                            ].quality
-                                                        }
-                                                    </span>
-                                                )}
-                                                {streamingProviders[
-                                                    selectedProvider
-                                                ].language && (
-                                                    <span className="ml-2">
-                                                        • Language:{" "}
-                                                        {
-                                                            streamingProviders[
-                                                                selectedProvider
-                                                            ].language
-                                                        }
-                                                    </span>
-                                                )}
+                                                        {streamingProviders[selectedProvider] && (
+                                                            <div className="hidden sm:flex items-center gap-3 text-xs text-muted-foreground">
+                                                                {streamingProviders[selectedProvider].quality && (
+                                                                    <Badge variant="outline" className="bg-transparent">
+                                                                        {streamingProviders[selectedProvider].quality}
+                                                                    </Badge>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                    </div>
+
+                                                    <div className="flex items-center gap-2">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            onClick={() => window.open(streamingProviders[selectedProvider]?.url, "_blank")}
+                                                            className="text-xs gap-2"
+                                                            disabled={!streamingProviders[selectedProvider]}
+                                                        >
+                                                            <ExternalLink className="h-3.5 w-3.5" />
+                                                            Open in New Tab
+                                                        </Button>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            onClick={() => window.location.reload()}
+                                                            className="text-xs gap-2"
+                                                        >
+                                                            <RefreshCw className="h-3.5 w-3.5" />
+                                                            Refresh
+                                                        </Button>
+                                                    </div>
+                                                </div>
                                             </div>
                                         )}
                                     </div>
@@ -567,81 +493,72 @@ export default function MovieDetail() {
                         )}
 
                         {/* Comments Section */}
-                        <Card className="mt-6">
-                            <CardHeader>
-                                <CardTitle className="text-lg">
-                                    Comments
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="grid grid-cols-1 gap-3 mb-4">
-                                    <Input
-                                        placeholder="Your name"
-                                        value={name}
-                                        onChange={(e) =>
-                                            setName(e.target.value)
-                                        }
-                                        maxLength={50}
-                                        className="text-sm"
-                                    />
-                                    <Textarea
-                                        placeholder="Your message"
-                                        value={message}
-                                        onChange={(e) =>
-                                            setMessage(e.target.value)
-                                        }
-                                        className="text-sm"
-                                        maxLength={500}
-                                    />
-                                </div>
-                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                                    <span className="text-xs text-muted-foreground">
-                                        {message.length}/500 characters
-                                    </span>
-                                    <Button
-                                        onClick={addComment}
-                                        disabled={
-                                            !name.trim() || !message.trim()
-                                        }
-                                        className="text-xs"
-                                    >
-                                        Send Comment
-                                    </Button>
-                                </div>
-
-                                <div className="mt-4 space-y-3">
-                                    {comments.length === 0 ? (
-                                        <p className="text-muted-foreground text-center py-4 text-sm">
-                                            Belum ada komentar. Jadilah yang
-                                            pertama!
-                                        </p>
-                                    ) : (
-                                        comments.map((c, idx) => (
-                                            <div
-                                                key={`${c.time}-${idx}`}
-                                                className="p-3 rounded-lg border bg-background"
+                        <div className="space-y-4 pt-4">
+                            <h2 className="text-xl font-bold flex items-center gap-2">
+                                <MessageSquare className="h-5 w-5 text-primary" />
+                                Comments
+                            </h2>
+                            <Card className="bg-card/50 backdrop-blur-sm border-white/5">
+                                <CardContent className="p-6 space-y-6">
+                                    <div className="space-y-4">
+                                        <Input
+                                            placeholder="Your name"
+                                            value={name}
+                                            onChange={(e) => setName(e.target.value)}
+                                            maxLength={50}
+                                            className="bg-background/50 border-white/10 focus:border-primary/50"
+                                        />
+                                        <Textarea
+                                            placeholder="Share your thoughts..."
+                                            value={message}
+                                            onChange={(e) => setMessage(e.target.value)}
+                                            className="min-h-[100px] bg-background/50 border-white/10 focus:border-primary/50 resize-none"
+                                            maxLength={500}
+                                        />
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-xs text-muted-foreground">
+                                                {message.length}/500 characters
+                                            </span>
+                                            <Button
+                                                onClick={addComment}
+                                                disabled={!name.trim() || !message.trim()}
+                                                className="gap-2"
                                             >
-                                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-1">
-                                                    <span className="font-semibold text-sm">
-                                                        {c.name}
-                                                    </span>
-                                                    <span className="text-xs text-muted-foreground text-right">
-                                                        {new Date(
-                                                            c.time
-                                                        ).toLocaleString(
-                                                            "id-ID"
-                                                        )}
-                                                    </span>
-                                                </div>
-                                                <p className="text-xs text-muted-foreground whitespace-pre-wrap">
-                                                    {c.message}
-                                                </p>
+                                                Post Comment
+                                            </Button>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        {comments.length === 0 ? (
+                                            <div className="text-center py-8 text-muted-foreground bg-muted/30 rounded-lg border border-dashed border-white/10">
+                                                <MessageSquare className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                                                <p>No comments yet. Be the first to share your thoughts!</p>
                                             </div>
-                                        ))
-                                    )}
-                                </div>
-                            </CardContent>
-                        </Card>
+                                        ) : (
+                                            comments.map((c, idx) => (
+                                                <div
+                                                    key={`${c.time}-${idx}`}
+                                                    className="p-4 rounded-xl bg-muted/30 border border-white/5 space-y-2"
+                                                >
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="font-semibold text-sm text-primary">
+                                                            {c.name}
+                                                        </span>
+                                                        <span className="text-xs text-muted-foreground">
+                                                            {new Date(c.time).toLocaleString()}
+                                                        </span>
+                                                    </div>
+                                                    <p className="text-sm text-foreground/90 leading-relaxed">
+                                                        {c.message}
+                                                    </p>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
                     </div>
                 </div>
             </div>

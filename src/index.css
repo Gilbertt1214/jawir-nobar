@@ -102,7 +102,7 @@ All colors MUST be HSL.
     }
 
     body {
-        @apply bg-background text-foreground antialiased;
+        @apply bg-background text-foreground antialiased selection:bg-primary/30 selection:text-primary-foreground;
         -webkit-tap-highlight-color: transparent;
         touch-action: manipulation;
     }
@@ -142,7 +142,141 @@ All colors MUST be HSL.
     }
 
     .transition-smooth {
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .glass {
+        @apply bg-background/60 backdrop-blur-xl border border-white/5;
+    }
+
+    .text-gradient {
+        @apply bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/60;
+    }
+
+    .text-gradient-primary {
+        @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60;
+    }
+
+    /* Better touch scrolling for mobile */
+    .touch-scroll {
+        -webkit-overflow-scrolling: touch;
+        scroll-behavior: smooth;
+    }
+
+    /* Snap scrolling for carousels */
+    .snap-x {
+        scroll-snap-type: x mandatory;
+    }
+
+    .snap-start {
+        scroll-snap-align: start;
+    }
+
+    .snap-center {
+        scroll-snap-align: center;
+    }
+
+    /* Smooth momentum scrolling */
+    .scroll-smooth {
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Fix group hover isolation */
+    .group {
+        isolation: isolate;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px) scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    @keyframes slideInFromLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes slideInFromRight {
+        from {
+            opacity: 0;
+            transform: translateX(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes scaleIn {
+        from {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    @keyframes float {
+        0% {
+            transform: translateY(0px);
+        }
+        50% {
+            transform: translateY(-10px);
+        }
+        100% {
+            transform: translateY(0px);
+        }
+    }
+
+    .animate-fade-in {
+        animation: fadeIn 0.6s ease-out forwards;
+    }
+
+    .animate-slide-in {
+        animation: slideIn 0.5s ease-out forwards;
+    }
+
+    .animate-slide-in-left {
+        animation: slideInFromLeft 0.5s ease-out forwards;
+    }
+
+    .animate-slide-in-right {
+        animation: slideInFromRight 0.5s ease-out forwards;
+    }
+
+    .animate-scale-in {
+        animation: scaleIn 0.4s ease-out forwards;
+    }
+
+    .animate-float {
+        animation: float 6s ease-in-out infinite;
     }
 
     .scrollbar-hide {
@@ -152,11 +286,5 @@ All colors MUST be HSL.
 
     .scrollbar-hide::-webkit-scrollbar {
         display: none;
-    }
-
-    /* Better touch scrolling for mobile */
-    .touch-scroll {
-        -webkit-overflow-scrolling: touch;
-        scroll-behavior: smooth;
     }
 }

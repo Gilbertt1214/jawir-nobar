@@ -28,6 +28,7 @@ export interface Movie {
     cast?: PersonCast[];
     crew?: PersonCrew[];
     type: "movie" | "series";
+    quality?: string;
 }
 
 export interface NekoBoccHentai {

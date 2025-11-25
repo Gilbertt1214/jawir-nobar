@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Star, Play, Info } from "lucide-react";
+import { Star, Play } from "lucide-react";
 import { Movie } from "@/services/api";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -10,110 +10,69 @@ interface MovieCardProps {
 
 export function MovieCard({ movie }: MovieCardProps) {
     return (
-        <Link to={`/${movie.type}/${movie.id}`}>
-            <Card className="overflow-hidden group cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-500 border-0 hover:-translate-y-2">
-                <div className="relative aspect-[2/3] overflow-hidden bg-muted">
-                    {/* Image with zoom effect */}
+        <Link to={`/${movie.type}/${movie.id}`} className="block group/card">
+            <Card className="overflow-hidden border-0 bg-transparent shadow-none">
+                <div className="relative aspect-[2/3] overflow-hidden rounded-xl bg-muted shadow-card transition-all duration-500 group-hover/card:shadow-card-hover group-hover/card:scale-[1.02]">
+                    {/* Image */}
                     <img
                         src={movie.cover || "/placeholder.svg"}
                         alt={movie.title}
-                        className="object-cover w-full h-full group-hover:scale-110 transition-all duration-700 ease-out"
+                        className="object-cover w-full h-full transition-transform duration-700 group-hover/card:scale-110"
                         loading="lazy"
+                        draggable="false"
                     />
 
-                    {/* Gradient overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-60 group-hover:opacity-100 transition-all duration-500" />
+                    {/* Gradient overlay - always visible */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-60 group-hover/card:opacity-80 transition-opacity duration-500" />
 
                     {/* Hover overlay with play button */}
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
-                        <div className="transform scale-75 group-hover:scale-100 transition-transform duration-300">
-                            <div className="relative">
-                                {/* Pulsing ring effect */}
-                                <div className="absolute inset-0 rounded-full bg-primary/30 animate-ping" />
-                                <div className="relative p-4 rounded-full bg-primary/90 backdrop-blur-sm shadow-2xl">
-                                    <Play className="h-8 w-8 text-primary-foreground fill-current" />
-                                </div>
-                            </div>
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/card:opacity-100 transition-all duration-500 bg-black/20 backdrop-blur-[2px]">
+                        <div className="p-4 rounded-full bg-primary/90 text-primary-foreground shadow-lg transform scale-50 group-hover/card:scale-100 transition-all duration-500 hover:bg-primary">
+                            <Play className="h-8 w-8 fill-current ml-1" />
                         </div>
                     </div>
 
                     {/* Type badge */}
                     {movie.type === "series" && (
-                        <Badge className="absolute top-3 right-3 bg-primary/90 text-primary-foreground backdrop-blur-sm border border-primary/20 shadow-lg font-semibold px-3 py-1 group-hover:scale-110 transition-transform duration-300">
+                        <Badge className="absolute top-2 right-2 bg-black/60 backdrop-blur-md border border-white/10 text-white px-2 py-0.5 text-xs font-medium uppercase tracking-wider">
                             Series
                         </Badge>
                     )}
 
                     {/* Rating badge */}
                     {movie.rating && (
-                        <div className="absolute bottom-3 left-3 flex items-center gap-1.5 bg-black/70 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10 shadow-lg group-hover:scale-110 group-hover:bg-black/80 transition-all duration-300">
-                            <Star className="h-4 w-4 fill-accent text-accent drop-shadow-lg" />
-                            <span className="text-sm font-bold text-white">
+                        <div className="absolute top-2 left-2 flex items-center gap-1 bg-black/60 backdrop-blur-md border border-white/10 px-2 py-1 rounded-md">
+                            <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
+                            <span className="text-xs font-bold text-white">
                                 {movie.rating.toFixed(1)}
                             </span>
                         </div>
                     )}
-
-                    {/* Info button on hover */}
-                    <div className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform -translate-y-2 group-hover:translate-y-0">
-                        <div className="p-2 rounded-lg bg-background/80 backdrop-blur-sm shadow-lg hover:bg-background transition-colors">
-                            <Info className="h-4 w-4" />
-                        </div>
-                    </div>
-
-                    {/* Shine effect on hover */}
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-                    </div>
+                    
+                    {/* Quality Badge if available */}
+                    {movie.quality && (
+                         <Badge className="absolute bottom-2 right-2 bg-primary/80 backdrop-blur-md border border-white/10 text-white px-2 py-0.5 text-[10px] font-bold uppercase">
+                            {movie.quality}
+                        </Badge>
+                    )}
                 </div>
 
-                <CardContent className="p-2.5 sm:p-3 md:p-4 space-y-1.5 sm:space-y-2 bg-gradient-to-b from-card to-card/80">
-                    {/* Title with gradient on hover */}
-                    <h3 className="font-bold line-clamp-2 group-hover:text-primary transition-all duration-300 text-xs sm:text-sm md:text-base leading-tight min-h-[2rem] sm:min-h-[2.5rem]">
+                <CardContent className="p-3 space-y-1.5">
+                    {/* Title */}
+                    <h3 className="font-bold line-clamp-1 text-sm sm:text-base group-hover/card:text-primary transition-colors duration-300">
                         {movie.title}
                     </h3>
 
                     {/* Year and Country */}
-                    <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-muted-foreground font-medium">
-                        {movie.year && (
-                            <span className="px-1.5 sm:px-2 py-0.5 rounded bg-muted/50">
-                                {movie.year}
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        {movie.year && <span>{movie.year}</span>}
+                        {movie.country && movie.year && <span className="text-primary/50">•</span>}
+                        {movie.country && (
+                            <span className="line-clamp-1">
+                                {movie.country}
                             </span>
                         )}
-                        {movie.country && (
-                            <>
-                                <span className="text-border hidden sm:inline">
-                                    •
-                                </span>
-                                <span className="line-clamp-1 flex-1">
-                                    {movie.country}
-                                </span>
-                            </>
-                        )}
                     </div>
-
-                    {/* Genre tags */}
-                    {movie.genre && movie.genre.length > 0 && (
-                        <div className="flex gap-1 sm:gap-1.5 flex-wrap pt-0.5 sm:pt-1">
-                            {movie.genre.slice(0, 2).map((g) => (
-                                <Badge
-                                    key={g}
-                                    variant="secondary"
-                                    className="text-[10px] sm:text-xs font-medium px-1.5 sm:px-2 py-0 sm:py-0.5 hover:bg-primary hover:text-primary-foreground transition-colors duration-200"
-                                >
-                                    {g}
-                                </Badge>
-                            ))}
-                            {movie.genre.length > 2 && (
-                                <Badge
-                                    variant="outline"
-                                    className="text-[10px] sm:text-xs font-medium px-1.5 sm:px-2 py-0 sm:py-0.5"
-                                >
-                                    +{movie.genre.length - 2}
-                                </Badge>
-                            )}
-                        </div>
-                    )}
                 </CardContent>
             </Card>
         </Link>

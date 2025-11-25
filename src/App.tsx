@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { ScrollToTop } from "@/components/ScrollToTop";
 
 // Pages - TMDB
 import Home from "./pages/Home";
@@ -51,9 +52,10 @@ const App = () => (
                         v7_relativeSplatPath: true,
                     }}
                 >
-                    <div className="flex flex-col min-h-screen">
+                    <ScrollToTop />
+                    <div className="flex min-h-screen flex-col bg-background font-sans antialiased">
                         <Navbar />
-                        <main className="flex-1 w-full overflow-x-hidden">
+                        <main className="flex-1">
                             <Routes>
                                 {/* Home */}
                                 <Route path="/" element={<Home />} />

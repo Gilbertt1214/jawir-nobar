@@ -14,11 +14,13 @@ import {
     Tv,
     Globe,
     Heart,
+    ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 
 export default function Home() {
     // Query states
@@ -123,7 +125,7 @@ export default function Home() {
         if (!heroList.length) return;
         const interval = setInterval(() => {
             setHeroIndex((i) => (i + 1) % heroList.length);
-        }, 6000);
+        }, 8000); // Slower interval for better UX
         return () => clearInterval(interval);
     }, [heroList.length]);
 
@@ -208,18 +210,18 @@ export default function Home() {
 
     if (isLoading) {
         return (
-            <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-6 sm:space-y-8">
+            <div className="container mx-auto px-4 py-8 space-y-8">
                 {/* Hero Skeleton */}
-                <div className="relative h-[45vh] sm:h-[55vh] md:h-[65vh] lg:h-[75vh] bg-muted animate-pulse rounded-lg sm:rounded-xl" />
+                <div className="relative h-[80vh] w-full bg-muted animate-pulse rounded-3xl overflow-hidden" />
 
                 {/* Content Skeletons */}
-                <div className="space-y-6 sm:space-y-8">
-                    <div className="space-y-3 sm:space-y-4">
-                        <div className="h-6 sm:h-8 w-32 sm:w-48 bg-muted animate-pulse rounded" />
+                <div className="space-y-12">
+                    <div className="space-y-4">
+                        <div className="h-8 w-48 bg-muted animate-pulse rounded" />
                         <SkeletonGrid count={6} />
                     </div>
-                    <div className="space-y-3 sm:space-y-4">
-                        <div className="h-6 sm:h-8 w-32 sm:w-48 bg-muted animate-pulse rounded" />
+                    <div className="space-y-4">
+                        <div className="h-8 w-48 bg-muted animate-pulse rounded" />
                         <SkeletonGrid count={6} />
                     </div>
                 </div>
@@ -229,10 +231,10 @@ export default function Home() {
 
     if (hasError) {
         return (
-            <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8">
+            <div className="container mx-auto px-4 py-8">
                 <Alert variant="destructive" className="max-w-2xl mx-auto">
                     <AlertCircle className="h-4 w-4" />
-                    <AlertDescription className="text-sm">
+                    <AlertDescription>
                         Failed to load movies. Please check your internet
                         connection and try again.
                     </AlertDescription>
@@ -255,15 +257,15 @@ export default function Home() {
         link: string;
         children?: React.ReactNode;
     }) => (
-        <section className="space-y-3 sm:space-y-4 md:space-y-5">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3">
-                <div className="flex items-center gap-2 sm:gap-3">
-                    <div className="h-6 sm:h-7 md:h-8 w-1 bg-gradient-to-b from-primary to-primary/50 rounded-full" />
-                    <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold tracking-tight">
+        <section className="space-y-6 animate-fade-in">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-3 group cursor-pointer">
+                    <div className="h-8 w-1.5 bg-gradient-to-b from-primary to-purple-500 rounded-full group-hover:h-10 transition-all duration-300" />
+                    <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-gradient group-hover:text-primary transition-colors">
                         {title}
                     </h2>
                     {icon && (
-                        <div className="text-primary text-sm sm:text-base">
+                        <div className="text-primary opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300">
                             {icon}
                         </div>
                     )}
@@ -273,23 +275,11 @@ export default function Home() {
                     asChild
                     variant="ghost"
                     size="sm"
-                    className="self-start sm:self-auto hover:bg-primary/10 transition-all group hover:bg-yellow-500 hover:text-black text-xs sm:text-sm h-8 sm:h-9 px-3"
+                    className="self-start sm:self-auto hover:bg-white/5 hover:text-primary transition-all group/btn"
                 >
-                    <Link to={link}>
-                        <span>See More</span>
-                        <svg
-                            className="w-3 h-3 sm:w-4 sm:h-4 ml-1.5 transition-transform group-hover:translate-x-1"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M9 5l7 7-7 7"
-                            />
-                        </svg>
+                    <Link to={link} className="flex items-center gap-2">
+                        <span className="text-sm font-medium">View All</span>
+                        <ChevronRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
                     </Link>
                 </Button>
             </div>
@@ -298,9 +288,9 @@ export default function Home() {
     );
 
     return (
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen bg-background pb-20">
             {/* Hero Section */}
-            <section className="relative h-[45vh] sm:h-[55vh] md:h-[65vh] lg:h-[75vh] overflow-hidden">
+            <section className="relative h-[85vh] w-full overflow-hidden">
                 {/* Background Images */}
                 <div className="absolute inset-0">
                     <div
@@ -318,83 +308,84 @@ export default function Home() {
                                     <>
                                         <img
                                             src={item.cover}
-                                            className="w-full h-full object-cover"
+                                            className="w-full h-full object-cover animate-scale-in"
                                             alt={item.title}
                                             loading={
                                                 idx === 0 ? "eager" : "lazy"
                                             }
                                         />
-                                        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/60 to-transparent" />
+                                        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent" />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
                                     </>
                                 ) : (
                                     <div className="w-full h-full bg-gradient-to-br from-primary/20 to-accent/20" />
                                 )}
-                                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
                             </div>
                         ))}
                     </div>
                 </div>
 
                 {/* Hero Content */}
-                <div className="relative container mx-auto px-3 sm:px-4 h-full flex items-end pb-6 sm:pb-10 md:pb-14">
+                <div className="relative container mx-auto px-4 h-full flex items-center">
                     {heroItem && (
-                        <div className="space-y-2 sm:space-y-3 md:space-y-5 max-w-full sm:max-w-2xl lg:max-w-3xl">
-                            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold tracking-tight line-clamp-2 drop-shadow-lg">
-                                {heroItem.title}
-                            </h1>
-
-                            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                        <div className="space-y-6 max-w-3xl pt-20 animate-slide-in-right">
+                            <div className="flex flex-wrap items-center gap-3">
                                 {heroItem.year && (
-                                    <span className="px-2 sm:px-3 py-0.5 sm:py-1 rounded-full bg-background/80 backdrop-blur-sm text-[10px] sm:text-xs font-medium">
+                                    <Badge variant="outline" className="text-xs border-white/20 bg-black/40 backdrop-blur-md px-3 py-1">
                                         {heroItem.year}
-                                    </span>
+                                    </Badge>
                                 )}
                                 {heroItem.rating && (
-                                    <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full bg-background/80 backdrop-blur-sm">
-                                        <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 fill-primary text-primary" />
-                                        <span className="text-[10px] sm:text-xs font-bold">
-                                            {heroItem.rating.toFixed
-                                                ? heroItem.rating.toFixed(1)
-                                                : heroItem.rating}
+                                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-yellow-500/20 backdrop-blur-md border border-yellow-500/30 text-yellow-500">
+                                        <Star className="w-3.5 h-3.5 fill-current" />
+                                        <span className="text-xs font-bold">
+                                            {heroItem.rating.toFixed(1)}
                                         </span>
                                     </div>
                                 )}
                                 {heroItem.quality && (
-                                    <span className="px-2 sm:px-3 py-0.5 sm:py-1 rounded-full bg-primary/20 backdrop-blur-sm text-[10px] sm:text-xs font-medium text-primary">
+                                    <Badge className="bg-primary/80 backdrop-blur-md text-xs px-3 py-1">
                                         {heroItem.quality}
-                                    </span>
+                                    </Badge>
                                 )}
+                                <Badge variant="secondary" className="text-xs uppercase tracking-wider bg-white/10 hover:bg-white/20 backdrop-blur-md">
+                                    {heroItem.type}
+                                </Badge>
                             </div>
 
-                            <p className="text-xs sm:text-sm md:text-base text-foreground/80 line-clamp-2 sm:line-clamp-3 max-w-xl lg:max-w-2xl hidden sm:block">
+                            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-tight text-gradient drop-shadow-2xl">
+                                {heroItem.title}
+                            </h1>
+
+                            <p className="text-base sm:text-lg text-muted-foreground line-clamp-3 max-w-2xl leading-relaxed">
                                 {heroItem.synopsis ||
-                                    "Discover the latest movies and series to watch."}
+                                    "Discover the latest movies and series to watch. Immerse yourself in the world of cinema."}
                             </p>
 
-                            <div className="flex flex-wrap gap-1.5 sm:gap-2 pt-1 sm:pt-2">
+                            <div className="flex flex-wrap gap-4 pt-4">
                                 <Button
                                     asChild
-                                    size="sm"
-                                    className="gap-1.5 shadow-lg hover:shadow-xl transition-all hover:scale-105 text-xs sm:text-sm h-8 sm:h-9 px-3 sm:px-4"
+                                    size="lg"
+                                    className="gap-2 shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:scale-105 transition-all duration-300 rounded-full h-12 px-8 text-base"
                                 >
                                     <Link
                                         to={`/${heroItem.type}/${heroItem.id}`}
                                     >
-                                        <Play className="w-3 h-3 sm:w-4 sm:h-4" />
-                                        <span>Play</span>
+                                        <Play className="w-5 h-5 fill-current" />
+                                        <span>Watch Now</span>
                                     </Link>
                                 </Button>
                                 <Button
                                     asChild
-                                    size="sm"
+                                    size="lg"
                                     variant="outline"
-                                    className="gap-1.5 backdrop-blur-sm bg-background/60 hover:bg-background/80 shadow-lg transition-all hover:scale-105 text-xs sm:text-sm h-8 sm:h-9 px-3 sm:px-4"
+                                    className="gap-2 backdrop-blur-md bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20 hover:scale-105 transition-all duration-300 rounded-full h-12 px-8 text-base"
                                 >
                                     <Link
                                         to={`/${heroItem.type}/${heroItem.id}`}
                                     >
-                                        <Info className="w-3 h-3 sm:w-4 sm:h-4" />
-                                        <span>Info</span>
+                                        <Info className="w-5 h-5" />
+                                        <span>More Info</span>
                                     </Link>
                                 </Button>
                             </div>
@@ -404,17 +395,17 @@ export default function Home() {
 
                 {/* Hero Indicators */}
                 {heroList.length > 1 && (
-                    <div className="absolute bottom-2 sm:bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 sm:gap-2">
+                    <div className="absolute right-8 top-1/2 -translate-y-1/2 flex flex-col gap-3 hidden lg:flex">
                         {heroList.map((_, idx) => (
                             <button
                                 key={idx}
                                 onClick={() => setHeroIndex(idx)}
                                 aria-label={`Go to slide ${idx + 1}`}
                                 className={cn(
-                                    "h-1 sm:h-1.5 rounded-full transition-all duration-300",
+                                    "w-1.5 rounded-full transition-all duration-500",
                                     idx === heroIndex
-                                        ? "bg-primary w-6 sm:w-8"
-                                        : "bg-white/40 hover:bg-white/60 w-3 sm:w-4"
+                                        ? "bg-primary h-12 shadow-[0_0_10px_rgba(var(--primary),0.5)]"
+                                        : "bg-white/20 h-6 hover:bg-white/40"
                                 )}
                             />
                         ))}
@@ -423,12 +414,12 @@ export default function Home() {
             </section>
 
             {/* Main Content */}
-            <main className="container mx-auto px-3 sm:px-4 py-6 sm:py-10 space-y-8 sm:space-y-12 md:space-y-14">
+            <main className="container mx-auto px-4 py-12 space-y-16 -mt-20 relative z-10">
                 {/* Latest Movies */}
                 {listLatest.length > 0 && (
                     <Section
                         title="Latest Movies"
-                        icon={<Sparkles className="w-5 h-5 animate-pulse" />}
+                        icon={<Sparkles className="w-6 h-6 text-yellow-400 animate-pulse" />}
                         movies={listLatest}
                         link="/browse/latest-movies"
                     />
@@ -438,7 +429,7 @@ export default function Home() {
                 {listPopular.length > 0 && (
                     <Section
                         title="Popular Movies"
-                        icon={<TrendingUp className="w-5 h-5" />}
+                        icon={<TrendingUp className="w-6 h-6 text-red-500" />}
                         movies={listPopular}
                         link="/browse/popular-movies"
                     />
@@ -448,7 +439,7 @@ export default function Home() {
                 {listSeries.length > 0 && (
                     <Section
                         title="Latest Series"
-                        icon={<Tv className="w-5 h-5" />}
+                        icon={<Tv className="w-6 h-6 text-blue-500" />}
                         movies={listSeries}
                         link="/browse/latest-series"
                     />
@@ -456,92 +447,28 @@ export default function Home() {
 
                 {/* Anime Section with Filters */}
                 {(listAnime.length > 0 || loadingAnime) && (
-                    <section className="space-y-3 sm:space-y-4 md:space-y-5">
-                        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2 sm:gap-3">
-                            <div className="flex items-center gap-2 sm:gap-3">
-                                <div className="h-6 sm:h-7 md:h-8 w-1 bg-gradient-to-b from-primary to-primary/50 rounded-full" />
-                                <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold tracking-tight">
+                    <section className="space-y-6 animate-fade-in">
+                        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                            <div className="flex items-center gap-3 group cursor-pointer">
+                                <div className="h-8 w-1.5 bg-gradient-to-b from-primary to-purple-500 rounded-full group-hover:h-10 transition-all duration-300" />
+                                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-gradient group-hover:text-primary transition-colors">
                                     Anime
                                 </h2>
-                                <Film className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                                <Film className="w-6 h-6 text-primary opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300" />
                             </div>
-
-                            {/* Filter Buttons */}
-                            {/* <div className="flex flex-wrap items-center gap-2">
-                                <div className="flex items-center p-1 rounded-lg bg-muted/50">
-                                    {(["all", "tv", "movie"] as const).map(
-                                        (type) => (
-                                            <Button
-                                                key={type}
-                                                variant={
-                                                    animeType === type
-                                                        ? "default"
-                                                        : "ghost"
-                                                }
-                                                size="sm"
-                                                onClick={() =>
-                                                    setAnimeType(type)
-                                                }
-                                                className="capitalize text-xs sm:text-sm transition-all"
-                                            >
-                                                {type === "all"
-                                                    ? "All"
-                                                    : type === "tv"
-                                                    ? "TV"
-                                                    : "Movie"}
-                                            </Button>
-                                        )
-                                    )}
-                                </div>
-
-                                <div className="flex items-center p-1 rounded-lg bg-muted/50">
-                                    {(["all", "sub", "dub"] as const).map(
-                                        (audio) => (
-                                            <Button
-                                                key={audio}
-                                                variant={
-                                                    animeAudio === audio
-                                                        ? "default"
-                                                        : "ghost"
-                                                }
-                                                size="sm"
-                                                onClick={() =>
-                                                    setAnimeAudio(audio)
-                                                }
-                                                className="capitalize text-xs sm:text-sm transition-all"
-                                            >
-                                                {audio === "all"
-                                                    ? "All"
-                                                    : audio.toUpperCase()}
-                                            </Button>
-                                        )
-                                    )}
-                                </div>
-                            </div> */}
 
                             <Button
                                 asChild
                                 variant="ghost"
                                 size="sm"
-                                className="self-start lg:self-auto hover:bg-primary/10 transition-all group hover:bg-yellow-500 hover:text-black text-xs sm:text-sm h-8 sm:h-9 px-3"
+                                className="self-start lg:self-auto hover:bg-white/5 hover:text-primary transition-all group/btn"
                             >
                                 <Link
                                     to={`/browse/anime?type=${animeType}&audio=${animeAudio}`}
+                                    className="flex items-center gap-2"
                                 >
-                                    <span>See More</span>
-                                    <svg
-                                        className="w-3 h-3 sm:w-4 sm:h-4 ml-1.5 transition-transform group-hover:translate-x-1"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth={2}
-                                            d="M9 5l7 7-7 7"
-                                        />
-                                    </svg>
+                                    <span className="text-sm font-medium">View All</span>
+                                    <ChevronRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
                                 </Link>
                             </Button>
                         </div>
@@ -556,7 +483,7 @@ export default function Home() {
                 {listIndo.length > 0 && (
                     <Section
                         title="Indonesian Movies"
-                        icon={<Globe className="w-5 h-5" />}
+                        icon={<Globe className="w-6 h-6 text-green-500" />}
                         movies={listIndo}
                         link="/browse/indonesian-movies"
                     />
@@ -566,7 +493,7 @@ export default function Home() {
                 {listKdrama.length > 0 && (
                     <Section
                         title="Korean Drama"
-                        icon={<Heart className="w-5 h-5" />}
+                        icon={<Heart className="w-6 h-6 text-pink-500" />}
                         movies={listKdrama}
                         link="/browse/korean-drama"
                     />
@@ -576,7 +503,7 @@ export default function Home() {
                 {adult?.data && adult.data.length > 0 && (
                     <Section
                         title="Romance"
-                        icon={<Heart className="w-5 h-5 text-pink-500" />}
+                        icon={<Heart className="w-6 h-6 text-rose-500" />}
                         movies={adult.data}
                         link="/browse/adult-movies"
                     />
