@@ -1,61 +1,69 @@
-import { Movie } from '@/services/api';
-import { MovieCard } from './MovieCard';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useRef } from 'react';
+import { Movie } from "@/services/api";
+import { MovieCard } from "./MovieCard";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useRef } from "react";
 
 interface MovieCarouselProps {
-  title: string;
-  movies: Movie[];
+    title: string;
+    movies: Movie[];
 }
 
 export function MovieCarousel({ title, movies }: MovieCarouselProps) {
-  const scrollRef = useRef<HTMLDivElement>(null);
+    const scrollRef = useRef<HTMLDivElement>(null);
 
-  const scroll = (direction: 'left' | 'right') => {
-    if (scrollRef.current) {
-      const scrollAmount = direction === 'left' ? -400 : 400;
-      scrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-    }
-  };
+    const scroll = (direction: "left" | "right") => {
+        if (scrollRef.current) {
+            const scrollAmount = direction === "left" ? -400 : 400;
+            scrollRef.current.scrollBy({
+                left: scrollAmount,
+                behavior: "smooth",
+            });
+        }
+    };
 
-  if (!movies || movies.length === 0) return null;
+    if (!movies || movies.length === 0) return null;
 
-  return (
-    <section className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">{title}</h2>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => scroll('left')}
-            className="h-8 w-8"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => scroll('right')}
-            className="h-8 w-8"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
+    return (
+        <section className="space-y-3 sm:space-y-4">
+            {title && (
+                <div className="flex items-center justify-between">
+                    <h2 className="text-xl sm:text-2xl font-bold">{title}</h2>
+                    <div className="flex gap-1.5 sm:gap-2">
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => scroll("left")}
+                            className="h-7 w-7 sm:h-8 sm:w-8"
+                        >
+                            <ChevronLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => scroll("right")}
+                            className="h-7 w-7 sm:h-8 sm:w-8"
+                        >
+                            <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                        </Button>
+                    </div>
+                </div>
+            )}
 
-      <div
-        ref={scrollRef}
-        className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-      >
-        {movies.map((movie) => (
-          <div key={movie.id} className="flex-none w-40 sm:w-48">
-            <MovieCard movie={movie} />
-          </div>
-        ))}
-      </div>
-    </section>
-  );
+            <div
+                ref={scrollRef}
+                className="flex gap-2.5 sm:gap-3 md:gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-3 sm:pb-4 -mx-1 px-1"
+                style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+            >
+                {movies.map((movie) => (
+                    <div
+                        key={movie.id}
+                        className="flex-none w-32 xs:w-36 sm:w-40 md:w-48"
+                    >
+                        <MovieCard movie={movie} />
+                    </div>
+                ))}
+            </div>
+        </section>
+    );
 }

@@ -208,18 +208,18 @@ export default function Home() {
 
     if (isLoading) {
         return (
-            <div className="container mx-auto px-4 py-6 space-y-8">
+            <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-6 sm:space-y-8">
                 {/* Hero Skeleton */}
-                <div className="relative h-[50vh] sm:h-[60vh] md:h-[70vh] lg:h-[80vh] bg-muted animate-pulse rounded-xl" />
+                <div className="relative h-[45vh] sm:h-[55vh] md:h-[65vh] lg:h-[75vh] bg-muted animate-pulse rounded-lg sm:rounded-xl" />
 
                 {/* Content Skeletons */}
-                <div className="space-y-8">
-                    <div className="space-y-4">
-                        <div className="h-8 w-48 bg-muted animate-pulse rounded" />
+                <div className="space-y-6 sm:space-y-8">
+                    <div className="space-y-3 sm:space-y-4">
+                        <div className="h-6 sm:h-8 w-32 sm:w-48 bg-muted animate-pulse rounded" />
                         <SkeletonGrid count={6} />
                     </div>
-                    <div className="space-y-4">
-                        <div className="h-8 w-48 bg-muted animate-pulse rounded" />
+                    <div className="space-y-3 sm:space-y-4">
+                        <div className="h-6 sm:h-8 w-32 sm:w-48 bg-muted animate-pulse rounded" />
                         <SkeletonGrid count={6} />
                     </div>
                 </div>
@@ -229,10 +229,10 @@ export default function Home() {
 
     if (hasError) {
         return (
-            <div className="container mx-auto px-4 py-8">
+            <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8">
                 <Alert variant="destructive" className="max-w-2xl mx-auto">
                     <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>
+                    <AlertDescription className="text-sm">
                         Failed to load movies. Please check your internet
                         connection and try again.
                     </AlertDescription>
@@ -255,27 +255,30 @@ export default function Home() {
         link: string;
         children?: React.ReactNode;
     }) => (
-        <section className="space-y-4 md:space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                    <div className="h-8 w-1 bg-gradient-to-b from-primary to-primary/50 rounded-full" />
-                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
+        <section className="space-y-3 sm:space-y-4 md:space-y-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3">
+                <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="h-6 sm:h-7 md:h-8 w-1 bg-gradient-to-b from-primary to-primary/50 rounded-full" />
+                    <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold tracking-tight">
                         {title}
                     </h2>
-                    {icon && <div className="text-primary">{icon}</div>}
+                    {icon && (
+                        <div className="text-primary text-sm sm:text-base">
+                            {icon}
+                        </div>
+                    )}
                 </div>
                 {children}
                 <Button
                     asChild
                     variant="ghost"
                     size="sm"
-                    className="self-start sm:self-auto hover:bg-primary/10 transition-all group hover:bg-yellow-500 hover:text-black"
+                    className="self-start sm:self-auto hover:bg-primary/10 transition-all group hover:bg-yellow-500 hover:text-black text-xs sm:text-sm h-8 sm:h-9 px-3"
                 >
                     <Link to={link}>
-                        <span className="hidden sm:inline">View All</span>
-                        <span className="sm:hidden">See More</span>
+                        <span>See More</span>
                         <svg
-                            className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1"
+                            className="w-3 h-3 sm:w-4 sm:h-4 ml-1.5 transition-transform group-hover:translate-x-1"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -297,7 +300,7 @@ export default function Home() {
     return (
         <div className="min-h-screen bg-background">
             {/* Hero Section */}
-            <section className="relative h-[50vh] sm:h-[60vh] md:h-[70vh] lg:h-[80vh] overflow-hidden">
+            <section className="relative h-[45vh] sm:h-[55vh] md:h-[65vh] lg:h-[75vh] overflow-hidden">
                 {/* Background Images */}
                 <div className="absolute inset-0">
                     <div
@@ -333,23 +336,23 @@ export default function Home() {
                 </div>
 
                 {/* Hero Content */}
-                <div className="relative container mx-auto px-4 h-full flex items-end pb-8 sm:pb-12 md:pb-16">
+                <div className="relative container mx-auto px-3 sm:px-4 h-full flex items-end pb-6 sm:pb-10 md:pb-14">
                     {heroItem && (
-                        <div className="space-y-3 sm:space-y-4 md:space-y-6 max-w-full sm:max-w-2xl lg:max-w-3xl">
-                            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold tracking-tight line-clamp-2 drop-shadow-lg">
+                        <div className="space-y-2 sm:space-y-3 md:space-y-5 max-w-full sm:max-w-2xl lg:max-w-3xl">
+                            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold tracking-tight line-clamp-2 drop-shadow-lg">
                                 {heroItem.title}
                             </h1>
 
-                            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                                 {heroItem.year && (
-                                    <span className="px-3 py-1 rounded-full bg-background/80 backdrop-blur-sm text-xs sm:text-sm font-medium">
+                                    <span className="px-2 sm:px-3 py-0.5 sm:py-1 rounded-full bg-background/80 backdrop-blur-sm text-[10px] sm:text-xs font-medium">
                                         {heroItem.year}
                                     </span>
                                 )}
                                 {heroItem.rating && (
-                                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-background/80 backdrop-blur-sm">
-                                        <Star className="w-3 h-3 sm:w-4 sm:h-4 fill-primary text-primary" />
-                                        <span className="text-xs sm:text-sm font-bold">
+                                    <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full bg-background/80 backdrop-blur-sm">
+                                        <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 fill-primary text-primary" />
+                                        <span className="text-[10px] sm:text-xs font-bold">
                                             {heroItem.rating.toFixed
                                                 ? heroItem.rating.toFixed(1)
                                                 : heroItem.rating}
@@ -357,47 +360,41 @@ export default function Home() {
                                     </div>
                                 )}
                                 {heroItem.quality && (
-                                    <span className="px-3 py-1 rounded-full bg-primary/20 backdrop-blur-sm text-xs sm:text-sm font-medium text-primary">
+                                    <span className="px-2 sm:px-3 py-0.5 sm:py-1 rounded-full bg-primary/20 backdrop-blur-sm text-[10px] sm:text-xs font-medium text-primary">
                                         {heroItem.quality}
                                     </span>
                                 )}
                             </div>
 
-                            <p className="text-sm sm:text-base md:text-lg text-foreground/80 line-clamp-2 sm:line-clamp-3 max-w-xl lg:max-w-2xl">
+                            <p className="text-xs sm:text-sm md:text-base text-foreground/80 line-clamp-2 sm:line-clamp-3 max-w-xl lg:max-w-2xl hidden sm:block">
                                 {heroItem.synopsis ||
                                     "Discover the latest movies and series to watch."}
                             </p>
 
-                            <div className="flex flex-wrap gap-2 sm:gap-3 pt-2">
+                            <div className="flex flex-wrap gap-1.5 sm:gap-2 pt-1 sm:pt-2">
                                 <Button
                                     asChild
-                                    size="default"
-                                    className="gap-2 shadow-lg hover:shadow-xl transition-all hover:scale-105 text-sm sm:text-base"
+                                    size="sm"
+                                    className="gap-1.5 shadow-lg hover:shadow-xl transition-all hover:scale-105 text-xs sm:text-sm h-8 sm:h-9 px-3 sm:px-4"
                                 >
                                     <Link
                                         to={`/${heroItem.type}/${heroItem.id}`}
                                     >
-                                        <Play className="w-4 h-4" />
-                                        <span className="hidden xs:inline">
-                                            Watch Now
-                                        </span>
-                                        <span className="xs:hidden">Play</span>
+                                        <Play className="w-3 h-3 sm:w-4 sm:h-4" />
+                                        <span>Play</span>
                                     </Link>
                                 </Button>
                                 <Button
                                     asChild
-                                    size="default"
+                                    size="sm"
                                     variant="outline"
-                                    className="gap-2 backdrop-blur-sm bg-background/60 hover:bg-background/80 shadow-lg transition-all hover:scale-105 text-sm sm:text-base"
+                                    className="gap-1.5 backdrop-blur-sm bg-background/60 hover:bg-background/80 shadow-lg transition-all hover:scale-105 text-xs sm:text-sm h-8 sm:h-9 px-3 sm:px-4"
                                 >
                                     <Link
                                         to={`/${heroItem.type}/${heroItem.id}`}
                                     >
-                                        <Info className="w-4 h-4" />
-                                        <span className="hidden xs:inline">
-                                            More Info
-                                        </span>
-                                        <span className="xs:hidden">Info</span>
+                                        <Info className="w-3 h-3 sm:w-4 sm:h-4" />
+                                        <span>Info</span>
                                     </Link>
                                 </Button>
                             </div>
@@ -407,17 +404,17 @@ export default function Home() {
 
                 {/* Hero Indicators */}
                 {heroList.length > 1 && (
-                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                    <div className="absolute bottom-2 sm:bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 sm:gap-2">
                         {heroList.map((_, idx) => (
                             <button
                                 key={idx}
                                 onClick={() => setHeroIndex(idx)}
                                 aria-label={`Go to slide ${idx + 1}`}
                                 className={cn(
-                                    "h-1.5 rounded-full transition-all duration-300",
+                                    "h-1 sm:h-1.5 rounded-full transition-all duration-300",
                                     idx === heroIndex
-                                        ? "bg-primary w-8"
-                                        : "bg-white/40 hover:bg-white/60 w-4"
+                                        ? "bg-primary w-6 sm:w-8"
+                                        : "bg-white/40 hover:bg-white/60 w-3 sm:w-4"
                                 )}
                             />
                         ))}
@@ -426,7 +423,7 @@ export default function Home() {
             </section>
 
             {/* Main Content */}
-            <main className="container mx-auto px-4 py-8 sm:py-12 space-y-12 sm:space-y-16">
+            <main className="container mx-auto px-3 sm:px-4 py-6 sm:py-10 space-y-8 sm:space-y-12 md:space-y-14">
                 {/* Latest Movies */}
                 {listLatest.length > 0 && (
                     <Section
@@ -459,14 +456,14 @@ export default function Home() {
 
                 {/* Anime Section with Filters */}
                 {(listAnime.length > 0 || loadingAnime) && (
-                    <section className="space-y-4 md:space-y-6">
-                        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                            <div className="flex items-center gap-3">
-                                <div className="h-8 w-1 bg-gradient-to-b from-primary to-primary/50 rounded-full" />
-                                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight">
+                    <section className="space-y-3 sm:space-y-4 md:space-y-5">
+                        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2 sm:gap-3">
+                            <div className="flex items-center gap-2 sm:gap-3">
+                                <div className="h-6 sm:h-7 md:h-8 w-1 bg-gradient-to-b from-primary to-primary/50 rounded-full" />
+                                <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold tracking-tight">
                                     Anime
                                 </h2>
-                                <Film className="w-5 h-5 text-primary" />
+                                <Film className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                             </div>
 
                             {/* Filter Buttons */}
@@ -526,17 +523,14 @@ export default function Home() {
                                 asChild
                                 variant="ghost"
                                 size="sm"
-                                className="self-start lg:self-auto hover:bg-primary/10 transition-all group hover:bg-yellow-500 hover:text-black"
+                                className="self-start lg:self-auto hover:bg-primary/10 transition-all group hover:bg-yellow-500 hover:text-black text-xs sm:text-sm h-8 sm:h-9 px-3"
                             >
                                 <Link
                                     to={`/browse/anime?type=${animeType}&audio=${animeAudio}`}
                                 >
-                                    <span className="hidden sm:inline">
-                                        View All
-                                    </span>
-                                    <span className="sm:hidden">See More</span>
+                                    <span>See More</span>
                                     <svg
-                                        className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1"
+                                        className="w-3 h-3 sm:w-4 sm:h-4 ml-1.5 transition-transform group-hover:translate-x-1"
                                         fill="none"
                                         stroke="currentColor"
                                         viewBox="0 0 24 24"

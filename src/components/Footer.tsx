@@ -6,18 +6,16 @@ export function Footer() {
 
     return (
         <footer className="border-t bg-background/30 mt-auto">
-            <div className="container mx-auto px-4 py-3">
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-muted-foreground">
+            <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-[10px] sm:text-xs text-muted-foreground">
                     {/* Left Side - Brand */}
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 sm:gap-2">
                         <Film className="h-3 w-3 text-primary" />
                         <span>jawiracademy &copy; {currentYear}</span>
                     </div>
 
-    
-
                     {/* Right Side - Legal */}
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 sm:gap-3">
                         <a
                             href="#"
                             className="hover:text-primary transition-colors"

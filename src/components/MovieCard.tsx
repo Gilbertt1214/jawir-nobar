@@ -67,22 +67,24 @@ export function MovieCard({ movie }: MovieCardProps) {
                     </div>
                 </div>
 
-                <CardContent className="p-4 space-y-2 bg-gradient-to-b from-card to-card/80">
+                <CardContent className="p-2.5 sm:p-3 md:p-4 space-y-1.5 sm:space-y-2 bg-gradient-to-b from-card to-card/80">
                     {/* Title with gradient on hover */}
-                    <h3 className="font-bold line-clamp-2 group-hover:text-primary transition-all duration-300 text-base leading-tight min-h-[2.5rem]">
+                    <h3 className="font-bold line-clamp-2 group-hover:text-primary transition-all duration-300 text-xs sm:text-sm md:text-base leading-tight min-h-[2rem] sm:min-h-[2.5rem]">
                         {movie.title}
                     </h3>
 
                     {/* Year and Country */}
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
+                    <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-muted-foreground font-medium">
                         {movie.year && (
-                            <span className="px-2 py-0.5 rounded bg-muted/50">
+                            <span className="px-1.5 sm:px-2 py-0.5 rounded bg-muted/50">
                                 {movie.year}
                             </span>
                         )}
                         {movie.country && (
                             <>
-                                <span className="text-border">•</span>
+                                <span className="text-border hidden sm:inline">
+                                    •
+                                </span>
                                 <span className="line-clamp-1 flex-1">
                                     {movie.country}
                                 </span>
@@ -92,12 +94,12 @@ export function MovieCard({ movie }: MovieCardProps) {
 
                     {/* Genre tags */}
                     {movie.genre && movie.genre.length > 0 && (
-                        <div className="flex gap-1.5 flex-wrap pt-1">
+                        <div className="flex gap-1 sm:gap-1.5 flex-wrap pt-0.5 sm:pt-1">
                             {movie.genre.slice(0, 2).map((g) => (
                                 <Badge
                                     key={g}
                                     variant="secondary"
-                                    className="text-xs font-medium px-2 py-0.5 hover:bg-primary hover:text-primary-foreground transition-colors duration-200"
+                                    className="text-[10px] sm:text-xs font-medium px-1.5 sm:px-2 py-0 sm:py-0.5 hover:bg-primary hover:text-primary-foreground transition-colors duration-200"
                                 >
                                     {g}
                                 </Badge>
@@ -105,7 +107,7 @@ export function MovieCard({ movie }: MovieCardProps) {
                             {movie.genre.length > 2 && (
                                 <Badge
                                     variant="outline"
-                                    className="text-xs font-medium px-2 py-0.5"
+                                    className="text-[10px] sm:text-xs font-medium px-1.5 sm:px-2 py-0 sm:py-0.5"
                                 >
                                     +{movie.genre.length - 2}
                                 </Badge>
