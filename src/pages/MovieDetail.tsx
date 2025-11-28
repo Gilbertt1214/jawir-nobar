@@ -31,6 +31,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { commentsService } from "@/services/firebase/comments.service";
 
 interface Comment {
     name: string;
@@ -66,6 +67,7 @@ export default function MovieDetail() {
     const [name, setName] = useState("");
     const [message, setMessage] = useState("");
     const [comments, setComments] = useState<Comment[]>([]);
+    const [isLoadingComments, setIsLoadingComments] = useState(false);
     const [selectedProvider, setSelectedProvider] = useState(0);
     const [providerError, setProviderError] = useState(false);
     const [streamingProviders, setStreamingProviders] = useState<
@@ -105,24 +107,64 @@ export default function MovieDetail() {
     }, [movie?.id, movie?.type]);
 
     useEffect(() => {
-        if (!id) return;
-        try {
-            const raw = localStorage.getItem(`comments:movie:${id}`);
-            setComments(raw ? JSON.parse(raw) : []);
-        } catch {
-            setComments([]);
-        }
+        const loadComments = async () => {
+            if (!id) return;
+            setIsLoadingComments(true);
+            try {
+                const firebaseComments = await commentsService.getComments(id);
+                setComments(firebaseComments);
+            } catch (error) {
+                console.error("Error loading comments:", error);
+                // Fallback to localStorage if Firebase fails
+                try {
+                    const raw = localStorage.getItem(`comments:movie:${id}`);
+                    setComments(raw ? JSON.parse(raw) : []);
+                } catch {
+                    setComments([]);
+                }
+            } finally {
+                setIsLoadingComments(false);
+            }
+        };
+
+        loadComments();
     }, [id]);
 
-    const addComment = () => {
+    const addComment = async () => {
         const n = name.trim();
         const m = message.trim();
         if (!n || !m || !id) return;
-        const next = [{ name: n, message: m, time: Date.now() }, ...comments];
-        setComments(next);
-        localStorage.setItem(`comments:movie:${id}`, JSON.stringify(next));
-        setName("");
-        setMessage("");
+
+        setIsLoadingComments(true);
+        try {
+            const newComment = await commentsService.addComment(id, {
+                name: n,
+                message: m,
+            });
+
+            setComments([newComment, ...comments]);
+            // Also save to localStorage as backup/cache
+            const currentLocal = localStorage.getItem(`comments:movie:${id}`);
+            const localComments = currentLocal ? JSON.parse(currentLocal) : [];
+            localStorage.setItem(
+                `comments:movie:${id}`,
+                JSON.stringify([newComment, ...localComments])
+            );
+            
+            setName("");
+            setMessage("");
+        } catch (error) {
+            console.error("Error adding comment:", error);
+            // Fallback to localStorage
+            const fallbackComment = { name: n, message: m, time: Date.now() };
+            const next = [fallbackComment, ...comments];
+            setComments(next);
+            localStorage.setItem(`comments:movie:${id}`, JSON.stringify(next));
+            setName("");
+            setMessage("");
+        } finally {
+            setIsLoadingComments(false);
+        }
     };
 
     const handleProviderChange = (value: string) => {
@@ -521,16 +563,30 @@ export default function MovieDetail() {
                                             </span>
                                             <Button
                                                 onClick={addComment}
-                                                disabled={!name.trim() || !message.trim()}
+                                                disabled={!name.trim() || !message.trim() || isLoadingComments}
                                                 className="gap-2"
                                             >
-                                                Post Comment
+                                                {isLoadingComments ? (
+                                                    <>
+                                                        <RefreshCw className="h-4 w-4 animate-spin" />
+                                                        Posting...
+                                                    </>
+                                                ) : (
+                                                    "Post Comment"
+                                                )}
                                             </Button>
                                         </div>
                                     </div>
 
                                     <div className="space-y-4">
-                                        {comments.length === 0 ? (
+                                        {isLoadingComments && comments.length === 0 ? (
+                                            <div className="text-center py-8">
+                                                <RefreshCw className="h-6 w-6 mx-auto animate-spin text-primary" />
+                                                <p className="text-sm text-muted-foreground mt-2">
+                                                    Loading comments...
+                                                </p>
+                                            </div>
+                                        ) : comments.length === 0 ? (
                                             <div className="text-center py-8 text-muted-foreground bg-muted/30 rounded-lg border border-dashed border-white/10">
                                                 <MessageSquare className="h-8 w-8 mx-auto mb-2 opacity-50" />
                                                 <p>No comments yet. Be the first to share your thoughts!</p>
