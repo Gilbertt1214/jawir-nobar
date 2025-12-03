@@ -243,7 +243,7 @@ export default function MovieDetail() {
             <div className="container mx-auto px-4 sm:px-6 -mt-32 sm:-mt-48 md:-mt-64 relative z-10">
                 <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] lg:grid-cols-[350px_1fr] gap-8">
                     {/* Poster & Actions */}
-                    <div className="space-y-6 animate-slide-in-bottom">
+                    <div className="space-y-6" data-aos="fade-right">
                         <div className="relative aspect-[2/3] rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/10 group">
                             <img
                                 src={movie.cover || "/placeholder.svg"}
@@ -282,7 +282,7 @@ export default function MovieDetail() {
                     </div>
 
                     {/* Details */}
-                    <div className="space-y-8 animate-slide-in-right delay-100">
+                    <div className="space-y-8" data-aos="fade-left" data-aos-delay="100">
                         <div className="space-y-4">
                             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-gradient leading-tight">
                                 {movie.title}
@@ -535,7 +535,7 @@ export default function MovieDetail() {
                         )}
 
                         {/* Comments Section */}
-                        <div className="space-y-4 pt-4">
+                        <div className="space-y-4 pt-4" data-aos="fade-up">
                             <h2 className="text-xl font-bold flex items-center gap-2">
                                 <MessageSquare className="h-5 w-5 text-primary" />
                                 Comments

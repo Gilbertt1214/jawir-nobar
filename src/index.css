@@ -116,6 +116,8 @@ All colors MUST be HSL.
     html {
         -webkit-text-size-adjust: 100%;
         -ms-text-size-adjust: 100%;
+        scroll-behavior: smooth;
+        scroll-padding-top: 80px; /* Account for fixed navbar */
     }
 
     button,
@@ -256,19 +258,19 @@ All colors MUST be HSL.
     }
 
     .animate-fade-in {
-        animation: fadeIn 0.6s ease-out forwards;
+        animation: fadeIn 0.4s ease-out forwards;
     }
 
     .animate-slide-in {
-        animation: slideIn 0.5s ease-out forwards;
+        animation: slideIn 0.4s ease-out forwards;
     }
 
     .animate-slide-in-left {
-        animation: slideInFromLeft 0.5s ease-out forwards;
+        animation: slideInFromLeft 0.4s ease-out forwards;
     }
 
     .animate-slide-in-right {
-        animation: slideInFromRight 0.5s ease-out forwards;
+        animation: slideInFromRight 0.4s ease-out forwards;
     }
 
     .animate-scale-in {
@@ -287,4 +289,93 @@ All colors MUST be HSL.
     .scrollbar-hide::-webkit-scrollbar {
         display: none;
     }
+
+    /* Advanced Animations (Antigravity-style) */
+    @keyframes zoomInSubtle {
+        from {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    @keyframes blurIn {
+        from {
+            opacity: 0;
+            filter: blur(10px);
+        }
+        to {
+            opacity: 1;
+            filter: blur(0);
+        }
+    }
+
+    @keyframes scaleInCenter {
+        from {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    .animate-zoom-in-subtle {
+        animation: zoomInSubtle 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .animate-blur-in {
+        animation: blurIn 0.8s ease-out forwards;
+    }
+
+    .animate-scale-center {
+        animation: scaleInCenter 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    /* Magnetic Hover Effect */
+    .magnetic-hover {
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .magnetic-hover:hover {
+        transform: scale(1.03);
+    }
+
+    /* Glow Effect */
+    .glow-on-hover {
+        position: relative;
+        transition: all 0.4s ease;
+    }
+
+    .glow-on-hover:hover {
+        box-shadow: 0 0 20px rgba(var(--primary), 0.4),
+                    0 0 40px rgba(var(--primary), 0.2);
+    }
+
+    /* Smooth Transform with Custom Origin */
+    .transform-origin-center {
+        transform-origin: center;
+    }
+
+    .transform-origin-left {
+        transform-origin: left center;
+    }
+
+    .transform-origin-right {
+        transform-origin: right center;
+    }
+
+    /* Performance Optimization */
+    .will-change-transform {
+        will-change: transform;
+    }
+
+    .will-change-opacity {
+        will-change: opacity;
+    }
 }
+

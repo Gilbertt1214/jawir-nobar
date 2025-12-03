@@ -21,6 +21,8 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { ParallaxWrapper } from "@/components/ParallaxWrapper";
+import { StaggeredText } from "@/components/StaggeredText";
 
 export default function Home() {
     // Query states
@@ -257,7 +259,7 @@ export default function Home() {
         link: string;
         children?: React.ReactNode;
     }) => (
-        <section className="space-y-6 animate-fade-in">
+        <section className="space-y-6" data-aos="fade-up">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-3 group cursor-pointer">
                     <div className="h-8 w-1.5 bg-gradient-to-b from-primary to-purple-500 rounded-full group-hover:h-10 transition-all duration-300" />
@@ -291,8 +293,8 @@ export default function Home() {
         <div className="min-h-screen bg-background pb-20">
             {/* Hero Section */}
             <section className="relative h-[85vh] w-full overflow-hidden">
-                {/* Background Images */}
-                <div className="absolute inset-0">
+                {/* Background Images with Parallax */}
+                <ParallaxWrapper speed={0.5} className="absolute inset-0">
                     <div
                         className="flex h-full transition-transform duration-1000 ease-out"
                         style={{
@@ -308,7 +310,7 @@ export default function Home() {
                                     <>
                                         <img
                                             src={item.cover}
-                                            className="w-full h-full object-cover animate-scale-in"
+                                            className="w-full h-full object-cover"
                                             alt={item.title}
                                             loading={
                                                 idx === 0 ? "eager" : "lazy"
@@ -323,7 +325,7 @@ export default function Home() {
                             </div>
                         ))}
                     </div>
-                </div>
+                </ParallaxWrapper>
 
                 {/* Hero Content */}
                 <div className="relative container mx-auto px-4 h-full flex items-center">
@@ -353,9 +355,12 @@ export default function Home() {
                                 </Badge>
                             </div>
 
-                            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-tight text-gradient drop-shadow-2xl">
-                                {heroItem.title}
-                            </h1>
+                            <StaggeredText 
+                                text={heroItem.title}
+                                className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-tight text-gradient drop-shadow-2xl"
+                                delay={0.2}
+                                staggerDelay={0.08}
+                            />
 
                             <p className="text-base sm:text-lg text-muted-foreground line-clamp-3 max-w-2xl leading-relaxed">
                                 {heroItem.synopsis ||
@@ -447,7 +452,7 @@ export default function Home() {
 
                 {/* Anime Section with Filters */}
                 {(listAnime.length > 0 || loadingAnime) && (
-                    <section className="space-y-6 animate-fade-in">
+                    <section className="space-y-6" data-aos="fade-up">
                         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                             <div className="flex items-center gap-3 group cursor-pointer">
                                 <div className="h-8 w-1.5 bg-gradient-to-b from-primary to-purple-500 rounded-full group-hover:h-10 transition-all duration-300" />

@@ -137,12 +137,12 @@ export function MovieCarousel({ title, movies }: MovieCarouselProps) {
                         WebkitOverflowScrolling: "touch",
                     }}
                 >
-                    {movies.map((movie) => (
+                    {movies.map((movie, index) => (
                         <div
                             key={movie.id}
                             className="flex-none w-36 sm:w-40 md:w-44 lg:w-48"
                         >
-                            <MovieCard movie={movie} />
+                            <MovieCard movie={movie} index={index} />
                         </div>
                     ))}
                 </div>
