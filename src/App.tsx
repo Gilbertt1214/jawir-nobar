@@ -40,101 +40,127 @@ const queryClient = new QueryClient({
     },
 });
 
-const App = () => (
-    <QueryClientProvider client={queryClient}>
-        <ThemeProvider>
-            <TooltipProvider>
-                <Toaster />
-                <Sonner />
-                <BrowserRouter
-                    future={{
-                        v7_startTransition: true,
-                        v7_relativeSplatPath: true,
-                    }}
-                >
-                    <ScrollToTop />
-                    <div className="flex min-h-screen flex-col bg-background font-sans antialiased">
-                        <Navbar />
-                        <main className="flex-1">
-                            <Routes>
-                                {/* Home */}
-                                <Route path="/" element={<Home />} />
+import { useEffect } from "react";
+import Lenis from "lenis";
 
-                                {/* TMDB Movie & Series */}
-                                <Route
-                                    path="/movie/:id"
-                                    element={<MovieDetail />}
-                                />
-                                <Route
-                                    path="/series/:id"
-                                    element={<MovieDetail />}
-                                />
-                                <Route
-                                    path="/series/:id/episodes"
-                                    element={<SeriesEpisodes />}
-                                />
-                                <Route
-                                    path="/series/:seriesId/watch"
-                                    element={<EpisodeDetail />}
-                                />
+const App = () => {
+    useEffect(() => {
+        const lenis = new Lenis({
+            duration: 1.2,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            orientation: "vertical",
+            gestureOrientation: "vertical",
+            smoothWheel: true,
+        });
 
-                                {/* Hentai - Nekopoi */}
-                                <Route
-                                    path="/hentai"
-                                    element={<HentaiList />}
-                                />
-                                <Route
-                                    path="/hentai/nekopoi/:id"
-                                    element={<AnimeDetail />}
-                                />
-                                <Route
-                                    path="/test-nekobocc"
-                                    element={<TestNekoBocc />}
-                                />
+        function raf(time: number) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
 
-                                {/* Browse (Kategori Khusus) */}
-                                <Route
-                                    path="/browse/:category"
-                                    element={<BrowseCategory />}
-                                />
+        requestAnimationFrame(raf);
 
-                                {/* Pencarian */}
-                                <Route path="/search" element={<Search />} />
+        return () => {
+            lenis.destroy();
+        };
+    }, []);
 
-                                {/* Genre */}
-                                <Route path="/genres" element={<GenreList />} />
-                                <Route
-                                    path="/genre/:genre"
-                                    element={<GenreMovies />}
-                                />
+    return (
+        <QueryClientProvider client={queryClient}>
+            <ThemeProvider>
+                <TooltipProvider>
+                    <Toaster />
+                    <Sonner />
+                    <BrowserRouter
+                        future={{
+                            v7_startTransition: true,
+                            v7_relativeSplatPath: true,
+                        }}
+                    >
+                        <ScrollToTop />
+                        <div className="flex min-h-screen flex-col bg-background font-sans antialiased">
+                            <Navbar />
+                            <main className="flex-1">
+                                <Routes>
+                                    {/* Home */}
+                                    <Route path="/" element={<Home />} />
 
-                                {/* Negara */}
-                                <Route
-                                    path="/countries"
-                                    element={<CountryList />}
-                                />
-                                <Route
-                                    path="/country/:country"
-                                    element={<CountryMovies />}
-                                />
+                                    {/* TMDB Movie & Series */}
+                                    <Route
+                                        path="/movie/:id"
+                                        element={<MovieDetail />}
+                                    />
+                                    <Route
+                                        path="/series/:id"
+                                        element={<MovieDetail />}
+                                    />
+                                    <Route
+                                        path="/series/:id/episodes"
+                                        element={<SeriesEpisodes />}
+                                    />
+                                    <Route
+                                        path="/series/:seriesId/watch"
+                                        element={<EpisodeDetail />}
+                                    />
 
-                                {/* Tahun */}
-                                <Route path="/years" element={<YearList />} />
-                                <Route
-                                    path="/year/:year"
-                                    element={<YearMovies />}
-                                />
+                                    {/* Hentai - Nekopoi */}
+                                    <Route
+                                        path="/hentai"
+                                        element={<HentaiList />}
+                                    />
+                                    <Route
+                                        path="/hentai/nekopoi/:id"
+                                        element={<AnimeDetail />}
+                                    />
+                                    <Route
+                                        path="/test-nekobocc"
+                                        element={<TestNekoBocc />}
+                                    />
 
-                                {/* 404 */}
-                                <Route path="*" element={<NotFound />} />
-                            </Routes>
-                        </main>
-                        <Footer />
-                    </div>
-                </BrowserRouter>
-            </TooltipProvider>
-        </ThemeProvider>
-    </QueryClientProvider>
-);
+                                    {/* Browse (Kategori Khusus) */}
+                                    <Route
+                                        path="/browse/:category"
+                                        element={<BrowseCategory />}
+                                    />
+
+                                    {/* Pencarian */}
+                                    <Route path="/search" element={<Search />} />
+
+                                    {/* Genre */}
+                                    <Route path="/genres" element={<GenreList />} />
+                                    <Route
+                                        path="/genre/:genre"
+                                        element={<GenreMovies />}
+                                    />
+
+                                    {/* Negara */}
+                                    <Route
+                                        path="/countries"
+                                        element={<CountryList />}
+                                    />
+                                    <Route
+                                        path="/country/:country"
+                                        element={<CountryMovies />}
+                                    />
+
+                                    {/* Tahun */}
+                                    <Route path="/years" element={<YearList />} />
+                                    <Route
+                                        path="/year/:year"
+                                        element={<YearMovies />}
+                                    />
+
+                                    {/* 404 */}
+                                    <Route path="*" element={<NotFound />} />
+                                </Routes>
+                            </main>
+                            <Footer />
+                        </div>
+                    </BrowserRouter>
+                </TooltipProvider>
+            </ThemeProvider>
+        </QueryClientProvider>
+    );
+};
 
 export default App;

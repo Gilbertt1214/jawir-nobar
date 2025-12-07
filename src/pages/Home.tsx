@@ -23,6 +23,16 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { ParallaxWrapper } from "@/components/ParallaxWrapper";
 import { StaggeredText } from "@/components/StaggeredText";
+import { motion } from "framer-motion";
+
+const slideInRight = {
+    hidden: { opacity: 0, x: 20 },
+    visible: { 
+        opacity: 1, 
+        x: 0,
+        transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as any }
+    }
+};
 
 export default function Home() {
     // Query states
@@ -330,7 +340,12 @@ export default function Home() {
                 {/* Hero Content */}
                 <div className="relative container mx-auto px-4 h-full flex items-center">
                     {heroItem && (
-                        <div className="space-y-6 max-w-3xl pt-20 animate-slide-in-right">
+                        <motion.div 
+                            className="space-y-6 max-w-3xl pt-20"
+                            initial="hidden"
+                            animate="visible"
+                            variants={slideInRight}
+                        >
                             <div className="flex flex-wrap items-center gap-3">
                                 {heroItem.year && (
                                     <Badge variant="outline" className="text-xs border-white/20 bg-black/40 backdrop-blur-md px-3 py-1">
@@ -394,7 +409,7 @@ export default function Home() {
                                     </Link>
                                 </Button>
                             </div>
-                        </div>
+                        </motion.div>
                     )}
                 </div>
 

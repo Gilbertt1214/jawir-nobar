@@ -32,6 +32,43 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { commentsService } from "@/services/firebase/comments.service";
+import { motion } from "framer-motion";
+
+const fadeInUp = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+        opacity: 1, 
+        y: 0,
+        transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as any }
+    }
+};
+
+const fadeInRight = {
+    hidden: { opacity: 0, x: -20 },
+    visible: { 
+        opacity: 1, 
+        x: 0,
+        transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as any }
+    }
+};
+
+const fadeInLeft = {
+    hidden: { opacity: 0, x: 20 },
+    visible: { 
+        opacity: 1, 
+        x: 0,
+        transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as any }
+    }
+};
+
+const scaleIn = {
+    hidden: { opacity: 0, scale: 0.9 },
+    visible: { 
+        opacity: 1, 
+        scale: 1,
+        transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as any }
+    }
+};
 
 interface Comment {
     name: string;
@@ -227,8 +264,11 @@ export default function MovieDetail() {
         <div className="min-h-screen bg-background pb-20">
             {/* Backdrop */}
             <div className="relative h-[40vh] sm:h-[50vh] md:h-[60vh] -mt-16 sm:-mt-20 overflow-hidden">
-                <div
-                    className="absolute inset-0 bg-cover bg-center animate-scale-in"
+                <motion.div
+                    className="absolute inset-0 bg-cover bg-center"
+                    initial="hidden"
+                    animate="visible"
+                    variants={scaleIn}
                     style={{
                         backgroundImage: movie.cover
                             ? `url(${movie.cover})`
@@ -237,13 +277,18 @@ export default function MovieDetail() {
                 >
                     <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/20" />
                     <div className="absolute inset-0 bg-gradient-to-r from-background via-transparent to-transparent" />
-                </div>
+                </motion.div>
             </div>
 
             <div className="container mx-auto px-4 sm:px-6 -mt-32 sm:-mt-48 md:-mt-64 relative z-10">
                 <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] lg:grid-cols-[350px_1fr] gap-8">
                     {/* Poster & Actions */}
-                    <div className="space-y-6" data-aos="fade-right">
+                    <motion.div 
+                        className="space-y-6"
+                        initial="hidden"
+                        animate="visible"
+                        variants={fadeInRight}
+                    >
                         <div className="relative aspect-[2/3] rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/10 group">
                             <img
                                 src={movie.cover || "/placeholder.svg"}
@@ -279,10 +324,16 @@ export default function MovieDetail() {
                                 Share
                             </Button>
                         </div>
-                    </div>
+                    </motion.div>
 
                     {/* Details */}
-                    <div className="space-y-8" data-aos="fade-left" data-aos-delay="100">
+                    <motion.div 
+                        className="space-y-8" 
+                        initial="hidden"
+                        animate="visible"
+                        variants={fadeInLeft}
+                        transition={{ delay: 0.2 }}
+                    >
                         <div className="space-y-4">
                             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-gradient leading-tight">
                                 {movie.title}
@@ -535,7 +586,13 @@ export default function MovieDetail() {
                         )}
 
                         {/* Comments Section */}
-                        <div className="space-y-4 pt-4" data-aos="fade-up">
+                        <motion.div 
+                            className="space-y-4 pt-4"
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true }}
+                            variants={fadeInUp}
+                        >
                             <h2 className="text-xl font-bold flex items-center gap-2">
                                 <MessageSquare className="h-5 w-5 text-primary" />
                                 Comments
@@ -614,8 +671,8 @@ export default function MovieDetail() {
                                     </div>
                                 </CardContent>
                             </Card>
-                        </div>
-                    </div>
+                        </motion.div>
+                    </motion.div>
                 </div>
             </div>
         </div>

@@ -4,12 +4,7 @@ import { Movie } from "@/services/api";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
-import { useEffect, useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-// Register GSAP plugin
-gsap.registerPlugin(ScrollTrigger);
 
 interface MovieCardProps {
     movie: Movie;
@@ -17,52 +12,32 @@ interface MovieCardProps {
 }
 
 export function MovieCard({ movie, index = 0 }: MovieCardProps) {
-    const cardRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        if (!cardRef.current) return;
-
-        // Determine slide direction based on index (even from left, odd from right)
-        const fromX = index % 2 === 0 ? -60 : 60;
-
-        // GSAP ScrollTrigger animation
-        const anim = gsap.fromTo(
-            cardRef.current,
-            {
-                opacity: 0,
-                x: fromX,
-                y: 20,
-            },
-            {
-                opacity: 1,
-                x: 0,
-                y: 0,
+    // Framer Motion variants for slide-in effect
+    const variants = {
+        hidden: { 
+            opacity: 0, 
+            x: 0,
+            y: 20
+        },
+        visible: { 
+            opacity: 1, 
+            x: 0, 
+            y: 0,
+            transition: {
                 duration: 0.6,
-                ease: "power2.out",
-                scrollTrigger: {
-                    trigger: cardRef.current,
-                    start: "top bottom-=100", // Start when top of element is 100px from bottom of viewport
-                    end: "top center",
-                    toggleActions: "play none none none", // Play on enter, do nothing on leave/re-enter
-                    once: true, // ⭐ Ensure it runs only once
-                },
-                delay: (index % 4) * 0.08, // Stagger within groups of 4
+                ease: [0.22, 1, 0.36, 1] as any, // Custom ease for smooth "premium" feel
+                delay: (index % 4) * 0.1 // Stagger effect
             }
-        );
-
-        // Cleanup
-        return () => {
-            anim.kill(); // Kill the animation
-            ScrollTrigger.getAll().forEach((trigger) => {
-                if (trigger.trigger === cardRef.current) {
-                    trigger.kill();
-                }
-            });
-        };
-    }, [index]);
+        }
+    };
 
     return (
-        <div ref={cardRef}>
+        <motion.div
+            variants={variants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-50px" }}
+        >
             <Link to={`/${movie.type}/${movie.id}`} className="block group/card">
                 <Card className="overflow-hidden border-0 bg-transparent shadow-none">
                     <motion.div 
@@ -127,7 +102,7 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
                         
                         {/* Quality Badge if available */}
                         {movie.quality && (
-                             <Badge className="absolute bottom-2 right-2 bg-primary/80 backdrop-blur-md border border-white/10 text-white px-2 py-0.5 text-[10px] font-bold uppercase">
+                            <Badge className="absolute bottom-2 right-2 bg-primary/80 backdrop-blur-md border border-white/10 text-white px-2 py-0.5 text-[10px] font-bold uppercase">
                                 {movie.quality}
                             </Badge>
                         )}
@@ -152,6 +127,6 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
                     </CardContent>
                 </Card>
             </Link>
-        </div>
+        </motion.div>
     );
 }
