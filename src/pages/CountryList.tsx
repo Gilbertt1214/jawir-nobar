@@ -6,6 +6,7 @@ import { Globe } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
+import { getCountryName } from '@/lib/countries';
 
 export default function CountryList() {
   const { data: countries, isLoading, error } = useQuery({
@@ -48,7 +49,7 @@ export default function CountryList() {
               <CardContent className="p-6 flex items-center justify-center gap-3 min-h-32">
                 <Globe className="h-6 w-6 text-primary group-hover:scale-110 transition-smooth" />
                 <h3 className="text-lg font-semibold text-center group-hover:text-primary transition-smooth">
-                  {country}
+                  {getCountryName(country)}
                 </h3>
               </CardContent>
             </Card>

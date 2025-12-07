@@ -726,30 +726,37 @@ export class TMDBService {
     async getAllCountries(): Promise<string[]> {
         if (this.countriesCache) return this.countriesCache;
 
-        try {
-            const [popularMovies, popularTv] = await Promise.all([
-                this.fetchWithFallback(`/movie/popular?page=1`),
-                this.fetchWithFallback(`/tv/popular?page=1`),
-            ]);
+        // Comprehensive list of country codes (ISO 3166-1 alpha-2)
+        const allCountries = [
+            "AD", "AE", "AF", "AG", "AI", "AL", "AM", "AO", "AQ", "AR", "AS", "AT", "AU", "AW", "AX", "AZ",
+            "BA", "BB", "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BL", "BM", "BN", "BO", "BQ", "BR", "BS", "BT", "BV", "BW", "BY", "BZ",
+            "CA", "CC", "CD", "CF", "CG", "CH", "CI", "CK", "CL", "CM", "CN", "CO", "CR", "CU", "CV", "CW", "CX", "CY", "CZ",
+            "DE", "DJ", "DK", "DM", "DO", "DZ",
+            "EC", "EE", "EG", "EH", "ER", "ES", "ET",
+            "FI", "FJ", "FK", "FM", "FO", "FR",
+            "GA", "GB", "GD", "GE", "GF", "GG", "GH", "GI", "GL", "GM", "GN", "GP", "GQ", "GR", "GS", "GT", "GU", "GW", "GY",
+            "HK", "HM", "HN", "HR", "HT", "HU",
+            "ID", "IE", "IM", "IN", "IO", "IQ", "IR", "IS", "IT",
+            "JE", "JM", "JO", "JP",
+            "KE", "KG", "KH", "KI", "KM", "KN", "KP", "KR", "KW", "KY", "KZ",
+            "LA", "LB", "LC", "LI", "LK", "LR", "LS", "LT", "LU", "LV", "LY",
+            "MA", "MC", "MD", "ME", "MF", "MG", "MH", "MK", "ML", "MM", "MN", "MO", "MP", "MQ", "MR", "MS", "MT", "MU", "MV", "MW", "MX", "MY", "MZ",
+            "NA", "NC", "NE", "NF", "NG", "NI", "NL", "NO", "NP", "NR", "NU", "NZ",
+            "OM",
+            "PA", "PE", "PF", "PG", "PH", "PK", "PL", "PM", "PN", "PR", "PS", "PT", "PW", "PY",
+            "QA",
+            "RE", "RO", "RS", "RU", "RW",
+            "SA", "SB", "SC", "SD", "SE", "SG", "SH", "SI", "SJ", "SK", "SL", "SM", "SN", "SO", "SR", "SS", "ST", "SV", "SX", "SY", "SZ",
+            "TC", "TD", "TF", "TG", "TH", "TJ", "TK", "TL", "TM", "TN", "TO", "TR", "TT", "TV", "TW", "TZ",
+            "UA", "UG", "UM", "US", "UY", "UZ",
+            "VA", "VC", "VE", "VG", "VI", "VN", "VU",
+            "WF", "WS",
+            "YE", "YT",
+            "ZA", "ZM", "ZW"
+        ];
 
-            const set = new Set<string>();
-            for (const m of popularMovies.results || []) {
-                if (Array.isArray(m.origin_country)) {
-                    for (const c of m.origin_country) set.add(c);
-                }
-            }
-            for (const t of popularTv.results || []) {
-                if (Array.isArray(t.origin_country)) {
-                    for (const c of t.origin_country) set.add(c);
-                }
-            }
-
-            this.countriesCache = Array.from(set).sort();
-            return this.countriesCache;
-        } catch (error) {
-            console.error("Failed to get countries:", error);
-            return ["US", "JP", "KR", "ID", "CN", "IN"];
-        }
+        this.countriesCache = allCountries;
+        return this.countriesCache;
     }
 
     async getYears(): Promise<string[]> {

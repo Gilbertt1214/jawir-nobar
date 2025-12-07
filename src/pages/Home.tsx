@@ -35,14 +35,6 @@ const slideInRight = {
 };
 
 export default function Home() {
-    // Query states
-    const [pageLatest, setPageLatest] = useState(1);
-    const [pagePopular, setPagePopular] = useState(1);
-    const [pageSeries, setPageSeries] = useState(1);
-    const [pageAnime, setPageAnime] = useState(1);
-    const [pageIndo, setPageIndo] = useState(1);
-    const [pageKdrama, setPageKdrama] = useState(1);
-
     // Anime filters
     const [animeType, setAnimeType] = useState<"all" | "tv" | "movie">("all");
     const [animeAudio, setAnimeAudio] = useState<"all" | "sub" | "dub">("all");
@@ -53,8 +45,8 @@ export default function Home() {
         isLoading: loadingLatest,
         error: errorLatest,
     } = useQuery({
-        queryKey: ["latest-movies", pageLatest],
-        queryFn: () => movieAPI.getLatestMovies(pageLatest),
+        queryKey: ["latest-movies", 1],
+        queryFn: () => movieAPI.getLatestMovies(1),
     });
 
     const {
@@ -62,8 +54,8 @@ export default function Home() {
         isLoading: loadingPopular,
         error: errorPopular,
     } = useQuery({
-        queryKey: ["popular-movies", pagePopular],
-        queryFn: () => movieAPI.getPopularMovies(pagePopular),
+        queryKey: ["popular-movies", 1],
+        queryFn: () => movieAPI.getPopularMovies(1),
     });
 
     const {
@@ -71,8 +63,8 @@ export default function Home() {
         isLoading: loadingSeries,
         error: errorSeries,
     } = useQuery({
-        queryKey: ["latest-series", pageSeries],
-        queryFn: () => movieAPI.getLatestSeries(pageSeries),
+        queryKey: ["latest-series", 1],
+        queryFn: () => movieAPI.getLatestSeries(1),
     });
 
     const {
@@ -80,9 +72,9 @@ export default function Home() {
         isLoading: loadingAnime,
         error: errorAnime,
     } = useQuery({
-        queryKey: ["anime", pageAnime, animeType, animeAudio],
+        queryKey: ["anime", 1, animeType, animeAudio],
         queryFn: () =>
-            movieAPI.getAnime(pageAnime, {
+            movieAPI.getAnime(1, {
                 type: animeType,
                 audio: animeAudio,
             }),
@@ -93,8 +85,8 @@ export default function Home() {
         isLoading: loadingIndo,
         error: errorIndo,
     } = useQuery({
-        queryKey: ["indo-movies", pageIndo],
-        queryFn: () => movieAPI.getIndonesianMovies(pageIndo),
+        queryKey: ["indo-movies", 1],
+        queryFn: () => movieAPI.getIndonesianMovies(1),
     });
 
     const {
@@ -102,8 +94,8 @@ export default function Home() {
         isLoading: loadingKDrama,
         error: errorKDrama,
     } = useQuery({
-        queryKey: ["korean-drama", pageKdrama],
-        queryFn: () => movieAPI.getKoreanDrama(pageKdrama),
+        queryKey: ["korean-drama", 1],
+        queryFn: () => movieAPI.getKoreanDrama(1),
     });
 
     const {
@@ -115,20 +107,8 @@ export default function Home() {
         queryFn: () => movieAPI.getAdultMovies(1),
     });
 
-    // Local state for accumulated data
-    const [listLatest, setListLatest] = useState<any[]>([]);
-    const [listPopular, setListPopular] = useState<any[]>([]);
-    const [listSeries, setListSeries] = useState<any[]>([]);
-    const [listAnime, setListAnime] = useState<any[]>([]);
-    const [listIndo, setListIndo] = useState<any[]>([]);
-    const [listKdrama, setListKdrama] = useState<any[]>([]);
-
     // Hero carousel state
-    const heroList = listLatest.length
-        ? listLatest.slice(0, 5)
-        : listPopular.length
-        ? listPopular.slice(0, 5)
-        : [];
+    const heroList = latestMovies?.data?.slice(0, 5) || popularMovies?.data?.slice(0, 5) || [];
     const [heroIndex, setHeroIndex] = useState(0);
     const heroItem = heroList[heroIndex];
 
@@ -140,67 +120,6 @@ export default function Home() {
         }, 8000); // Slower interval for better UX
         return () => clearInterval(interval);
     }, [heroList.length]);
-
-    // Data accumulation effects
-    useEffect(() => {
-        if (latestMovies?.data) {
-            setListLatest((prev) => {
-                const map = new Map(prev.map((m: any) => [m.id, m]));
-                latestMovies.data.forEach((x) => map.set(x.id, x));
-                return Array.from(map.values());
-            });
-        }
-    }, [latestMovies]);
-
-    useEffect(() => {
-        if (popularMovies?.data) {
-            setListPopular((prev) => {
-                const map = new Map(prev.map((m: any) => [m.id, m]));
-                popularMovies.data.forEach((x) => map.set(x.id, x));
-                return Array.from(map.values());
-            });
-        }
-    }, [popularMovies]);
-
-    useEffect(() => {
-        if (latestSeries?.data) {
-            setListSeries((prev) => {
-                const map = new Map(prev.map((m: any) => [m.id, m]));
-                latestSeries.data.forEach((x) => map.set(x.id, x));
-                return Array.from(map.values());
-            });
-        }
-    }, [latestSeries]);
-
-    useEffect(() => {
-        if (anime?.data) {
-            setListAnime((prev) => {
-                const map = new Map(prev.map((m: any) => [m.id, m]));
-                anime.data.forEach((x) => map.set(x.id, x));
-                return Array.from(map.values());
-            });
-        }
-    }, [anime]);
-
-    useEffect(() => {
-        if (indo?.data) {
-            setListIndo((prev) => {
-                const map = new Map(prev.map((m: any) => [m.id, m]));
-                indo.data.forEach((x) => map.set(x.id, x));
-                return Array.from(map.values());
-            });
-        }
-    }, [indo]);
-
-    useEffect(() => {
-        if (kdrama?.data) {
-            setListKdrama((prev) => {
-                const map = new Map(prev.map((m: any) => [m.id, m]));
-                kdrama.data.forEach((x) => map.set(x.id, x));
-                return Array.from(map.values());
-            });
-        }
-    }, [kdrama]);
 
     // Loading and error states
     const isLoading =
@@ -269,7 +188,13 @@ export default function Home() {
         link: string;
         children?: React.ReactNode;
     }) => (
-        <section className="space-y-6" data-aos="fade-up">
+        <motion.section 
+            className="space-y-6"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+        >
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-3 group cursor-pointer">
                     <div className="h-8 w-1.5 bg-gradient-to-b from-primary to-purple-500 rounded-full group-hover:h-10 transition-all duration-300" />
@@ -296,7 +221,7 @@ export default function Home() {
                 </Button>
             </div>
             <MovieCarousel title="" movies={movies} />
-        </section>
+        </motion.section>
     );
 
     return (
@@ -436,38 +361,44 @@ export default function Home() {
             {/* Main Content */}
             <main className="container mx-auto px-4 py-12 space-y-16 -mt-20 relative z-10">
                 {/* Latest Movies */}
-                {listLatest.length > 0 && (
+                {latestMovies?.data && latestMovies.data.length > 0 && (
                     <Section
                         title="Latest Movies"
                         icon={<Sparkles className="w-6 h-6 text-yellow-400 animate-pulse" />}
-                        movies={listLatest}
+                        movies={latestMovies.data}
                         link="/browse/latest-movies"
                     />
                 )}
 
                 {/* Popular Movies */}
-                {listPopular.length > 0 && (
+                {popularMovies?.data && popularMovies.data.length > 0 && (
                     <Section
                         title="Popular Movies"
                         icon={<TrendingUp className="w-6 h-6 text-red-500" />}
-                        movies={listPopular}
+                        movies={popularMovies.data}
                         link="/browse/popular-movies"
                     />
                 )}
 
                 {/* Latest Series */}
-                {listSeries.length > 0 && (
+                {latestSeries?.data && latestSeries.data.length > 0 && (
                     <Section
                         title="Latest Series"
                         icon={<Tv className="w-6 h-6 text-blue-500" />}
-                        movies={listSeries}
+                        movies={latestSeries.data}
                         link="/browse/latest-series"
                     />
                 )}
 
                 {/* Anime Section with Filters */}
-                {(listAnime.length > 0 || loadingAnime) && (
-                    <section className="space-y-6" data-aos="fade-up">
+                {(anime?.data?.length || loadingAnime) && (
+                    <motion.section 
+                        className="space-y-6"
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, margin: "-50px" }}
+                        transition={{ duration: 0.6, ease: "easeOut" }}
+                    >
                         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                             <div className="flex items-center gap-3 group cursor-pointer">
                                 <div className="h-8 w-1.5 bg-gradient-to-b from-primary to-purple-500 rounded-full group-hover:h-10 transition-all duration-300" />
@@ -493,28 +424,28 @@ export default function Home() {
                             </Button>
                         </div>
 
-                        {listAnime.length > 0 && (
-                            <MovieCarousel title="" movies={listAnime} />
+                        {anime?.data && anime.data.length > 0 && (
+                            <MovieCarousel title="" movies={anime.data} />
                         )}
-                    </section>
+                    </motion.section>
                 )}
 
                 {/* Indonesian Movies */}
-                {listIndo.length > 0 && (
+                {indo?.data && indo.data.length > 0 && (
                     <Section
                         title="Indonesian Movies"
                         icon={<Globe className="w-6 h-6 text-green-500" />}
-                        movies={listIndo}
+                        movies={indo.data}
                         link="/browse/indonesian-movies"
                     />
                 )}
 
                 {/* Korean Drama */}
-                {listKdrama.length > 0 && (
+                {kdrama?.data && kdrama.data.length > 0 && (
                     <Section
                         title="Korean Drama"
                         icon={<Heart className="w-6 h-6 text-pink-500" />}
-                        movies={listKdrama}
+                        movies={kdrama.data}
                         link="/browse/korean-drama"
                     />
                 )}
@@ -531,4 +462,6 @@ export default function Home() {
             </main>
         </div>
     );
+
+
 }

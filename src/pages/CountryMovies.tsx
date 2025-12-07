@@ -7,6 +7,7 @@ import { SkeletonGrid } from '@/components/SkeletonCard';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { useState } from 'react';
+import { getCountryName } from '@/lib/countries';
 
 export default function CountryMovies() {
   const { country } = useParams<{ country: string }>();
@@ -49,7 +50,7 @@ export default function CountryMovies() {
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
         <h1 className="text-3xl md:text-4xl font-bold mb-2">
-          Movies from {country}
+          Movies from {country ? getCountryName(country) : 'Unknown Country'}
         </h1>
         <p className="text-muted-foreground">
           {data?.totalItems || 0} movie{data?.totalItems !== 1 ? 's' : ''} available
