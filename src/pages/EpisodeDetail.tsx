@@ -88,6 +88,27 @@ export default function EpisodeDetail() {
         staleTime: 60000,
     });
 
+    // Detect if this is JAV/Hentai content
+    const isJAVContent =
+        window.location.pathname.includes("/hentai/") ||
+        window.location.pathname.includes("/jav/");
+
+    // Query untuk mendapatkan detail episode dari NekoBocc (hanya untuk JAV)
+    const {
+        data: nekoboccDetail,
+        isLoading: nekoboccLoading,
+        error: nekoboccError,
+    } = useQuery({
+        queryKey: ["nekoboccDetail", seriesId],
+        queryFn: async () => {
+            if (!seriesId) throw new Error("Series ID is missing");
+            const detail = await movieAPI.getNekoBoccDetail(seriesId);
+            return detail;
+        },
+        enabled: !!seriesId && isJAVContent,
+        staleTime: 5 * 60 * 1000,
+    });
+
     // Query untuk mendapatkan streaming providers
     const {
         data: providers,
@@ -100,25 +121,39 @@ export default function EpisodeDetail() {
             seriesId,
             episode?.seasonNumber,
             episode?.episodeNumber,
+            isJAVContent,
+            nekoboccDetail?.streamLinks,
         ],
         queryFn: async () => {
             if (!seriesId || !episode)
                 throw new Error("Episode data not available");
 
+            // For JAV content, use NekoBocc stream links
+            if (isJAVContent && nekoboccDetail?.streamLinks) {
+                const streamingProviders =
+                    await movieAPI.getJAVStreamingProviders(
+                        nekoboccDetail.streamLinks
+                    );
+                return streamingProviders.sort((a, b) => {
+                    if (a.tier !== b.tier) return (a.tier || 4) - (b.tier || 4);
+                    return (a as any).priority - (b as any).priority;
+                });
+            }
+
+            // For regular TV series, use standard providers
             const streamingProviders = await movieAPI.getEpisodeStreamingUrl(
                 seriesId,
                 episode.seasonNumber,
                 episode.episodeNumber
             );
 
-            // Sort providers by tier and priority
             return streamingProviders.sort((a, b) => {
                 if (a.tier !== b.tier) return (a.tier || 4) - (b.tier || 4);
                 return (a as any).priority - (b as any).priority;
             });
         },
-        enabled: !!seriesId && !!episode,
-        staleTime: 5 * 60 * 1000, // 5 minutes
+        enabled: !!seriesId && !!episode && (!isJAVContent || !!nekoboccDetail),
+        staleTime: 5 * 60 * 1000,
     });
 
     const [selectedProvider, setSelectedProvider] =
@@ -170,16 +205,16 @@ export default function EpisodeDetail() {
         refetchProviders();
     };
 
-    const isLoading = episodeLoading || providersLoading;
-    const error = episodeError || providersError;
+    const isLoading = episodeLoading || nekoboccLoading || providersLoading;
+    const error = episodeError || nekoboccError || providersError;
 
     if (isLoading) {
         return (
             <div className="w-full max-w-full px-3 py-4">
-                <Link to={`/series/${seriesId}/episodes`}>
+                <Link to={`/series/${seriesId}`}>
                     <Button variant="ghost" className="mb-4 w-full sm:w-auto">
                         <ArrowLeft className="mr-2 h-4 w-4" />
-                        Back to Episodes
+                        Back to Series
                     </Button>
                 </Link>
 
@@ -204,10 +239,10 @@ export default function EpisodeDetail() {
 
         return (
             <div className="w-full max-w-full px-3 py-4">
-                <Link to={`/series/${seriesId}/episodes`}>
+                <Link to={`/series/${seriesId}`}>
                     <Button variant="ghost" className="mb-4 w-full sm:w-auto">
                         <ArrowLeft className="mr-2 h-4 w-4" />
-                        Back to Episodes
+                        Back to Series
                     </Button>
                 </Link>
 
@@ -217,9 +252,9 @@ export default function EpisodeDetail() {
                 </Alert>
 
                 <div className="mt-4 flex flex-col sm:flex-row flex-wrap gap-2">
-                    <Link to={`/series/${seriesId}/episodes`}>
+                    <Link to={`/series/${seriesId}`}>
                         <Button variant="outline" className="w-full sm:w-auto">
-                            Go to Episode List
+                            Go to Series
                         </Button>
                     </Link>
 
@@ -238,115 +273,80 @@ export default function EpisodeDetail() {
     return (
         <div className="w-full max-w-full px-3 py-4">
             {/* Navigation */}
-            <Link to={`/series/${seriesId}/episodes`}>
-                <Button variant="ghost" className="mb-4 w-full sm:w-auto">
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    Back to Episodes
-                </Button>
-            </Link>
+            <div className="max-w-6xl mx-auto mb-6">
+                <Link to={`/series/${seriesId}`}>
+                    <Button variant="ghost" className="pl-0 hover:pl-2 transition-all gap-2 text-muted-foreground hover:text-foreground">
+                        <ArrowLeft className="h-4 w-4" />
+                        Back to Series
+                    </Button>
+                </Link>
+            </div>
 
-            <div className="max-w-3xl mx-auto space-y-6">
-                {/* Provider Selection Dropdown */}
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <MonitorPlay className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm font-medium">
-                            Streaming Provider
-                        </span>
+            <div className="max-w-6xl mx-auto space-y-8">
+                {/* Header & Provider Selection */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h1 className="text-xl md:text-2xl font-bold leading-tight">
+                            Episode {episode.episodeNumber}: <span className="text-primary">{episode.title}</span>
+                        </h1>
+                        <p className="text-sm text-muted-foreground mt-1">
+                            Season {episode.seasonNumber} • Episode {episode.episodeNumber}
+                        </p>
+                    </div>
 
-                        {/* Refresh Providers Button */}
+                    <div className="flex items-center gap-2 bg-muted/30 p-1 rounded-lg border border-white/5">
+                        <div className="flex items-center gap-2 px-3">
+                            <MonitorPlay className="h-4 w-4 text-primary" />
+                            <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Provider</span>
+                        </div>
                         {providers && (
                             <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={handleRetryProviders}
-                                className="h-8 w-8 p-0"
+                                className="h-8 w-8 p-0 hover:bg-white/10"
                                 title="Refresh providers"
                             >
-                                <RefreshCw className="h-3 w-3" />
+                                <RefreshCw className="h-3.5 w-3.5" />
                             </Button>
                         )}
-                    </div>
-
-                    {providers && providers.length > 0 ? (
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button
-                                    variant="outline"
-                                    className="gap-2"
-                                    disabled={!selectedProvider}
-                                >
-                                    <span className="truncate max-w-[120px]">
-                                        {selectedProvider?.name ||
-                                            "Select Provider"}
-                                    </span>
-                                    <ChevronDown className="h-4 w-4" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-64">
-                                {providers.map((provider) => (
-                                    <DropdownMenuItem
-                                        key={provider.name}
-                                        onClick={() =>
-                                            handleProviderChange(provider)
-                                        }
-                                        className="flex justify-between items-center cursor-pointer"
+                        {providers && providers.length > 0 ? (
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="gap-2 h-8 border-white/10 bg-background/50"
+                                        disabled={!selectedProvider}
                                     >
-                                        <div className="flex flex-col items-start flex-1 min-w-0">
-                                            <span className="font-medium truncate w-full">
-                                                {provider.name}
-                                            </span>
-                                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                                <span>{provider.quality}</span>
-                                                {provider.language && (
-                                                    <>
-                                                        <span>•</span>
-                                                        <span>
-                                                            {provider.language}
-                                                        </span>
-                                                    </>
-                                                )}
-                                            </div>
-                                        </div>
-                                        {provider.tier === 1 && (
-                                            <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full ml-2 flex-shrink-0">
-                                                Premium
-                                            </span>
-                                        )}
-                                    </DropdownMenuItem>
-                                ))}
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    ) : (
-                        <Button variant="outline" disabled>
-                            No Providers Available
-                        </Button>
-                    )}
-                </div>
-
-                {/* Episode Details */}
-                <div>
-                    <h1 className="text-xl md:text-3xl font-bold mb-2 leading-snug break-words">
-                        Episode {episode.episodeNumber}: {episode.title}
-                    </h1>
-
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
-                        <span>Season {episode.seasonNumber}</span>
-                        <span>•</span>
-                        <span>Episode {episode.episodeNumber}</span>
-                        {selectedProvider && (
-                            <>
-                                <span>•</span>
-                                <span className="flex items-center gap-1">
-                                    <MonitorPlay className="h-3 w-3" />
-                                    {selectedProvider.name}
-                                    {selectedProvider.quality && (
-                                        <span className="text-xs bg-blue-100 text-blue-800 px-1 rounded">
-                                            {selectedProvider.quality}
+                                        <span className="truncate max-w-[150px] text-xs">
+                                            {selectedProvider?.name || "Select Provider"}
                                         </span>
-                                    )}
-                                </span>
-                            </>
+                                        <ChevronDown className="h-3 w-3 opacity-50" />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-56">
+                                    {providers.map((provider) => (
+                                        <DropdownMenuItem
+                                            key={provider.name}
+                                            onClick={() => handleProviderChange(provider)}
+                                            className="cursor-pointer text-xs"
+                                        >
+                                            <div className="flex flex-col gap-0.5">
+                                                <span className="font-medium">{provider.name}</span>
+                                                <div className="flex items-center gap-2 text-muted-foreground">
+                                                    {provider.quality && <span>{provider.quality}</span>}
+                                                    {provider.language && <span>• {provider.language}</span>}
+                                                </div>
+                                            </div>
+                                        </DropdownMenuItem>
+                                    ))}
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        ) : (
+                            <Button variant="outline" size="sm" disabled className="h-8 text-xs">
+                                No Providers
+                            </Button>
                         )}
                     </div>
                 </div>
@@ -388,10 +388,10 @@ export default function EpisodeDetail() {
 
                 {/* Video Player */}
                 {selectedProvider && (
-                    <div className="relative aspect-video bg-black rounded-lg overflow-hidden shadow-card-hover">
+                    <div className="relative w-full aspect-video bg-black rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/10 group">
                         <iframe
                             src={selectedProvider.url}
-                            className="absolute inset-0 w-full h-full max-h-[260px] sm:max-h-none"
+                            className="absolute inset-0 w-full h-full"
                             allowFullScreen
                             frameBorder={0}
                             title={`Episode ${episode.episodeNumber} - ${episode.title}`}

@@ -385,12 +385,12 @@ export class NekopoiCareService {
     // Get popular categories
     async getCategories(): Promise<string[]> {
         return [
-            "hentai",
-            "3d-hentai",
             "jav",
+            "jav-uncensored",
+            "jav-censored",
             "uncensored",
             "subtitle-indonesia",
-            "hentai-sub-indo",
+            "jav-sub-indo",
         ];
     }
 }

@@ -1,553 +1,428 @@
-import type { NekoBoccHentai, PaginatedResponse } from "./types";
+import type {
+    NekoBoccHentai,
+    PaginatedResponse,
+    StreamLink,
+    DownloadLink,
+} from "./types";
+
+// Helper function to generate stream links for JAV
+// Using sample video embeds for demo purposes
+// In production, these would come from the actual NekoBocc API with real video IDs
+const generateStreamLinks = (_javCode: string): StreamLink[] => [
+    {
+        quality: "HD",
+        url: "https://www.youtube.com/embed/LXb3EKWsInQ",
+        provider: "Sample Video 1",
+    },
+    {
+        quality: "HD",
+        url: "https://player.vimeo.com/video/824804225",
+        provider: "Sample Video 2",
+    },
+    {
+        quality: "SD",
+        url: "https://www.youtube.com/embed/jNQXAC9IVRw",
+        provider: "Sample Video 3",
+    },
+];
+
+// Helper function to generate download links
+const generateDownloadLinks = (javCode: string): DownloadLink[] => [
+    {
+        quality: "1080p",
+        size: "2.5 GB",
+        url: `https://download.javsite.com/${javCode.toLowerCase()}.mp4`,
+        type: "Direct",
+    },
+    {
+        quality: "720p",
+        size: "1.2 GB",
+        url: `https://download.javsite.com/${javCode.toLowerCase()}_720p.mp4`,
+        type: "Direct",
+    },
+    {
+        quality: "480p",
+        size: "600 MB",
+        url: `https://download.javsite.com/${javCode.toLowerCase()}_480p.mp4`,
+        type: "Direct",
+    },
+];
+
+// Use placeholder covers that work without CORS issues
+// In production, these would come from the actual NekoBocc API
+const getJavCover = (javCode: string): string => {
+    // Using picsum.photos for reliable placeholder images
+    const seed = javCode.replace("-", "");
+    return `https://picsum.photos/seed/${seed}/400/600`;
+};
+
+// Helper untuk genre yang lebih realistis
+const getGenres = (): string[] => {
+    const baseGenres = ["HD"];
+    const additionalGenres = [
+        ["Beautiful Girl", "Creampie", "Solowork"],
+        ["Beautiful Girl", "Plot", "Drama"],
+        ["Busty", "Big Tits", "Creampie"],
+        ["Slender", "Cowgirl", "Kissing"],
+        ["Cute", "Schoolgirl", "First Time"],
+        ["Mature", "Milf", "Seduction"],
+        ["Idol", "Beautiful Face", "Interview"],
+        ["Popular Actress", "Best Seller", "High Quality"],
+        ["Petite", "Small Tits", "Youthful"],
+        ["Athletic", "Sweat", "Intense"],
+    ];
+
+    const randomGenres =
+        additionalGenres[Math.floor(Math.random() * additionalGenres.length)];
+    return [...baseGenres, ...randomGenres];
+};
+
+// Generate realistic synopsis
+const generateSynopsis = (actress: string, code: string): string => {
+    const synopses = [
+        `${actress}, seorang aktris JAV terkenal, membintangi karya terbarunya dengan penampilan yang memukau.`,
+        `Dalam ${code}, ${actress} menunjukkan bakat aktingnya yang luar biasa dalam adegan-adegan panas.`,
+        `${actress} kembali dengan penampilan spesial yang ditunggu-tunggu para penggemarnya.`,
+        `Sebuah karya eksklusif yang menampilkan ${actress} dalam berbagai adegan yang menggoda.`,
+        `${actress} menunjukkan sisi baru dirinya dalam produksi JAV berkualitas tinggi ini.`,
+        `Penggemar ${actress} pasti tidak akan kecewa dengan penampilannya dalam ${code}.`,
+        `Sebuah kolaborasi khusus yang menampilkan ${actress} dalam peran yang menantang.`,
+        `${actress} membuktikan kenapa dia menjadi salah satu aktris JAV paling populer.`,
+    ];
+
+    return synopses[Math.floor(Math.random() * synopses.length)];
+};
 
 export const mockNekoBoccData: NekoBoccHentai[] = [
-    // Overflow Series (Season 1) - 8 episodes
     {
-        type: "hentai",
-        id: "overflow-episode-1",
-        title: "Overflow Episode 1 Subtitle Indonesia",
-        cover: "https://cdn.nekopoi.care/wp-content/uploads/2020/01/Overflow-Episode-1-Subtitle-Indonesia.jpg",
-        genre: ["Hentai", "Romance", "School", "Ecchi"],
-        duration: "8 min",
-        synopsis:
-            "Kazushi Sudou adalah seorang siswa SMA yang tinggal sendiri. Suatu hari, dia bertemu dengan dua saudara perempuan tetangganya, Ayane dan Kotone Shirakawa, di pemandian umum yang mengarah ke situasi yang tidak terduga.",
-        downloadLinks: [
-            {
-                quality: "1080p",
-                size: "150MB",
-                url: "https://drive.google.com/",
-                type: "Google Drive",
-            },
-            {
-                quality: "720p",
-                size: "100MB",
-                url: "https://mega.nz/",
-                type: "Mega",
-            },
-            {
-                quality: "480p",
-                size: "50MB",
-                url: "https://mediafire.com/",
-                type: "MediaFire",
-            },
-        ],
-        streamLinks: [
-            {
-                quality: "HD",
-                url: "https://hentaistream.com/overflow-1",
-                provider: "HentaiStream",
-            },
-            {
-                quality: "HD",
-                url: "https://www.fembed.com/v/overflow-1",
-                provider: "Fembed",
-            },
-        ],
+        type: "jav",
+        id: "ipx-001",
+        title: "IPX-001 - First Time Tsubasa Amami",
+        cover: getJavCover("ipx-001"),
+        genre: getGenres(),
+        duration: "120 min",
+        synopsis: generateSynopsis("Tsubasa Amami", "IPX-001"),
+        streamLinks: generateStreamLinks("ipx-001"),
+        downloadLinks: generateDownloadLinks("ipx-001"),
     },
     {
-        type: "hentai",
-        id: "overflow-episode-2",
-        title: "Overflow Episode 2 Subtitle Indonesia",
-        cover: "https://cdn.nekopoi.care/wp-content/uploads/2020/01/Overflow-Episode-2-Subtitle-Indonesia.jpg",
-        genre: ["Hentai", "Romance", "School", "Ecchi"],
-        duration: "8 min",
-        synopsis:
-            "Kelanjutan dari episode sebelumnya. Hubungan antara Kazushi dengan Ayane dan Kotone semakin berkembang.",
+        type: "jav",
+        id: "ssis-100",
+        title: "SSIS-100 - Yua Mikami Special Collection",
+        cover: getJavCover("ssis-100"),
+        genre: getGenres(),
+        duration: "150 min",
+        synopsis: generateSynopsis("Yua Mikami", "SSIS-100"),
+        streamLinks: generateStreamLinks("ssis-100"),
+        downloadLinks: generateDownloadLinks("ssis-100"),
     },
     {
-        type: "hentai",
-        id: "overflow-episode-3",
-        title: "Overflow Episode 3 Subtitle Indonesia",
-        cover: "https://cdn.nekopoi.care/wp-content/uploads/2020/02/Overflow-Episode-3-Subtitle-Indonesia.jpg",
-        genre: ["Hentai", "Romance", "School", "Ecchi"],
-        duration: "8 min",
-        synopsis:
-            "Episode ketiga dari seri Overflow. Situasi menjadi semakin rumit dan menarik.",
+        type: "jav",
+        id: "abp-999",
+        title: "ABP-999 - Remu Suzumori Best Selection",
+        cover: getJavCover("abp-999"),
+        genre: getGenres(),
+        duration: "135 min",
+        synopsis: generateSynopsis("Remu Suzumori", "ABP-999"),
+        streamLinks: generateStreamLinks("abp-999"),
+        downloadLinks: generateDownloadLinks("abp-999"),
     },
     {
-        type: "hentai",
-        id: "overflow-episode-4",
-        title: "Overflow Episode 4 Subtitle Indonesia",
-        cover: "https://cdn.nekopoi.care/wp-content/uploads/2020/02/Overflow-Episode-4-Subtitle-Indonesia.jpg",
-        genre: ["Hentai", "Romance", "School", "Ecchi"],
-        duration: "8 min",
-        synopsis:
-            "Kazushi harus membuat keputusan penting tentang hubungannya dengan kedua saudara perempuan.",
+        type: "jav",
+        id: "mide-850",
+        title: "MIDE-850 - Sakura Miura Secret Vacation",
+        cover: getJavCover("mide-850"),
+        genre: getGenres(),
+        duration: "120 min",
+        synopsis: generateSynopsis("Sakura Miura", "MIDE-850"),
+        streamLinks: generateStreamLinks("mide-850"),
+        downloadLinks: generateDownloadLinks("mide-850"),
     },
     {
-        type: "hentai",
-        id: "overflow-episode-5",
-        title: "Overflow Episode 5 Subtitle Indonesia",
-        cover: "https://cdn.nekopoi.care/wp-content/uploads/2020/03/Overflow-Episode-5-Subtitle-Indonesia.jpg",
-        genre: ["Hentai", "Romance", "School", "Ecchi"],
-        duration: "8 min",
-        synopsis: "Konflik baru muncul yang menguji hubungan mereka bertiga.",
+        type: "jav",
+        id: "stars-200",
+        title: "STARS-200 - Makoto Toda Office Romance",
+        cover: getJavCover("stars-200"),
+        genre: getGenres(),
+        duration: "140 min",
+        synopsis: generateSynopsis("Makoto Toda", "STARS-200"),
+        streamLinks: generateStreamLinks("stars-200"),
+        downloadLinks: generateDownloadLinks("stars-200"),
     },
     {
-        type: "hentai",
-        id: "overflow-episode-6",
-        title: "Overflow Episode 6 Subtitle Indonesia",
-        cover: "https://cdn.nekopoi.care/wp-content/uploads/2020/03/Overflow-Episode-6-Subtitle-Indonesia.jpg",
-        genre: ["Hentai", "Romance", "School", "Ecchi"],
-        duration: "8 min",
-        synopsis:
-            "Ayane dan Kotone bersaing untuk mendapatkan perhatian Kazushi.",
+        type: "jav",
+        id: "cawd-200",
+        title: "CAWD-200 - Moko Sakura Sweet Love Story",
+        cover: getJavCover("cawd-200"),
+        genre: getGenres(),
+        duration: "130 min",
+        synopsis: generateSynopsis("Moko Sakura", "CAWD-200"),
+        streamLinks: generateStreamLinks("cawd-200"),
+        downloadLinks: generateDownloadLinks("cawd-200"),
     },
     {
-        type: "hentai",
-        id: "overflow-episode-7",
-        title: "Overflow Episode 7 Subtitle Indonesia",
-        cover: "https://cdn.nekopoi.care/wp-content/uploads/2020/04/Overflow-Episode-7-Subtitle-Indonesia.jpg",
-        genre: ["Hentai", "Romance", "School", "Ecchi"],
-        duration: "8 min",
-        synopsis:
-            "Situasi mencapai klimaks dengan kejadian yang tidak terduga.",
+        type: "jav",
+        id: "pred-300",
+        title: "PRED-300 - Aika Yamagishi Mature Passion",
+        cover: getJavCover("pred-300"),
+        genre: getGenres(),
+        duration: "145 min",
+        synopsis: generateSynopsis("Aika Yamagishi", "PRED-300"),
+        streamLinks: generateStreamLinks("pred-300"),
+        downloadLinks: generateDownloadLinks("pred-300"),
     },
     {
-        type: "hentai",
-        id: "overflow-episode-8",
-        title: "Overflow Episode 8 Subtitle Indonesia",
-        cover: "https://cdn.nekopoi.care/wp-content/uploads/2020/04/Overflow-Episode-8-Subtitle-Indonesia.jpg",
-        genre: ["Hentai", "Romance", "School", "Ecchi"],
-        duration: "8 min",
-        synopsis:
-            "Episode final dari season 1. Kazushi membuat keputusan akhir.",
+        type: "jav",
+        id: "ssni-900",
+        title: "SSNI-900 - Tsukasa Aoi Ultimate Beauty",
+        cover: getJavCover("ssni-900"),
+        genre: getGenres(),
+        duration: "125 min",
+        synopsis: generateSynopsis("Tsukasa Aoi", "SSNI-900"),
+        streamLinks: generateStreamLinks("ssni-900"),
+        downloadLinks: generateDownloadLinks("ssni-900"),
+    },
+    {
+        type: "jav",
+        id: "jul-500",
+        title: "JUL-500 - Kana Mito Mature Seduction",
+        cover: getJavCover("jul-500"),
+        genre: getGenres(),
+        duration: "120 min",
+        synopsis: generateSynopsis("Kana Mito", "JUL-500"),
+        streamLinks: generateStreamLinks("jul-500"),
+        downloadLinks: generateDownloadLinks("jul-500"),
+    },
+    {
+        type: "jav",
+        id: "meyd-700",
+        title: "MEYD-700 - Tsubasa Hachino Hot Night",
+        cover: getJavCover("meyd-700"),
+        genre: getGenres(),
+        duration: "130 min",
+        synopsis: generateSynopsis("Tsubasa Hachino", "MEYD-700"),
+        streamLinks: generateStreamLinks("meyd-700"),
+        downloadLinks: generateDownloadLinks("meyd-700"),
     },
 
-    // Kanojo x Kanojo x Kanojo Series - 3 episodes
     {
-        type: "hentai",
-        id: "kanojo-x-kanojo-x-kanojo-episode-1",
-        title: "Kanojo x Kanojo x Kanojo Episode 1 Subtitle Indonesia",
-        cover: "https://cdn.nekopoi.care/wp-content/uploads/2019/12/Kanojo-x-Kanojo-x-Kanojo-Episode-1.jpg",
-        genre: ["Hentai", "Romance", "Harem", "School"],
-        duration: "28 min",
-        synopsis:
-            "Shiki Haruomi adalah seorang siswa yang tinggal di rumah besar milik keluarga Honjou. Dia tinggal bersama tiga saudara perempuan cantik yang semuanya memiliki perasaan khusus padanya.",
-        downloadLinks: [
-            {
-                quality: "1080p",
-                size: "320MB",
-                url: "https://drive.google.com/",
-                type: "Google Drive",
-            },
-            {
-                quality: "720p",
-                size: "200MB",
-                url: "https://mega.nz/",
-                type: "Mega",
-            },
-        ],
-        streamLinks: [
-            {
-                quality: "HD",
-                url: "https://hentaistream.com/kanojo-1",
-                provider: "HentaiStream",
-            },
-            {
-                quality: "HD",
-                url: "https://www.fembed.com/v/kanojo-1",
-                provider: "Fembed",
-            },
-        ],
+        type: "jav",
+        id: "fsdss-200",
+        title: "FSDSS-200 - Arina Hashimoto Slender Body",
+        cover: getJavCover("fsdss-200"),
+        genre: getGenres(),
+        duration: "135 min",
+        synopsis: generateSynopsis("Arina Hashimoto", "FSDSS-200"),
+        streamLinks: generateStreamLinks("fsdss-200"),
+        downloadLinks: generateDownloadLinks("fsdss-200"),
     },
     {
-        type: "hentai",
-        id: "kanojo-x-kanojo-x-kanojo-episode-2",
-        title: "Kanojo x Kanojo x Kanojo Episode 2 Subtitle Indonesia",
-        cover: "https://cdn.nekopoi.care/wp-content/uploads/2019/12/Kanojo-x-Kanojo-x-Kanojo-Episode-2.jpg",
-        genre: ["Hentai", "Romance", "Harem", "School"],
-        duration: "28 min",
-        synopsis:
-            "Hubungan Shiki dengan ketiga saudara perempuan semakin berkembang dan rumit.",
+        type: "jav",
+        id: "ebod-800",
+        title: "EBOD-800 - Eimi Fukada Big Tits Paradise",
+        cover: getJavCover("ebod-800"),
+        genre: getGenres(),
+        duration: "140 min",
+        synopsis: generateSynopsis("Eimi Fukada", "EBOD-800"),
+        streamLinks: generateStreamLinks("ebod-800"),
+        downloadLinks: generateDownloadLinks("ebod-800"),
     },
     {
-        type: "hentai",
-        id: "kanojo-x-kanojo-x-kanojo-episode-3",
-        title: "Kanojo x Kanojo x Kanojo Episode 3 Subtitle Indonesia",
-        cover: "https://cdn.nekopoi.care/wp-content/uploads/2019/12/Kanojo-x-Kanojo-x-Kanojo-Episode-3.jpg",
-        genre: ["Hentai", "Romance", "Harem", "School"],
-        duration: "28 min",
-        synopsis:
-            "Episode final dari seri ini. Shiki harus membuat keputusan penting tentang hubungannya.",
-    },
-
-    // Koushoku no Chuugi Kunoichi Botaru Series - 4 episodes
-    {
-        type: "hentai",
-        id: "koushoku-no-chuugi-kunoichi-botaru-episode-1",
-        title: "Koushoku no Chuugi Kunoichi Botaru Episode 1 Subtitle Indonesia",
-        cover: "https://i.imgur.com/9KxLmNp.jpg",
-        genre: ["Hentai", "Ninja", "Action", "Uncensored"],
-        duration: "24 min",
-        synopsis:
-            "Botaru adalah seorang kunoichi yang sangat setia kepada tuannya. Dia dilatih sejak kecil untuk menjadi ninja terbaik. Suatu hari, dia mendapat misi khusus yang akan mengubah hidupnya selamanya.",
-        downloadLinks: [
-            {
-                quality: "1080p",
-                size: "300MB",
-                url: "https://drive.google.com/",
-                type: "Google Drive",
-            },
-            {
-                quality: "720p",
-                size: "200MB",
-                url: "https://mega.nz/",
-                type: "Mega",
-            },
-        ],
-        streamLinks: [
-            {
-                quality: "HD",
-                url: "https://hentaistream.com/kunoichi-1",
-                provider: "HentaiStream",
-            },
-            {
-                quality: "HD",
-                url: "https://www.fembed.com/v/kunoichi-1",
-                provider: "Fembed",
-            },
-        ],
+        type: "jav",
+        id: "pppd-900",
+        title: "PPPD-900 - Hitomi Tanaka Legendary Performance",
+        cover: getJavCover("pppd-900"),
+        genre: getGenres(),
+        duration: "150 min",
+        synopsis: generateSynopsis("Hitomi Tanaka", "PPPD-900"),
+        streamLinks: generateStreamLinks("pppd-900"),
+        downloadLinks: generateDownloadLinks("pppd-900"),
     },
     {
-        type: "hentai",
-        id: "koushoku-no-chuugi-kunoichi-botaru-episode-2",
-        title: "Koushoku no Chuugi Kunoichi Botaru Episode 2 Subtitle Indonesia",
-        cover: "https://i.imgur.com/9KxLmNp.jpg",
-        genre: ["Hentai", "Ninja", "Action", "Uncensored"],
-        duration: "24 min",
-        synopsis:
-            "Botaru melanjutkan misinya yang berbahaya. Dia harus menggunakan semua kemampuannya untuk menyelesaikan tugas.",
+        type: "jav",
+        id: "jufe-300",
+        title: "JUFE-300 - Ichika Matsumoto Petite Beauty",
+        cover: getJavCover("jufe-300"),
+        genre: getGenres(),
+        duration: "125 min",
+        synopsis: generateSynopsis("Ichika Matsumoto", "JUFE-300"),
+        streamLinks: generateStreamLinks("jufe-300"),
+        downloadLinks: generateDownloadLinks("jufe-300"),
     },
     {
-        type: "hentai",
-        id: "koushoku-no-chuugi-kunoichi-botaru-episode-3",
-        title: "Koushoku no Chuugi Kunoichi Botaru Episode 3 Subtitle Indonesia",
-        cover: "https://i.imgur.com/9KxLmNp.jpg",
-        genre: ["Hentai", "Ninja", "Action", "Uncensored"],
-        duration: "24 min",
-        synopsis:
-            "Misi Botaru semakin berbahaya. Dia menghadapi musuh yang kuat.",
+        type: "jav",
+        id: "msfh-050",
+        title: "MSFH-050 - Miko Mizusawa Elegant Lady",
+        cover: getJavCover("msfh-050"),
+        genre: getGenres(),
+        duration: "130 min",
+        synopsis: generateSynopsis("Miko Mizusawa", "MSFH-050"),
+        streamLinks: generateStreamLinks("msfh-050"),
+        downloadLinks: generateDownloadLinks("msfh-050"),
     },
     {
-        type: "hentai",
-        id: "koushoku-no-chuugi-kunoichi-botaru-episode-4",
-        title: "Koushoku no Chuugi Kunoichi Botaru Episode 4 Subtitle Indonesia",
-        cover: "https://i.imgur.com/9KxLmNp.jpg",
-        genre: ["Hentai", "Ninja", "Action", "Uncensored"],
-        duration: "24 min",
-        synopsis:
-            "Episode final. Botaru menghadapi pertarungan terakhir untuk menyelesaikan misinya.",
-    },
-
-    // Maid Kyouiku Series - 4 episodes
-    {
-        type: "hentai",
-        id: "maid-kyouiku-episode-1",
-        title: "Maid Kyouiku Episode 1 Subtitle Indonesia",
-        cover: "https://i.imgur.com/7HxKmPq.jpg",
-        genre: ["Hentai", "Maid", "Training", "School"],
-        duration: "24 min",
-        synopsis:
-            "Sebuah akademi khusus untuk melatih pelayan wanita dengan metode yang sangat spesial. Para siswa diajarkan berbagai keterampilan untuk menjadi maid yang sempurna.",
-        downloadLinks: [
-            {
-                quality: "1080p",
-                size: "280MB",
-                url: "https://drive.google.com/",
-                type: "Google Drive",
-            },
-            {
-                quality: "720p",
-                size: "180MB",
-                url: "https://mega.nz/",
-                type: "Mega",
-            },
-        ],
-        streamLinks: [
-            {
-                quality: "HD",
-                url: "https://hentaistream.com/maid-1",
-                provider: "HentaiStream",
-            },
-            {
-                quality: "HD",
-                url: "https://www.fembed.com/v/maid-1",
-                provider: "Fembed",
-            },
-        ],
+        type: "jav",
+        id: "ssis-250",
+        title: "SSIS-250 - Yura Kano Beautiful Journey",
+        cover: getJavCover("ssis-250"),
+        genre: getGenres(),
+        duration: "135 min",
+        synopsis: generateSynopsis("Yura Kano", "SSIS-250"),
+        streamLinks: generateStreamLinks("ssis-250"),
+        downloadLinks: generateDownloadLinks("ssis-250"),
     },
     {
-        type: "hentai",
-        id: "maid-kyouiku-episode-2",
-        title: "Maid Kyouiku Episode 2 Subtitle Indonesia",
-        cover: "https://i.imgur.com/7HxKmPq.jpg",
-        genre: ["Hentai", "Maid", "Training", "School"],
-        duration: "24 min",
-        synopsis:
-            "Pelatihan berlanjut dengan metode yang lebih intensif. Para siswa harus menguasai teknik-teknik baru.",
+        type: "jav",
+        id: "ipx-700",
+        title: "IPX-700 - Kana Momonogi Exclusive Fantasy",
+        cover: getJavCover("ipx-700"),
+        genre: getGenres(),
+        duration: "140 min",
+        synopsis: generateSynopsis("Kana Momonogi", "IPX-700"),
+        streamLinks: generateStreamLinks("ipx-700"),
+        downloadLinks: generateDownloadLinks("ipx-700"),
     },
     {
-        type: "hentai",
-        id: "maid-kyouiku-episode-3",
-        title: "Maid Kyouiku Episode 3 Subtitle Indonesia",
-        cover: "https://i.imgur.com/7HxKmPq.jpg",
-        genre: ["Hentai", "Maid", "Training", "School"],
-        duration: "24 min",
-        synopsis:
-            "Ujian praktik dimulai. Para siswa harus menunjukkan kemampuan mereka.",
+        type: "jav",
+        id: "abw-150",
+        title: "ABW-150 - Asuna Kawai Cute Adventure",
+        cover: getJavCover("abw-150"),
+        genre: getGenres(),
+        duration: "120 min",
+        synopsis: generateSynopsis("Asuna Kawai", "ABW-150"),
+        streamLinks: generateStreamLinks("abw-150"),
+        downloadLinks: generateDownloadLinks("abw-150"),
     },
     {
-        type: "hentai",
-        id: "maid-kyouiku-episode-4",
-        title: "Maid Kyouiku Episode 4 Subtitle Indonesia",
-        cover: "https://i.imgur.com/7HxKmPq.jpg",
-        genre: ["Hentai", "Maid", "Training", "School"],
-        duration: "24 min",
-        synopsis: "Episode final. Kelulusan para siswa ditentukan.",
-    },
-
-    // Resort Boin Series - 3 episodes
-    {
-        type: "hentai",
-        id: "resort-boin-episode-1",
-        title: "Resort Boin Episode 1 Subtitle Indonesia",
-        cover: "https://i.imgur.com/3KxLmNp.jpg",
-        genre: ["Hentai", "Beach", "Resort", "Ecchi"],
-        duration: "30 min",
-        synopsis:
-            "Daisuke bekerja di sebuah resort pantai mewah. Dia bertemu dengan berbagai tamu wanita cantik yang datang untuk berlibur.",
-        downloadLinks: [
-            {
-                quality: "1080p",
-                size: "340MB",
-                url: "https://drive.google.com/",
-                type: "Google Drive",
-            },
-        ],
-        streamLinks: [
-            {
-                quality: "HD",
-                url: "https://hentaistream.com/resort-1",
-                provider: "HentaiStream",
-            },
-            {
-                quality: "HD",
-                url: "https://www.fembed.com/v/resort-1",
-                provider: "Fembed",
-            },
-        ],
+        type: "jav",
+        id: "stars-350",
+        title: "STARS-350 - Yume Takeda Sensual Experience",
+        cover: getJavCover("stars-350"),
+        genre: getGenres(),
+        duration: "130 min",
+        synopsis: generateSynopsis("Yume Takeda", "STARS-350"),
+        streamLinks: generateStreamLinks("stars-350"),
+        downloadLinks: generateDownloadLinks("stars-350"),
     },
     {
-        type: "hentai",
-        id: "resort-boin-episode-2",
-        title: "Resort Boin Episode 2 Subtitle Indonesia",
-        cover: "https://i.imgur.com/3KxLmNp.jpg",
-        genre: ["Hentai", "Beach", "Resort", "Ecchi"],
-        duration: "30 min",
-        synopsis:
-            "Petualangan Daisuke di resort berlanjut dengan tamu-tamu baru yang lebih menarik.",
+        type: "jav",
+        id: "cawd-300",
+        title: "CAWD-300 - Mayuki Ito Innocent Charm",
+        cover: getJavCover("cawd-300"),
+        genre: getGenres(),
+        duration: "125 min",
+        synopsis: generateSynopsis("Mayuki Ito", "CAWD-300"),
+        streamLinks: generateStreamLinks("cawd-300"),
+        downloadLinks: generateDownloadLinks("cawd-300"),
     },
     {
-        type: "hentai",
-        id: "resort-boin-episode-3",
-        title: "Resort Boin Episode 3 Subtitle Indonesia",
-        cover: "https://i.imgur.com/3KxLmNp.jpg",
-        genre: ["Hentai", "Beach", "Resort", "Ecchi"],
-        duration: "30 min",
-        synopsis:
-            "Episode terakhir dari seri Resort Boin dengan kejutan yang tak terduga.",
-    },
-
-    // Kansen Sodom Series - 3 episodes
-    {
-        type: "hentai",
-        id: "kansen-sodom-episode-1",
-        title: "Kansen Sodom Episode 1 Subtitle Indonesia",
-        cover: "https://i.imgur.com/5NxQmRp.jpg",
-        genre: ["Hentai", "Horror", "Zombie", "Survival"],
-        duration: "30 min",
-        synopsis:
-            "Virus misterius menyebar di kota, mengubah orang menjadi zombie dengan nafsu yang tidak terkendali. Sekelompok survivor harus bertahan hidup di tengah kekacauan.",
-        downloadLinks: [
-            {
-                quality: "1080p",
-                size: "350MB",
-                url: "https://drive.google.com/",
-                type: "Google Drive",
-            },
-            {
-                quality: "720p",
-                size: "220MB",
-                url: "https://mega.nz/",
-                type: "Mega",
-            },
-        ],
-        streamLinks: [
-            {
-                quality: "HD",
-                url: "https://hentaistream.com/kansen-1",
-                provider: "HentaiStream",
-            },
-            {
-                quality: "HD",
-                url: "https://www.fembed.com/v/kansen-1",
-                provider: "Fembed",
-            },
-        ],
+        type: "jav",
+        id: "mide-950",
+        title: "MIDE-950 - Nana Yagi Private Session",
+        cover: getJavCover("mide-950"),
+        genre: getGenres(),
+        duration: "135 min",
+        synopsis: generateSynopsis("Nana Yagi", "MIDE-950"),
+        streamLinks: generateStreamLinks("mide-950"),
+        downloadLinks: generateDownloadLinks("mide-950"),
     },
     {
-        type: "hentai",
-        id: "kansen-sodom-episode-2",
-        title: "Kansen Sodom Episode 2 Subtitle Indonesia",
-        cover: "https://i.imgur.com/5NxQmRp.jpg",
-        genre: ["Hentai", "Horror", "Zombie", "Survival"],
-        duration: "30 min",
-        synopsis:
-            "Para survivor mencoba mencari tempat aman sambil menghindari zombie yang semakin banyak.",
+        type: "jav",
+        id: "ssni-999",
+        title: "SSNI-999 - Riri Nanatsumori Final Performance",
+        cover: getJavCover("ssni-999"),
+        genre: getGenres(),
+        duration: "140 min",
+        synopsis: generateSynopsis("Riri Nanatsumori", "SSNI-999"),
+        streamLinks: generateStreamLinks("ssni-999"),
+        downloadLinks: generateDownloadLinks("ssni-999"),
     },
     {
-        type: "hentai",
-        id: "kansen-sodom-episode-3",
-        title: "Kansen Sodom Episode 3 Subtitle Indonesia",
-        cover: "https://i.imgur.com/5NxQmRp.jpg",
-        genre: ["Hentai", "Horror", "Zombie", "Survival"],
-        duration: "30 min",
-        synopsis:
-            "Episode final. Para survivor menghadapi pertarungan terakhir untuk bertahan hidup.",
-    },
-
-    // Mesu o Karu Mura Series - 3 episodes
-    {
-        type: "hentai",
-        id: "mesu-o-karu-mura-episode-1",
-        title: "Mesu o Karu Mura Episode 1 Subtitle Indonesia",
-        cover: "https://i.imgur.com/6MxNpQr.jpg",
-        genre: ["Hentai", "Village", "Fantasy", "Uncensored"],
-        duration: "24 min",
-        synopsis:
-            "Di sebuah desa terpencil, terdapat tradisi unik yang telah berlangsung selama berabad-abad. Seorang pemuda dari kota datang dan menemukan rahasia desa tersebut.",
-        downloadLinks: [
-            {
-                quality: "1080p",
-                size: "290MB",
-                url: "https://drive.google.com/",
-                type: "Google Drive",
-            },
-        ],
-        streamLinks: [
-            {
-                quality: "HD",
-                url: "https://hentaistream.com/mesu-1",
-                provider: "HentaiStream",
-            },
-            {
-                quality: "HD",
-                url: "https://www.fembed.com/v/mesu-1",
-                provider: "Fembed",
-            },
-        ],
+        type: "jav",
+        id: "pred-400",
+        title: "PRED-400 - Karen Yuzuriha Special Service",
+        cover: getJavCover("pred-400"),
+        genre: getGenres(),
+        duration: "130 min",
+        synopsis: generateSynopsis("Karen Yuzuriha", "PRED-400"),
+        streamLinks: generateStreamLinks("pred-400"),
+        downloadLinks: generateDownloadLinks("pred-400"),
     },
     {
-        type: "hentai",
-        id: "mesu-o-karu-mura-episode-2",
-        title: "Mesu o Karu Mura Episode 2 Subtitle Indonesia",
-        cover: "https://i.imgur.com/6MxNpQr.jpg",
-        genre: ["Hentai", "Village", "Fantasy", "Uncensored"],
-        duration: "24 min",
-        synopsis:
-            "Pemuda tersebut semakin terlibat dalam tradisi desa dan menemukan lebih banyak rahasia.",
+        type: "jav",
+        id: "fsdss-300",
+        title: "FSDSS-300 - Natsu Igarashi Summer Passion",
+        cover: getJavCover("fsdss-300"),
+        genre: getGenres(),
+        duration: "125 min",
+        synopsis: generateSynopsis("Natsu Igarashi", "FSDSS-300"),
+        streamLinks: generateStreamLinks("fsdss-300"),
+        downloadLinks: generateDownloadLinks("fsdss-300"),
     },
     {
-        type: "hentai",
-        id: "mesu-o-karu-mura-episode-3",
-        title: "Mesu o Karu Mura Episode 3 Subtitle Indonesia",
-        cover: "https://i.imgur.com/6MxNpQr.jpg",
-        genre: ["Hentai", "Village", "Fantasy", "Uncensored"],
-        duration: "24 min",
-        synopsis: "Episode final. Rahasia terbesar desa terungkap.",
-    },
-
-    // Rance 01 Series - 4 episodes
-    {
-        type: "hentai",
-        id: "rance-01-episode-1",
-        title: "Rance 01 Episode 1 Subtitle Indonesia",
-        cover: "https://i.imgur.com/2JxKmLp.jpg",
-        genre: ["Hentai", "Fantasy", "Adventure", "Action"],
-        duration: "30 min",
-        synopsis:
-            "Rance adalah seorang petualang yang terkenal dengan kekuatannya. Dia menerima misi untuk menyelamatkan seorang putri yang diculik oleh monster.",
-        downloadLinks: [
-            {
-                quality: "1080p",
-                size: "330MB",
-                url: "https://drive.google.com/",
-                type: "Google Drive",
-            },
-            {
-                quality: "720p",
-                size: "210MB",
-                url: "https://mega.nz/",
-                type: "Mega",
-            },
-        ],
-        streamLinks: [
-            {
-                quality: "HD",
-                url: "https://hentaistream.com/rance-1",
-                provider: "HentaiStream",
-            },
-            {
-                quality: "HD",
-                url: "https://www.fembed.com/v/rance-1",
-                provider: "Fembed",
-            },
-        ],
+        type: "jav",
+        id: "jufe-400",
+        title: "JUFE-400 - Mina Kitano Voluptuous Desire",
+        cover: getJavCover("jufe-400"),
+        genre: getGenres(),
+        duration: "145 min",
+        synopsis: generateSynopsis("Mina Kitano", "JUFE-400"),
+        streamLinks: generateStreamLinks("jufe-400"),
+        downloadLinks: generateDownloadLinks("jufe-400"),
     },
     {
-        type: "hentai",
-        id: "rance-01-episode-2",
-        title: "Rance 01 Episode 2 Subtitle Indonesia",
-        cover: "https://i.imgur.com/2JxKmLp.jpg",
-        genre: ["Hentai", "Fantasy", "Adventure", "Action"],
-        duration: "30 min",
-        synopsis:
-            "Rance melanjutkan pencariannya dan bertemu dengan berbagai karakter menarik di perjalanan.",
+        type: "jav",
+        id: "ssis-300",
+        title: "SSIS-300 - Miharu Usa Secret Fantasy",
+        cover: getJavCover("ssis-300"),
+        genre: getGenres(),
+        duration: "130 min",
+        synopsis: generateSynopsis("Miharu Usa", "SSIS-300"),
+        streamLinks: generateStreamLinks("ssis-300"),
+        downloadLinks: generateDownloadLinks("ssis-300"),
     },
     {
-        type: "hentai",
-        id: "rance-01-episode-3",
-        title: "Rance 01 Episode 3 Subtitle Indonesia",
-        cover: "https://i.imgur.com/2JxKmLp.jpg",
-        genre: ["Hentai", "Fantasy", "Adventure", "Action"],
-        duration: "30 min",
-        synopsis:
-            "Pertarungan final Rance melawan musuh yang kuat untuk menyelamatkan sang putri.",
+        type: "jav",
+        id: "ipx-800",
+        title: "IPX-800 - Minami Aizawa Premium Edition",
+        cover: getJavCover("ipx-800"),
+        genre: getGenres(),
+        duration: "135 min",
+        synopsis: generateSynopsis("Minami Aizawa", "IPX-800"),
+        streamLinks: generateStreamLinks("ipx-800"),
+        downloadLinks: generateDownloadLinks("ipx-800"),
     },
     {
-        type: "hentai",
-        id: "rance-01-episode-4",
-        title: "Rance 01 Episode 4 Subtitle Indonesia",
-        cover: "https://i.imgur.com/2JxKmLp.jpg",
-        genre: ["Hentai", "Fantasy", "Adventure", "Action"],
-        duration: "30 min",
-        synopsis:
-            "Petualangan Rance berlanjut dengan misi baru yang lebih berbahaya.",
+        type: "jav",
+        id: "stars-400",
+        title: "STARS-400 - Mana Sakura Veteran's Touch",
+        cover: getJavCover("stars-400"),
+        genre: getGenres(),
+        duration: "140 min",
+        synopsis: generateSynopsis("Mana Sakura", "STARS-400"),
+        streamLinks: generateStreamLinks("stars-400"),
+        downloadLinks: generateDownloadLinks("stars-400"),
     },
 ];
 
 export function getMockNekoBoccList(
-    page: number = 1
+    page: number = 1,
+    limit: number = 10
 ): PaginatedResponse<NekoBoccHentai> {
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+    const paginatedData = mockNekoBoccData.slice(startIndex, endIndex);
+    const totalPages = Math.ceil(mockNekoBoccData.length / limit);
+
     return {
-        data: mockNekoBoccData,
+        data: paginatedData,
         page,
-        totalPages: 1,
+        totalPages,
         totalItems: mockNekoBoccData.length,
     };
 }
 
 export function getMockNekoBoccDetail(id: string): NekoBoccHentai | null {
-    return mockNekoBoccData.find((item) => item.id === id) || null;
+    const item = mockNekoBoccData.find((item) => item.id === id);
+    return item || null;
 }

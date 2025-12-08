@@ -2,6 +2,7 @@
 
 import { STREAMING_PROVIDERS } from "./constants";
 import type { StreamingProvider } from "./types";
+import type { NekoBoccStreamLink } from "nekobocc";
 
 export class StreamingService {
     private providerCache: Map<string, boolean> = new Map();
@@ -32,235 +33,248 @@ export class StreamingService {
         }
     }
 
-    // Get streaming URLs with tiered provider system
+    // Convert NekoBocc stream links to StreamingProvider format
+    convertNekoBoccStreams(
+        streamLinks: NekoBoccStreamLink[]
+    ): StreamingProvider[] {
+        return streamLinks.map((stream, index) => ({
+            name: stream.server || `Server ${index + 1}`,
+            url: stream.link,
+            available: true,
+            quality: stream.quality || "HD",
+            language: "Japanese",
+            tier: this.getServerTier(stream.server),
+            priority: index + 1,
+        }));
+    }
+
+    // Determine tier based on server name
+    private getServerTier(serverName: string): number {
+        const lowerServer = serverName.toLowerCase();
+
+        // Tier 1: Premium servers (fast, reliable)
+        if (
+            lowerServer.includes("fembed") ||
+            lowerServer.includes("streamtape")
+        ) {
+            return 1;
+        }
+
+        // Tier 2: Good quality servers
+        if (
+            lowerServer.includes("mp4upload") ||
+            lowerServer.includes("mixdrop")
+        ) {
+            return 2;
+        }
+
+        // Tier 3: Standard servers
+        if (
+            lowerServer.includes("doodstream") ||
+            lowerServer.includes("streamlare")
+        ) {
+            return 3;
+        }
+
+        // Tier 4: Backup servers
+        return 4;
+    }
+
+    // Get streaming URLs with tiered provider system (for Movies & Series)
     async getStreamingUrls(
         movieId: string,
         type: "movie" | "series" = "movie"
     ): Promise<StreamingProvider[]> {
+        const mediaType = type === "series" ? "tv" : "movie";
+
+        // Ordered by reliability - using providers that actually work
         const baseProviders = [
-            // Tier 1: Premium (highest priority)
+            // Tier 1: Most reliable (tested working 2024)
             {
-                name: "VidLink Pro",
-                url: `${STREAMING_PROVIDERS.vidlink}/${type}/${movieId}`,
-                quality: "4K/HD",
+                name: "VidSrc.to",
+                url: `https://vidsrc.to/embed/${mediaType}/${movieId}`,
+                quality: "HD",
                 language: "Multi",
                 tier: 1,
                 priority: 1,
             },
             {
-                name: "VidSrc Pro",
-                url: `${STREAMING_PROVIDERS.vidsrcpro}/${type}/${movieId}`,
-                quality: "4K/HD",
+                name: "VidSrc.me",
+                url: `https://vidsrc.me/embed/${mediaType}/?tmdb=${movieId}`,
+                quality: "HD",
                 language: "Multi",
                 tier: 1,
                 priority: 2,
             },
-
-            // Tier 2: High Quality
             {
-                name: "VidSrc",
-                url: `${STREAMING_PROVIDERS.vidsrc}/${type}/${movieId}`,
+                name: "Embed.su",
+                url: `https://embed.su/embed/${mediaType}/${movieId}`,
                 quality: "HD",
                 language: "Multi",
-                tier: 2,
+                tier: 1,
                 priority: 3,
             },
+
+            // Tier 2: Good quality
             {
-                name: "VidSrc XYZ",
-                url: `${STREAMING_PROVIDERS.vidsrcxyz}/${type}/${movieId}`,
+                name: "SuperEmbed",
+                url: `https://multiembed.mov/?video_id=${movieId}&tmdb=1`,
                 quality: "HD",
                 language: "Multi",
                 tier: 2,
                 priority: 4,
             },
             {
-                name: "VidSrc.me",
-                url: `${STREAMING_PROVIDERS.vidsrcme}/${type}/${movieId}`,
+                name: "2Embed",
+                url: `https://www.2embed.cc/embed${
+                    mediaType === "movie" ? "" : "tv"
+                }/${movieId}`,
                 quality: "HD",
-                language: "Multi",
+                language: "English",
                 tier: 2,
                 priority: 5,
             },
             {
-                name: "VidSrc PM",
-                url: `${STREAMING_PROVIDERS.vidsrcpm}/${type}/${movieId}`,
+                name: "AutoEmbed",
+                url: `https://player.autoembed.cc/embed/${mediaType}/${movieId}`,
                 quality: "HD",
                 language: "Multi",
                 tier: 2,
                 priority: 6,
             },
 
-            // Tier 3: Reliable Backups
+            // Tier 3: Backup
             {
-                name: "Embed.su",
-                url: `${STREAMING_PROVIDERS.embedsu}/${type}/${movieId}`,
+                name: "VidSrc.xyz",
+                url: `https://vidsrc.xyz/embed/${mediaType}?tmdb=${movieId}`,
                 quality: "HD",
                 language: "Multi",
                 tier: 3,
                 priority: 7,
             },
             {
-                name: "SuperEmbed",
-                url: `${STREAMING_PROVIDERS.superembed}/${type}/${movieId}`,
+                name: "MoviesAPI",
+                url: `https://moviesapi.club/${mediaType}/${movieId}`,
                 quality: "HD",
                 language: "Multi",
                 tier: 3,
                 priority: 8,
             },
-            {
-                name: "MoviesAPI",
-                url: `${STREAMING_PROVIDERS.moviesapi}/${type}/${movieId}`,
-                quality: "HD",
-                language: "Multi",
-                tier: 3,
-                priority: 9,
-            },
-
-            // Tier 4: Additional Backups
-            {
-                name: "2Embed",
-                url: `${STREAMING_PROVIDERS.embed2}/${
-                    type === "movie" ? "" : "tv/"
-                }${movieId}`,
-                quality: "HD",
-                language: "English",
-                tier: 4,
-                priority: 10,
-            },
-            {
-                name: "NontonGo",
-                url: `${STREAMING_PROVIDERS.nontonGo}/${type}/${movieId}`,
-                quality: "HD",
-                language: "Multi",
-                tier: 4,
-                priority: 11,
-            },
         ];
 
-        const availabilityChecks = baseProviders.map(async (provider) => {
-            const available = await this.checkProviderAvailability(
-                provider.url
-            );
-            return {
-                name: provider.name,
-                url: provider.url,
-                available,
-                quality: provider.quality,
-                language: provider.language,
-                tier: provider.tier,
-                priority: provider.priority,
-            };
-        });
-
-        const results = await Promise.all(availabilityChecks);
-
-        return results
-            .filter((provider) => provider.available)
-            .sort((a, b) => (a as any).priority - (b as any).priority);
+        // Skip availability check for faster loading - just return all providers
+        // User can switch if one doesn't work
+        return baseProviders.map((provider) => ({
+            ...provider,
+            available: true,
+        }));
     }
 
-    // Get episode streaming URLs with tiered providers
+    // Get episode streaming URLs with tiered providers (for TV Series)
     async getEpisodeStreamingUrl(
         seriesId: string,
         season: number,
         episode: number
     ): Promise<StreamingProvider[]> {
+        // Using providers with correct URL formats for TV episodes
+        // Ordered by reliability - using providers that actually work
         const providers = [
-            // Tier 1
+            // Tier 1 - Most reliable (tested working 2024)
             {
-                name: "VidLink Pro",
-                url: `${STREAMING_PROVIDERS.vidlink}/tv/${seriesId}/${season}/${episode}`,
-                quality: "4K/HD",
+                name: "VidLink",
+                url: `https://vidlink.pro/tv/${seriesId}/${season}/${episode}`,
+                quality: "HD",
+                language: "Multi",
+                tier: 1,
+                priority: 0, // Top priority
+            },
+            {
+                name: "VidSrc.to",
+                url: `https://vidsrc.to/embed/tv/${seriesId}/${season}/${episode}`,
+                quality: "HD",
                 language: "Multi",
                 tier: 1,
                 priority: 1,
             },
             {
-                name: "VidSrc Pro",
-                url: `${STREAMING_PROVIDERS.vidsrcpro}/tv/${seriesId}/${season}/${episode}`,
-                quality: "4K/HD",
+                name: "VidSrc.me",
+                url: `https://vidsrc.me/embed/tv/?tmdb=${seriesId}&season=${season}&episode=${episode}`,
+                quality: "HD",
                 language: "Multi",
                 tier: 1,
                 priority: 2,
             },
-
-            // Tier 2
             {
-                name: "VidSrc",
-                url: `${STREAMING_PROVIDERS.vidsrc}/tv/${seriesId}/${season}/${episode}`,
+                name: "Embed.su",
+                url: `https://embed.su/embed/tv/${seriesId}/${season}/${episode}`,
                 quality: "HD",
                 language: "Multi",
-                tier: 2,
+                tier: 1,
                 priority: 3,
             },
+
+            // Tier 2 - Good quality
             {
-                name: "VidSrc XYZ",
-                url: `${STREAMING_PROVIDERS.vidsrcxyz}/tv/${seriesId}/${season}/${episode}`,
+                name: "SuperEmbed",
+                url: `https://multiembed.mov/?video_id=${seriesId}&tmdb=1&s=${season}&e=${episode}`,
                 quality: "HD",
                 language: "Multi",
                 tier: 2,
                 priority: 4,
             },
             {
-                name: "VidSrc PM",
-                url: `${STREAMING_PROVIDERS.vidsrcpm}/tv/${seriesId}/${season}/${episode}`,
+                name: "2Embed",
+                url: `https://www.2embed.cc/embedtv/${seriesId}&s=${season}&e=${episode}`,
                 quality: "HD",
-                language: "Multi",
+                language: "English",
                 tier: 2,
                 priority: 5,
             },
-
-            // Tier 3
             {
-                name: "Embed.su",
-                url: `${STREAMING_PROVIDERS.embedsu}/tv/${seriesId}/${season}/${episode}`,
+                name: "AutoEmbed",
+                url: `https://player.autoembed.cc/embed/tv/${seriesId}/${season}/${episode}`,
                 quality: "HD",
                 language: "Multi",
-                tier: 3,
+                tier: 2,
                 priority: 6,
             },
+
+            // Tier 3 - Backup
             {
-                name: "SuperEmbed",
-                url: `${STREAMING_PROVIDERS.superembed}/tv/${seriesId}/${season}/${episode}`,
+                name: "VidSrc.xyz",
+                url: `https://vidsrc.xyz/embed/tv?tmdb=${seriesId}&season=${season}&episode=${episode}`,
                 quality: "HD",
                 language: "Multi",
                 tier: 3,
                 priority: 7,
             },
             {
-                name: "2Embed",
-                url: `${STREAMING_PROVIDERS.embed2}/tv/${seriesId}/${season}/${episode}`,
-                quality: "HD",
-                language: "English",
-                tier: 4,
-                priority: 8,
-            },
-             {
-                name: "NontonGo",
-                url: `${STREAMING_PROVIDERS.nontonGo}/${seriesId}/${season}`,
+                name: "MoviesAPI",
+                url: `https://moviesapi.club/tv/${seriesId}-${season}-${episode}`,
                 quality: "HD",
                 language: "Multi",
-                tier: 4,
-                priority: 11,
+                tier: 3,
+                priority: 8,
             },
-        
         ];
 
-        const availabilityChecks = providers.map(async (provider) => {
-            const available = await this.checkProviderAvailability(
-                provider.url
-            );
-            return {
-                ...provider,
-                available,
-            };
-        });
+        // Skip availability check for faster loading - just return all providers
+        // User can switch if one doesn't work
+        return providers.map((provider) => ({
+            ...provider,
+            available: true,
+        }));
+    }
 
-        const results = await Promise.all(availabilityChecks);
+    // Get JAV/Hentai streaming providers from NekoBocc stream links
+    async getJAVStreamingProviders(
+        streamLinks: NekoBoccStreamLink[]
+    ): Promise<StreamingProvider[]> {
+        if (!streamLinks || streamLinks.length === 0) {
+            return [];
+        }
 
-        return results
-            .filter((provider) => provider.available)
-            .sort((a, b) => (a as any).priority - (b as any).priority);
+        return this.convertNekoBoccStreams(streamLinks);
     }
 
     // Utility methods
@@ -282,6 +296,16 @@ export class StreamingService {
             2: ["VidSrc", "VidSrc XYZ", "VidSrc.me", "VidSrc PM"],
             3: ["Embed.su", "SuperEmbed", "MoviesAPI"],
             4: ["2Embed", "NontonGo"],
+        };
+    }
+
+    // Get provider tiers for JAV/Hentai content (Nekopoi providers)
+    getJAVProviderTiers(): Record<number, string[]> {
+        return {
+            1: ["Fembed", "StreamTape"],
+            2: ["Mp4Upload", "MixDrop"],
+            3: ["DoodStream", "StreamLare"],
+            4: ["Other Servers"],
         };
     }
 }

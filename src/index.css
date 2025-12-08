@@ -102,13 +102,13 @@ All colors MUST be HSL.
     }
 
     body {
-        @apply bg-background text-foreground antialiased selection:bg-primary/30 selection:text-primary-foreground;
+        @apply bg-background text-foreground antialiased selection:bg-primary/30 selection:text-primary-foreground overflow-x-hidden;
         -webkit-tap-highlight-color: transparent;
         touch-action: manipulation;
     }
 
-    img {
-        @apply select-none;
+    img, video {
+        @apply select-none max-w-full h-auto;
         -webkit-user-drag: none;
         -webkit-touch-callout: none;
     }

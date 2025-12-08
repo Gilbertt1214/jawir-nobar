@@ -23,14 +23,16 @@ try {
 }
 
 export class NekoBoccService {
-    private useMockData = import.meta.env.VITE_USE_MOCK_DATA === "true";
+    // Use mock data by default. Set VITE_USE_MOCK_DATA=false to use real API
+    // Note: Real API requires proper CORS setup or proxy
+    private useMockData = import.meta.env.VITE_USE_MOCK_DATA !== "false";
 
     async getReleaseList(
         page: number = 1
     ): Promise<PaginatedResponse<NekoBoccHentai>> {
         // Use mock data if enabled or if API fails
         if (this.useMockData) {
-            console.log("NekoBocc: Using mock data (VITE_USE_MOCK_DATA=true)");
+            console.log("NekoBocc: Using mock data (default behavior)");
             return getMockNekoBoccList(page);
         }
 

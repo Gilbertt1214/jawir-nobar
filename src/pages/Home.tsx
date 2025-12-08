@@ -227,7 +227,7 @@ export default function Home() {
     return (
         <div className="min-h-screen bg-background pb-20">
             {/* Hero Section */}
-            <section className="relative h-[85vh] w-full overflow-hidden">
+            <section className="relative min-h-[500px] h-[80vh] md:h-[85vh] w-full overflow-hidden">
                 {/* Background Images with Parallax */}
                 <ParallaxWrapper speed={0.5} className="absolute inset-0">
                     <div

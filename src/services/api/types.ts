@@ -14,6 +14,16 @@ export interface PersonCrew {
     profile?: string;
 }
 
+export interface Season {
+    id: number;
+    name: string;
+    episodeCount: number;
+    year?: string;
+    overview?: string;
+    cover?: string;
+    seasonNumber: number;
+}
+
 export interface Movie {
     id: string;
     title: string;
@@ -29,9 +39,10 @@ export interface Movie {
     crew?: PersonCrew[];
     type: "movie" | "series";
     quality?: string;
+    seasons?: Season[];
 }
 
-export interface NekoBoccHentai {
+export interface NekoBoccJAV {
     type: string;
     id: string;
     title: string;
@@ -43,7 +54,7 @@ export interface NekoBoccHentai {
     streamLinks?: StreamLink[];
 }
 
-export interface NekopoiHentai {
+export interface NekopoiJAV {
     id: string;
     title: string;
     cover: string;
@@ -55,6 +66,10 @@ export interface NekopoiHentai {
     downloadLinks?: DownloadLink[];
     streamLinks?: StreamLink[];
 }
+
+// Legacy aliases for backward compatibility
+export type NekoBoccHentai = NekoBoccJAV;
+export type NekopoiHentai = NekopoiJAV;
 
 export interface DownloadLink {
     quality: string;
@@ -76,6 +91,9 @@ export interface Episode {
     seasonNumber: number;
     cover: string;
     streamUrl: string;
+    airDate?: string;
+    overview?: string;
+    description?: string;
 }
 
 export interface PaginatedResponse<T> {

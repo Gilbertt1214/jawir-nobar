@@ -126,9 +126,7 @@ export default function HentaiList() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
                 <div>
-                    <h1 className="text-3xl font-bold mb-2">
-                        Hentai Collection
-                    </h1>
+                    <h1 className="text-3xl font-bold mb-2">JAV Collection</h1>
                     <p className="text-sm text-muted-foreground">
                         Powered by Nekopoi, Nekopoi.care & NekoBocc
                     </p>
@@ -144,19 +142,17 @@ export default function HentaiList() {
             </div>
 
             {/* Info Alert */}
-            {(activeSource === "all" ||
-                activeSource === "nekopoi" ||
-                activeSource === "nekopoiCare") && (
-                <Alert className="mb-4">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription className="text-sm">
-                        <strong>Note:</strong> Nekopoi and Nekopoi.care require
-                        proxy setup or CORS extension. For best experience, use{" "}
-                        <strong>NekoBocc</strong> source which works without
-                        additional setup.
-                    </AlertDescription>
-                </Alert>
-            )}
+            <Alert className="mb-4">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription className="text-sm">
+                    <strong>Demo Mode:</strong> Currently using mock data with
+                    sample videos. To use real content from Nekopoi, set{" "}
+                    <code className="bg-muted px-1 rounded">
+                        VITE_USE_MOCK_DATA=false
+                    </code>{" "}
+                    in your .env file and ensure the API is accessible.
+                </AlertDescription>
+            </Alert>
 
             {/* Source Filter */}
             <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
@@ -222,7 +218,7 @@ export default function HentaiList() {
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                         type="text"
-                        placeholder="Search hentai... (min 3 characters)"
+                        placeholder="Search JAV... (min 3 characters)"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="pl-10"
@@ -317,7 +313,7 @@ export default function HentaiList() {
                                                     variant="secondary"
                                                     className="text-xs backdrop-blur-sm bg-black/50 text-white border-none"
                                                 >
-                                                    {item.type}
+                                                    JAV
                                                 </Badge>
                                             </div>
                                             {"uploadDate" in item &&

@@ -77,15 +77,15 @@ export function Navbar() {
                     </span>
                 </Link>
 
-                <div className="flex items-center gap-2 sm:gap-4 flex-1 max-w-xs sm:max-w-md mx-auto">
+                <div className="flex items-center gap-2 sm:gap-4 flex-1 max-w-[200px] xs:max-w-xs sm:max-w-md mx-auto transition-all duration-300">
                     <form onSubmit={handleSearch} className="relative flex-1 group">
                         <div className="absolute inset-0 bg-primary/20 blur-md rounded-full opacity-0 group-focus-within:opacity-100 transition-opacity duration-300" />
                         <Input
                             type="search"
-                            placeholder="Search movies, series, anime..."
+                            placeholder="Search..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="relative pr-10 h-10 sm:h-11 text-sm bg-secondary/50 border-white/10 rounded-full focus:bg-background/80 focus:border-primary/50 transition-all duration-300 placeholder:text-muted-foreground/70"
+                            className="relative pr-10 h-10 sm:h-11 text-base sm:text-sm bg-secondary/50 border-white/10 rounded-full focus:bg-background/80 focus:border-primary/50 transition-all duration-300 placeholder:text-muted-foreground/70 sm:placeholder:content-['Search_movies,_series,_anime...']"
                         />
                         <Button
                             type="submit"

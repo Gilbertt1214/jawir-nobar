@@ -13,16 +13,17 @@ import {
     RefreshCw,
     MessageSquare,
     Share2,
-    Download,
     Tv,
-    ChevronRight,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useEffect, useState, useMemo } from "react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Episode } from "@/services/api";
 import {
     Select,
     SelectContent,
@@ -142,6 +143,54 @@ export default function MovieDetail() {
 
         loadStreamingProviders();
     }, [movie?.id, movie?.type]);
+
+    // Fetch episodes for series
+    const {
+        data: episodes = [],
+        isLoading: episodesLoading,
+    } = useQuery<Episode[], Error>({
+        queryKey: ["episodes", id],
+        queryFn: async () => {
+            if (!id || !isSeriesRoute) return [];
+            const eps = await movieAPI.getEpisodes(id);
+            if (!Array.isArray(eps)) return [];
+            
+            return eps.filter(
+                (ep) =>
+                    ep &&
+                    typeof ep.seasonNumber === "number" &&
+                    typeof ep.episodeNumber === "number"
+            );
+        },
+        enabled: !!id && isSeriesRoute,
+    });
+
+    // Group episodes by season
+    const seasonGroups = useMemo(() => {
+        const groups: Record<number, Episode[]> = {};
+        episodes.forEach((ep) => {
+            if (!groups[ep.seasonNumber]) groups[ep.seasonNumber] = [];
+            groups[ep.seasonNumber].push(ep);
+        });
+        // Sort episodes
+        Object.keys(groups).forEach(key => {
+             groups[Number(key)].sort((a,b) => a.episodeNumber - b.episodeNumber);
+        });
+        return groups;
+    }, [episodes]);
+
+    const seasons = useMemo(() => Object.keys(seasonGroups).map(Number).sort((a, b) => a - b), [seasonGroups]);
+    const [selectedSeason, setSelectedSeason] = useState<string>("1");
+
+    // Update selected season when seasons change
+    useEffect(() => {
+        if (seasons.length > 0 && !seasons.includes(Number(selectedSeason))) {
+            setSelectedSeason(String(seasons[0]));
+        }
+        setShowAllEpisodes(false);
+    }, [seasons, selectedSeason]);
+
+    const [showAllEpisodes, setShowAllEpisodes] = useState(false);
 
     useEffect(() => {
         const loadComments = async () => {
@@ -434,26 +483,179 @@ export default function MovieDetail() {
 
                         {/* Episodes for Series */}
                         {movie.type === "series" && (
-                            <div className="p-6 rounded-xl bg-card border shadow-sm">
-                                <div className="flex items-center justify-between mb-4">
-                                    <h2 className="text-lg font-semibold flex items-center gap-2">
+                            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-5 duration-700 delay-100">
+                                <div className="flex items-center justify-between">
+                                    <h2 className="text-xl font-bold flex items-center gap-2">
                                         <Tv className="h-5 w-5 text-primary" />
                                         Episodes
                                     </h2>
-                                    <Link to={`/series/${id}/episodes`}>
-                                        <Button variant="ghost" size="sm" className="gap-2">
-                                            View All <ChevronRight className="h-4 w-4" />
-                                        </Button>
-                                    </Link>
                                 </div>
-                                <div className="text-center py-8 text-muted-foreground">
-                                    <p>Select an episode to start watching</p>
-                                    <Button className="mt-4" asChild>
-                                        <Link to={`/series/${id}/episodes`}>
-                                            Browse Episodes
-                                        </Link>
-                                    </Button>
-                                </div>
+                                
+                                {episodesLoading ? (
+                                    <div className="space-y-4">
+                                        <Skeleton className="h-10 w-full md:w-1/3" />
+                                        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+                                            {[...Array(6)].map((_, i) => (
+                                                <Skeleton key={i} className="aspect-video rounded-lg" />
+                                            ))}
+                                        </div>
+                                    </div>
+                                ) : seasons.length > 0 ? (
+                                    <Tabs value={selectedSeason} onValueChange={setSelectedSeason} className="w-full">
+                                        <ScrollArea className="w-full pb-4">
+                                            <TabsList className="inline-flex w-auto h-auto p-1 bg-muted/50 backdrop-blur-sm border border-white/5 rounded-xl">
+                                                {seasons.map((season) => (
+                                                    <TabsTrigger
+                                                        key={season}
+                                                        value={String(season)}
+                                                        className="px-4 py-2 text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg transition-all"
+                                                    >
+                                                        Season {season}
+                                                    </TabsTrigger>
+                                                ))}
+                                            </TabsList>
+                                        </ScrollArea>
+
+                                        {seasons.map((season) => {
+                                            const seasonInfo = movie.seasons?.find(s => s.seasonNumber === season);
+                                            return (
+                                            <TabsContent key={season} value={String(season)} className="mt-4 space-y-6">
+                                                {/* Season Info */}
+                                                {seasonInfo && (
+                                                    <div className="flex flex-col md:flex-row gap-6 bg-white/5 p-6 rounded-xl border border-white/5">
+                                                        {seasonInfo.cover && (
+                                                            <div className="flex-shrink-0 w-32 md:w-40 aspect-[2/3] rounded-lg overflow-hidden shadow-lg">
+                                                                <img 
+                                                                    src={seasonInfo.cover} 
+                                                                    alt={seasonInfo.name}
+                                                                    className="w-full h-full object-cover"
+                                                                />
+                                                            </div>
+                                                        )}
+                                                        <div className="space-y-4 flex-1">
+                                                            <div>
+                                                                <h3 className="text-2xl font-bold">{seasonInfo.name}</h3>
+                                                                <div className="flex items-center gap-3 text-muted-foreground mt-2 text-sm">
+                                                                    {seasonInfo.year && (
+                                                                        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/5">
+                                                                            <Calendar className="h-3.5 w-3.5" />
+                                                                            <span>{seasonInfo.year}</span>
+                                                                        </div>
+                                                                    )}
+                                                                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/5">
+                                                                        <Tv className="h-3.5 w-3.5" />
+                                                                        <span>{seasonInfo.episodeCount} Episodes</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            
+                                                            {seasonInfo.overview && (
+                                                                <div className="space-y-2">
+                                                                    <h4 className="text-sm font-semibold text-primary uppercase tracking-wider">Overview</h4>
+                                                                    <p className="text-muted-foreground leading-relaxed">
+                                                                        {seasonInfo.overview}
+                                                                    </p>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    {(showAllEpisodes
+                                                        ? seasonGroups[season]
+                                                        : seasonGroups[season].slice(0, 12)
+                                                    ).map((episode) => (
+                                                        <Link
+                                                            key={episode.id}
+                                                            to={`/series/${id}/watch?season=${episode.seasonNumber}&episode=${episode.episodeNumber}`}
+                                                        >
+                                                            <Card className="group flex flex-row overflow-hidden border-white/5 bg-black/20 hover:bg-white/5 transition-all hover:scale-[1.01] hover:shadow-xl hover:shadow-primary/5 h-24 sm:h-28">
+                                                                <div className="relative w-32 sm:w-44 flex-shrink-0 overflow-hidden">
+                                                                    <img
+                                                                        src={episode.cover || "/placeholder.svg"}
+                                                                        alt={episode.title}
+                                                                        className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
+                                                                        onError={(e) => {
+                                                                            const target = e.target as HTMLImageElement;
+                                                                            target.src = "/placeholder.svg";
+                                                                        }}
+                                                                    />
+                                                                    <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent" />
+                                                                    <div className="absolute top-1 left-1 sm:top-2 sm:left-2">
+                                                                        <Badge className="bg-black/60 backdrop-blur border-white/10 text-[10px] sm:text-xs px-1.5 py-0">
+                                                                            EP {episode.episodeNumber}
+                                                                        </Badge>
+                                                                    </div>
+                                                                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 bg-black/20 backdrop-blur-[1px]">
+                                                                         <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/40 transform scale-50 group-hover:scale-100 transition-transform">
+                                                                            <Play className="w-4 h-4 sm:w-5 sm:h-5 text-primary-foreground fill-current ml-0.5" />
+                                                                         </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="p-3 sm:p-4 flex flex-col justify-center flex-1 min-w-0">
+                                                                    <h3 className="font-medium text-sm sm:text-base line-clamp-1 group-hover:text-primary transition-colors">
+                                                                        {episode.title || `Episode ${episode.episodeNumber}`}
+                                                                    </h3>
+                                                                    <div className="flex items-center gap-2 mt-1">
+                                                                        <span className="text-xs text-muted-foreground">
+                                                                            S{episode.seasonNumber} • E{episode.episodeNumber}
+                                                                        </span>
+                                                                        {episode.airDate && (
+                                                                            <>
+                                                                                <span className="text-muted-foreground/30 text-[10px]">•</span>
+                                                                                <span className="text-[10px] sm:text-xs text-muted-foreground">
+                                                                                    {new Date(episode.airDate).getFullYear()}
+                                                                                </span>
+                                                                            </>
+                                                                        )}
+                                                                    </div>
+                                                                    {episode.overview && (
+                                                                        <p className="text-xs text-muted-foreground/60 line-clamp-1 mt-1.5 hidden sm:block">
+                                                                            {episode.overview}
+                                                                        </p>
+                                                                    )}
+                                                                </div>
+                                                            </Card>
+                                                        </Link>
+                                                    ))}
+                                                </div>
+                                                
+                                                {seasonGroups[season].length > 12 && !showAllEpisodes && (
+                                                    <div className="flex justify-center pt-4">
+                                                        <Button
+                                                            variant="outline"
+                                                            className="min-w-[200px] border-white/10 hover:bg-primary hover:text-primary-foreground transition-all"
+                                                            onClick={() => setShowAllEpisodes(true)}
+                                                        >
+                                                            See More Episodes ({seasonGroups[season].length - 12} remaining)
+                                                        </Button>
+                                                    </div>
+                                                )}
+                                                
+                                                {showAllEpisodes && seasonGroups[season].length > 12 && (
+                                                    <div className="flex justify-center pt-4">
+                                                        <Button
+                                                            variant="ghost"
+                                                            className="text-muted-foreground hover:text-foreground"
+                                                            onClick={() => setShowAllEpisodes(false)}
+                                                        >
+                                                            Show Less
+                                                        </Button>
+                                                    </div>
+                                                )}
+                                            </TabsContent>
+                                            );
+                                        })}
+                                    </Tabs>
+                                ) : (
+                                    <Alert>
+                                        <AlertCircle className="h-4 w-4" />
+                                        <AlertDescription>
+                                            No episodes found for this series.
+                                        </AlertDescription>
+                                    </Alert>
+                                )}
                             </div>
                         )}
 

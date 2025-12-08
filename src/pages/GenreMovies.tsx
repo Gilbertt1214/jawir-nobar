@@ -12,8 +12,8 @@ export default function GenreMovies() {
     const { genre } = useParams<{ genre: string }>();
     const [currentPage, setCurrentPage] = useState(1);
 
-    // Redirect to hentai page if genre is Hentai
-    if (genre?.toLowerCase() === "hentai") {
+    // Redirect to JAV page if genre is JAV
+    if (genre?.toLowerCase() === "jav" || genre?.toLowerCase() === "hentai") {
         return <Navigate to="/hentai" replace />;
     }
 

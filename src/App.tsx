@@ -7,8 +7,6 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { ScrollToTop } from "@/components/ScrollToTop";
-
-// Pages - TMDB
 import Home from "./pages/Home";
 import MovieDetail from "./pages/MovieDetail";
 import SeriesEpisodes from "./pages/SeriesEpisodes";
@@ -21,8 +19,6 @@ import CountryMovies from "./pages/CountryMovies";
 import YearList from "./pages/YearList";
 import YearMovies from "./pages/YearMovies";
 import BrowseCategory from "./pages/BrowseCategory";
-
-// Hentai (Nekopoi)
 import HentaiList from "./pages/HentaiList";
 import AnimeDetail from "./pages/AnimeDetail";
 import TestNekoBocc from "./pages/TestNekoBocc";
@@ -103,7 +99,7 @@ const App = () => {
                                         element={<EpisodeDetail />}
                                     />
 
-                                    {/* Hentai - Nekopoi */}
+                                    {/* JAV - Nekopoi */}
                                     <Route
                                         path="/hentai"
                                         element={<HentaiList />}
@@ -124,10 +120,16 @@ const App = () => {
                                     />
 
                                     {/* Pencarian */}
-                                    <Route path="/search" element={<Search />} />
+                                    <Route
+                                        path="/search"
+                                        element={<Search />}
+                                    />
 
                                     {/* Genre */}
-                                    <Route path="/genres" element={<GenreList />} />
+                                    <Route
+                                        path="/genres"
+                                        element={<GenreList />}
+                                    />
                                     <Route
                                         path="/genre/:genre"
                                         element={<GenreMovies />}
@@ -144,7 +146,10 @@ const App = () => {
                                     />
 
                                     {/* Tahun */}
-                                    <Route path="/years" element={<YearList />} />
+                                    <Route
+                                        path="/years"
+                                        element={<YearList />}
+                                    />
                                     <Route
                                         path="/year/:year"
                                         element={<YearMovies />}

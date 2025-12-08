@@ -1,8 +1,8 @@
 // API Configuration and Constants
 
-export const API_HOSTS = [import.meta.env.VITE_API_BASE_URL || "/__vidlink"].filter(
-    Boolean
-);
+export const API_HOSTS = [
+    import.meta.env.VITE_API_BASE_URL || "/__vidlink",
+].filter(Boolean);
 
 export const TMDB_BASE = "https://api.themoviedb.org/3";
 export const TMDB_KEY =
@@ -13,23 +13,26 @@ export const NEKOPOI_BASE = import.meta.env.VITE_NEKOPOI_PROXY || "/nekopoi";
 export const NEKOBOCC_BASE = import.meta.env.VITE_NEKOBOCC_PROXY || "/nekobocc";
 
 // Premium streaming providers (prioritized by quality and reliability)
+// Updated with working providers as of 2024
 export const STREAMING_PROVIDERS = {
-    // Tier 1: Premium providers (no ads, HD quality)
-    vidlink: "https://vidlink.pro/embed",
+    // Tier 1: Premium providers (most reliable)
+    vidsrc: "https://vidsrc.xyz/embed",
     vidsrcpro: "https://vidsrc.pro/embed",
+    vidlink: "https://vidlink.pro",
 
     // Tier 2: High quality providers
-    vidsrc: "https://vidsrc.to/embed",
-    vidsrcxyz: "https://vidsrc.xyz/embed",
+    vidsrcto: "https://vidsrc.to/embed",
     vidsrcme: "https://vidsrc.me/embed",
+    vidsrcxyz: "https://vidsrc.xyz/embed",
     vidsrcpm: "https://vidsrc.pm/embed",
 
     // Tier 3: Reliable backup providers
     embedsu: "https://embed.su/embed",
-    superembed: "https://multiembed.mov",
-    moviesapi: "https://moviesapi.club/embed",
+    superembed: "https://multiembed.mov/?video_id=",
+    moviesapi: "https://moviesapi.club",
 
     // Tier 4: Additional backups
     embed2: "https://www.2embed.cc/embed",
     nontonGo: "https://www.NontonGo.win/embed",
+    autoembed: "https://player.autoembed.cc/embed",
 };

@@ -39,13 +39,13 @@ export default function HentaiDetail() {
                 <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
-                        Invalid hentai ID.
+                        Invalid JAV ID.
                         <br />
                         <Link
                             to="/hentai"
                             className="ml-2 underline block mt-2"
                         >
-                            Back to hentai list
+                            Back to JAV list
                         </Link>
                     </AlertDescription>
                 </Alert>
@@ -304,7 +304,7 @@ export default function HentaiDetail() {
                                     variant="outline"
                                     className="text-xs py-1 px-2"
                                 >
-                                    {hentaiDetail.type || "Hentai"}
+                                    JAV
                                 </Badge>
                                 <Badge
                                     variant="secondary"
@@ -360,9 +360,11 @@ export default function HentaiDetail() {
                         <Alert className="mb-4">
                             <AlertCircle className="h-4 w-4" />
                             <AlertDescription>
-                                Content provided by third-party services. If the
-                                player doesn't work, try another provider or use
-                                download links.
+                                <strong>Demo Mode:</strong> Currently using mock
+                                data. Stream links are placeholders. To use real
+                                content, set{" "}
+                                <code>VITE_USE_MOCK_DATA=false</code> in your
+                                .env file and ensure NekoBocc API is accessible.
                             </AlertDescription>
                         </Alert>
 
@@ -411,26 +413,53 @@ export default function HentaiDetail() {
                                     </Button>
                                 </div>
 
+                                {/* CORS Warning */}
+                                <Alert className="mb-4">
+                                    <AlertCircle className="h-4 w-4" />
+                                    <AlertDescription className="text-xs">
+                                        If player doesn't work due to browser
+                                        restrictions, click "New Tab" button
+                                        above to watch in a new window.
+                                    </AlertDescription>
+                                </Alert>
+
                                 {/* Video Player */}
                                 {providerError ? (
                                     <div className="relative aspect-video bg-black rounded-lg flex items-center justify-center">
                                         <div className="text-center text-white space-y-2">
                                             <AlertCircle className="h-12 w-12 mx-auto text-red-500" />
                                             <p className="text-base">
-                                                Player failed to load
+                                                Player blocked by browser
                                             </p>
                                             <p className="text-sm text-gray-400">
-                                                Try another provider or refresh.
+                                                Click "New Tab" to watch or try
+                                                another provider.
                                             </p>
-                                            <Button
-                                                variant="secondary"
-                                                size="sm"
-                                                onClick={handleRefresh}
-                                                className="text-xs mt-2"
-                                            >
-                                                <RefreshCw className="h-4 w-4 mr-1" />
-                                                Try Again
-                                            </Button>
+                                            <div className="flex gap-2 justify-center mt-3">
+                                                <Button
+                                                    variant="secondary"
+                                                    size="sm"
+                                                    onClick={() =>
+                                                        window.open(
+                                                            currentProvider?.url,
+                                                            "_blank"
+                                                        )
+                                                    }
+                                                    className="text-xs"
+                                                >
+                                                    <ExternalLink className="h-4 w-4 mr-1" />
+                                                    Open in New Tab
+                                                </Button>
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={handleRefresh}
+                                                    className="text-xs"
+                                                >
+                                                    <RefreshCw className="h-4 w-4 mr-1" />
+                                                    Try Again
+                                                </Button>
+                                            </div>
                                         </div>
                                     </div>
                                 ) : currentProvider?.url &&

@@ -159,7 +159,6 @@ export default function Search() {
                         <Film className="h-4 w-4 mr-2" />
                         Movies & Series ({movieData?.totalItems || 0})
                     </Button>
-                    
                 </div>
 
                 <p className="text-muted-foreground">
@@ -168,7 +167,7 @@ export default function Search() {
                     {searchType === "all" && (
                         <span className="ml-2">
                             ({movieData?.totalItems || 0} movies/series •{" "}
-                            {hentaiData?.length || 0} hentai)
+                            {hentaiData?.length || 0} JAV)
                         </span>
                     )}
                 </p>
@@ -194,7 +193,7 @@ export default function Search() {
                             </>
                         )}
 
-                    {/* Tampilkan Hentai dengan custom grid */}
+                    {/* Tampilkan JAV dengan custom grid */}
                     {(searchType === "all" || searchType === "hentai") &&
                         hentaiData &&
                         hentaiData.length > 0 && (
@@ -203,7 +202,7 @@ export default function Search() {
                                     <div className="mb-6 mt-8">
                                         <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
                                             <Heart className="h-5 w-5" />
-                                            Hentai ({hentaiData.length})
+                                            JAV ({hentaiData.length})
                                         </h2>
                                     </div>
                                 )}
@@ -231,7 +230,7 @@ export default function Search() {
                                                             variant="secondary"
                                                             className="text-xs backdrop-blur-sm bg-black/50 text-white border-none"
                                                         >
-                                                            {item.type}
+                                                            JAV
                                                         </Badge>
                                                     </div>
                                                 </div>
@@ -271,7 +270,7 @@ export default function Search() {
                             </>
                         )}
 
-                    {/* Pagination hanya untuk movies (karena hentai tidak support pagination) */}
+                    {/* Pagination hanya untuk movies (karena JAV tidak support pagination) */}
                     {searchType !== "hentai" &&
                         movieData &&
                         movieData.totalPages > 1 && (
@@ -300,6 +299,4 @@ export default function Search() {
         </div>
     );
 }
-        <AlertDescription>
-                    This search feature is powered by TMDB for 
-                </AlertDescription>
+<AlertDescription>This search feature is powered by TMDB for</AlertDescription>;

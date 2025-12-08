@@ -156,6 +156,13 @@ class MovieAPI {
         return this.streaming.getEpisodeStreamingUrl(seriesId, season, episode);
     }
 
+    // Get JAV/Hentai streaming providers from NekoBocc
+    async getJAVStreamingProviders(
+        streamLinks: any[]
+    ): Promise<StreamingProvider[]> {
+        return this.streaming.getJAVStreamingProviders(streamLinks);
+    }
+
     // Nekopoi Methods
     async getNekopoiLatest(
         page: number = 1
@@ -243,26 +250,35 @@ class MovieAPI {
             totalItems: 0,
         };
 
-        const [nekopoiData, nekopoiCareData, nekoboccData] =
-            await Promise.allSettled([
+        // Use NekoBocc (mock data) as primary source since external APIs may be blocked
+        const nekoboccData = await this.nekobocc.getReleaseList(page);
+
+        // Try to fetch from other sources but don't wait too long
+        const [nekopoiData, nekopoiCareData] = await Promise.allSettled([
+            Promise.race([
                 this.nekopoi.getLatest(page),
+                new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error("Timeout")), 3000)
+                ),
+            ]),
+            Promise.race([
                 this.nekopoiCare.getLatest(page),
-                this.nekobocc.getReleaseList(page),
-            ]);
+                new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error("Timeout")), 3000)
+                ),
+            ]),
+        ]);
 
         return {
             nekopoi:
                 nekopoiData.status === "fulfilled"
-                    ? nekopoiData.value
+                    ? (nekopoiData.value as PaginatedResponse<NekopoiHentai>)
                     : emptyResponse,
             nekopoiCare:
                 nekopoiCareData.status === "fulfilled"
-                    ? nekopoiCareData.value
+                    ? (nekopoiCareData.value as PaginatedResponse<NekopoiHentai>)
                     : emptyResponse,
-            nekobocc:
-                nekoboccData.status === "fulfilled"
-                    ? nekoboccData.value
-                    : emptyResponse,
+            nekobocc: nekoboccData,
         };
     }
 
