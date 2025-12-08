@@ -1,6 +1,6 @@
 import { defineConfig, type ConfigEnv } from "vite";
 import react from "@vitejs/plugin-react-swc";
-import path from "path";
+import * as path from "path";
 import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
@@ -47,7 +47,7 @@ export default defineConfig((env: ConfigEnv) => ({
                 },
             },
             "/nekobocc": {
-                target: "https://api.nekobocc.com", // Ganti dengan base URL NekoBocc yang benar
+                target: "https://nekopoi.care", // URL NekoBocc yang benar
                 changeOrigin: true,
                 secure: true,
                 rewrite: (path: string) => path.replace(/^\/nekobocc/, ""),
@@ -60,6 +60,43 @@ export default defineConfig((env: ConfigEnv) => ({
                         proxyReq.setHeader("Accept", "application/json");
                         console.log("Proxying NekoBocc request:", req.url);
                     });
+                },
+            },
+            // Fallback proxies for direct TMDB access (resolves ETIMEDOUT on /tv and /movie)
+            "/tv": {
+                target: "https://api.themoviedb.org/3",
+                changeOrigin: true,
+                secure: true,
+                timeout: 60000, // 60s timeout
+                proxyTimeout: 60000,
+                rewrite: (path: string) => {
+                    const apiKey = "9998d44e51ed7634a06c4198b289bfe4";
+                    const separator = path.includes("?") ? "&" : "?";
+                    return `${path}${separator}api_key=${apiKey}`;
+                },
+            },
+            "/movie": {
+                target: "https://api.themoviedb.org/3",
+                changeOrigin: true,
+                secure: true,
+                timeout: 60000, // 60s timeout
+                proxyTimeout: 60000,
+                rewrite: (path: string) => {
+                    const apiKey = "9998d44e51ed7634a06c4198b289bfe4";
+                    const separator = path.includes("?") ? "&" : "?";
+                    return `${path}${separator}api_key=${apiKey}`;
+                },
+            },
+            "/search": {
+                target: "https://api.themoviedb.org/3",
+                changeOrigin: true,
+                secure: true,
+                timeout: 60000,
+                proxyTimeout: 60000,
+                rewrite: (path: string) => {
+                    const apiKey = "9998d44e51ed7634a06c4198b289bfe4";
+                    const separator = path.includes("?") ? "&" : "?";
+                    return `${path}${separator}api_key=${apiKey}`;
                 },
             },
         },
