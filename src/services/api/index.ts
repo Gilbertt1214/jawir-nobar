@@ -5,12 +5,14 @@ import { NekopoiService } from "./nekopoi.service";
 import { NekopoiCareService } from "./nekopoi-care.service";
 import { NekoBoccService } from "./nekobocc.service";
 import { StreamingService } from "./streaming.service";
+import { AnimeService } from "./anime.service";
 import { NEKOPOI_BASE } from "./constants";
 import type {
     Movie,
     Episode,
     PaginatedResponse,
     StreamingProvider,
+    AnimeDetail,
     NekoBoccHentai,
     NekopoiHentai,
 } from "./types";
@@ -24,6 +26,7 @@ class MovieAPI {
     private nekopoiCare: NekopoiCareService;
     private nekobocc: NekoBoccService;
     private streaming: StreamingService;
+    private anime: AnimeService;
 
     constructor() {
         this.tmdb = new TMDBService();
@@ -31,6 +34,7 @@ class MovieAPI {
         this.nekopoiCare = new NekopoiCareService();
         this.nekobocc = new NekoBoccService();
         this.streaming = new StreamingService();
+        this.anime = new AnimeService();
     }
 
     // TMDB Methods
@@ -126,6 +130,23 @@ class MovieAPI {
         opts?: { type?: "tv" | "movie" | "all"; audio?: "sub" | "dub" | "all" }
     ): Promise<PaginatedResponse<Movie>> {
         return this.tmdb.getAnime(page, opts);
+    }
+
+    // Anime Scraper Methods (from AnimeService)
+    async getOngoingAnime(): Promise<Movie[]> {
+        return this.anime.getOngoingAnime();
+    }
+
+    async getAnimeScraperDetail(slug: string): Promise<AnimeDetail | null> {
+        return this.anime.getAnimeDetail(slug);
+    }
+
+    async getAnimeStreamLinks(slug: string) {
+        return this.anime.getStreamLinks(slug);
+    }
+
+    async searchAnime(query: string): Promise<Movie[]> {
+        return this.anime.searchAnime(query);
     }
 
     async getAdultMovies(page = 1): Promise<PaginatedResponse<Movie>> {

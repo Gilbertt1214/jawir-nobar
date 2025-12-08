@@ -83,8 +83,9 @@ export class StreamingService {
     // Get streaming URLs with tiered provider system (for Movies & Series)
     async getStreamingUrls(
         movieId: string,
-        type: "movie" | "series" = "movie"
+        type: "movie" | "series" | "anime" = "movie"
     ): Promise<StreamingProvider[]> {
+        if (type === "anime") return []; // Anime handled by AnimeService
         const mediaType = type === "series" ? "tv" : "movie";
 
         // Ordered by reliability - using providers that actually work

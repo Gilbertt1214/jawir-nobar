@@ -22,6 +22,8 @@ import BrowseCategory from "./pages/BrowseCategory";
 import HentaiList from "./pages/HentaiList";
 import AnimeDetail from "./pages/AnimeDetail";
 import TestNekoBocc from "./pages/TestNekoBocc";
+import AnimeInfo from "./pages/AnimeInfo";
+import AnimeWatch from "./pages/AnimeWatch";
 
 // Fallback
 import NotFound from "./pages/NotFound";
@@ -111,6 +113,16 @@ const App = () => {
                                     <Route
                                         path="/test-nekobocc"
                                         element={<TestNekoBocc />}
+                                    />
+
+                                    {/* Anime Scraper Routes */}
+                                    <Route 
+                                        path="/anime/:slug" 
+                                        element={<AnimeInfo />} 
+                                    />
+                                    <Route 
+                                        path="/anime/watch/:slug" 
+                                        element={<AnimeWatch />} 
                                     />
 
                                     {/* Browse (Kategori Khusus) */}

@@ -89,6 +89,11 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
                                 Series
                             </Badge>
                         )}
+                        {movie.type === "anime" && (
+                            <Badge className="absolute top-2 right-2 bg-gradient-to-r from-purple-600 to-pink-600 backdrop-blur-md border border-white/10 text-white px-2 py-0.5 text-xs font-medium uppercase tracking-wider">
+                                Anime
+                            </Badge>
+                        )}
 
                         {/* Rating badge */}
                         {movie.rating && (
@@ -116,8 +121,12 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
 
                         {/* Year and Country */}
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            {movie.latestEpisode && movie.type === "anime" && (
+                                <span className="text-primary font-medium">{movie.latestEpisode}</span>
+                            )}
+                            {movie.latestEpisode && movie.year && <span className="text-primary/50">•</span>}
                             {movie.year && <span>{movie.year}</span>}
-                            {movie.country && movie.year && <span className="text-primary/50">•</span>}
+                            {movie.country && (movie.year || movie.latestEpisode) && <span className="text-primary/50">•</span>}
                             {movie.country && (
                                 <span className="line-clamp-1">
                                     {movie.country}

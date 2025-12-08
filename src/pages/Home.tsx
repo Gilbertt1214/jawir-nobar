@@ -107,6 +107,15 @@ export default function Home() {
         queryFn: () => movieAPI.getAdultMovies(1),
     });
 
+    // Ongoing Anime Query (Scraper)
+    const {
+        data: ongoingAnime,
+        isLoading: loadingOngoing,
+    } = useQuery({
+        queryKey: ["ongoing-anime"],
+        queryFn: () => movieAPI.getOngoingAnimeList(),
+    });
+
     // Hero carousel state
     const heroList = latestMovies?.data?.slice(0, 5) || popularMovies?.data?.slice(0, 5) || [];
     const [heroIndex, setHeroIndex] = useState(0);
@@ -428,6 +437,16 @@ export default function Home() {
                             <MovieCarousel title="" movies={anime.data} />
                         )}
                     </motion.section>
+                )}
+
+                {/* Ongoing Anime (Scraper) */}
+                {ongoingAnime && ongoingAnime.length > 0 && (
+                     <Section
+                        title="Ongoing Anime"
+                        icon={<Tv className="w-6 h-6 text-green-400" />}
+                        movies={ongoingAnime}
+                        link="/browse/ongoing-anime"
+                    />
                 )}
 
                 {/* Indonesian Movies */}

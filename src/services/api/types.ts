@@ -25,21 +25,41 @@ export interface Season {
 }
 
 export interface Movie {
-    id: string;
+    id: string; // For anime, this can be the slug
     title: string;
     cover: string;
-    rating: number;
+    rating?: number; // Optional for anime list
     genre: string[];
-    country: string;
-    year: string;
-    synopsis: string;
+    country?: string; // Optional for anime
+    year?: string; // Optional for anime
+    synopsis?: string; // Optional for list view
     trailer?: string;
     backdrops?: string[];
     cast?: PersonCast[];
     crew?: PersonCrew[];
-    type: "movie" | "series";
+    type: "movie" | "series" | "anime";
     quality?: string;
     seasons?: Season[];
+    // Anime specific fields
+    slug?: string;
+    latestEpisode?: string; // e.g., "Episode 11"
+    status?: string;
+    duration?: string;
+    releaseDate?: string;
+    studio?: string;
+}
+
+export interface AnimeEpisode {
+    title: string;
+    slug: string;
+    link: string;
+}
+
+export interface AnimeDetail extends Movie {
+    episodes: AnimeEpisode[];
+    studios?: string;
+    producers?: string;
+    totalEpisodes?: string;
 }
 
 export interface NekoBoccJAV {

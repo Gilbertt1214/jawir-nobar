@@ -5,87 +5,96 @@ import { MovieGrid } from "@/components/MovieGrid";
 import { Pagination } from "@/components/Pagination";
 import { SkeletonGrid } from "@/components/SkeletonCard";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, Search as SearchIcon, Film, Heart } from "lucide-react";
+import { AlertCircle, Search as SearchIcon, Film, Tv, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Link } from "react-router-dom";
+
+type SearchCategory = "all" | "movies" | "series" | "anime";
 
 export default function Search() {
-    const [searchParams, setSearchParams] = useSearchParams();
+    const [searchParams] = useSearchParams();
     const query = searchParams.get("q") || "";
     const [currentPage, setCurrentPage] = useState(1);
-    const [searchType, setSearchType] = useState<"all" | "movies" | "hentai">(
-        "all"
-    );
+    const [activeCategory, setActiveCategory] = useState<SearchCategory>("all");
 
-    // Search untuk Movies & Series (TMDB)
+    // Search Movies & Series (TMDB)
     const {
         data: movieData,
         isLoading: movieLoading,
         error: movieError,
     } = useQuery({
-        queryKey: ["search", query, currentPage, "movies"],
+        queryKey: ["searchMovies", query, currentPage],
         queryFn: () => movieAPI.searchMovies(query, currentPage),
-        enabled: !!query && searchType !== "hentai",
+        enabled: !!query && (activeCategory === "all" || activeCategory === "movies" || activeCategory === "series"),
     });
 
-    // Search untuk Hentai (Nekopoi)
+    // Search Anime (Sankavollerei)
     const {
-        data: hentaiData,
-        isLoading: hentaiLoading,
-        error: hentaiError,
+        data: animeData,
+        isLoading: animeLoading,
+        error: animeError,
     } = useQuery({
-        queryKey: ["searchHentai", query],
-        queryFn: () => movieAPI.searchNekopoi(query),
-        enabled: !!query && searchType !== "movies",
+        queryKey: ["searchAnime", query],
+        queryFn: () => movieAPI.searchAnime(query),
+        enabled: !!query && (activeCategory === "all" || activeCategory === "anime"),
     });
 
-    const isLoading = movieLoading || hentaiLoading;
-    const error = movieError || hentaiError;
+    const isLoading = movieLoading || animeLoading;
+    const error = movieError || animeError;
+
+    // Separate movies and series from TMDB data
+    const movies = movieData?.data?.filter(item => item.type === "movie") || [];
+    const series = movieData?.data?.filter(item => item.type === "series") || [];
+    const anime = animeData || [];
+
+    // Calculate totals
+    const totalMovies = movies.length;
+    const totalSeries = series.length;
+    const totalAnime = anime.length;
+    const totalAll = totalMovies + totalSeries + totalAnime;
+
+    // Get display data based on active category
+    const getDisplayData = () => {
+        switch (activeCategory) {
+            case "movies":
+                return {
+                    data: movies,
+                    total: totalMovies,
+                    totalPages: movieData?.totalPages || 1,
+                };
+            case "series":
+                return {
+                    data: series,
+                    total: totalSeries,
+                    totalPages: movieData?.totalPages || 1,
+                };
+            case "anime":
+                return {
+                    data: anime,
+                    total: totalAnime,
+                    totalPages: 1, // Anime doesn't have pagination yet
+                };
+            default: // "all"
+                return {
+                    data: [...anime, ...movies, ...series],
+                    total: totalAll,
+                    totalPages: movieData?.totalPages || 1,
+                };
+        }
+    };
+
+    const displayData = getDisplayData();
+
+    const handleCategoryChange = (category: SearchCategory) => {
+        setActiveCategory(category);
+        setCurrentPage(1);
+    };
 
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
         window.scrollTo({ top: 0, behavior: "smooth" });
     };
-
-    const handleSearchTypeChange = (type: "all" | "movies" | "hentai") => {
-        setSearchType(type);
-        setCurrentPage(1);
-    };
-
-    // Filter data berdasarkan search type
-    const getDisplayData = () => {
-        if (searchType === "movies") {
-            return {
-                type: "movies" as const,
-                data: movieData?.data || [],
-                totalItems: movieData?.totalItems || 0,
-                totalPages: movieData?.totalPages || 1,
-            };
-        } else if (searchType === "hentai") {
-            return {
-                type: "hentai" as const,
-                data: hentaiData || [],
-                totalItems: hentaiData?.length || 0,
-                totalPages: 1,
-            };
-        } else {
-            // All - gabungkan data
-            const movies = movieData?.data || [];
-            const hentai = hentaiData || [];
-            return {
-                type: "all" as const,
-                data: [...movies, ...hentai],
-                totalItems:
-                    (movieData?.totalItems || 0) + (hentaiData?.length || 0),
-                totalPages: movieData?.totalPages || 1,
-            };
-        }
-    };
-
-    const displayData = getDisplayData();
 
     if (!query) {
         return (
@@ -93,7 +102,7 @@ export default function Search() {
                 <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
                     <SearchIcon className="h-16 w-16 text-muted-foreground mb-4" />
                     <h2 className="text-2xl font-semibold mb-2">
-                        Search for Movies & Series
+                        Search for Movies, Series & Anime
                     </h2>
                     <p className="text-muted-foreground">
                         Use the search bar above to find your favorite content
@@ -109,9 +118,10 @@ export default function Search() {
                 <div className="mb-8">
                     <div className="h-8 w-64 bg-muted animate-pulse rounded mb-4" />
                     <div className="flex gap-2 mb-6">
-                        <div className="h-10 w-20 bg-muted animate-pulse rounded" />
-                        <div className="h-10 w-20 bg-muted animate-pulse rounded" />
-                        <div className="h-10 w-20 bg-muted animate-pulse rounded" />
+                        <div className="h-10 w-24 bg-muted animate-pulse rounded" />
+                        <div className="h-10 w-24 bg-muted animate-pulse rounded" />
+                        <div className="h-10 w-24 bg-muted animate-pulse rounded" />
+                        <div className="h-10 w-24 bg-muted animate-pulse rounded" />
                     </div>
                 </div>
                 <SkeletonGrid />
@@ -134,144 +144,145 @@ export default function Search() {
 
     return (
         <div className="container mx-auto px-4 py-8">
-            <div className="mb-8">
-                <h1 className="text-3xl md:text-4xl font-bold mb-2">
-                    Search Results for "{query}"
-                </h1>
-
-                {/* Search Type Filter */}
-                <div className="flex flex-wrap gap-2 mb-4">
-                    <Button
-                        variant={searchType === "all" ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => handleSearchTypeChange("all")}
-                    >
-                        <SearchIcon className="h-4 w-4 mr-2" />
-                        All ({displayData.totalItems})
-                    </Button>
-                    <Button
-                        variant={
-                            searchType === "movies" ? "default" : "outline"
-                        }
-                        size="sm"
-                        onClick={() => handleSearchTypeChange("movies")}
-                    >
-                        <Film className="h-4 w-4 mr-2" />
-                        Movies & Series ({movieData?.totalItems || 0})
-                    </Button>
+            <div className="mb-8 space-y-6">
+                {/* Title */}
+                <div>
+                    <h1 className="text-3xl md:text-4xl font-bold mb-2">
+                        Search Results for "{query}"
+                    </h1>
+                    <p className="text-muted-foreground">
+                        {displayData.total} result{displayData.total !== 1 ? "s" : ""} found
+                        {activeCategory === "all" && totalAll > 0 && (
+                            <span className="ml-2 text-sm">
+                                ({totalMovies} movies • {totalSeries} series • {totalAnime} anime)
+                            </span>
+                        )}
+                    </p>
                 </div>
 
-                <p className="text-muted-foreground">
-                    {displayData.totalItems} result
-                    {displayData.totalItems !== 1 ? "s" : ""} found
-                    {searchType === "all" && (
-                        <span className="ml-2">
-                            ({movieData?.totalItems || 0} movies/series •{" "}
-                            {hentaiData?.length || 0} JAV)
-                        </span>
-                    )}
-                </p>
+                {/* Category Filter Buttons */}
+                <div className="flex flex-wrap gap-3">
+                    <Button
+                        variant={activeCategory === "all" ? "default" : "outline"}
+                        size="lg"
+                        onClick={() => handleCategoryChange("all")}
+                        className="gap-2 transition-all"
+                    >
+                        <SearchIcon className="h-4 w-4" />
+                        All
+                        <Badge 
+                            variant={activeCategory === "all" ? "secondary" : "outline"}
+                            className="ml-1"
+                        >
+                            {totalAll}
+                        </Badge>
+                    </Button>
+
+                    <Button
+                        variant={activeCategory === "movies" ? "default" : "outline"}
+                        size="lg"
+                        onClick={() => handleCategoryChange("movies")}
+                        className="gap-2 transition-all"
+                    >
+                        <Film className="h-4 w-4" />
+                        Movies
+                        <Badge 
+                            variant={activeCategory === "movies" ? "secondary" : "outline"}
+                            className="ml-1"
+                        >
+                            {totalMovies}
+                        </Badge>
+                    </Button>
+
+                    <Button
+                        variant={activeCategory === "series" ? "default" : "outline"}
+                        size="lg"
+                        onClick={() => handleCategoryChange("series")}
+                        className="gap-2 transition-all"
+                    >
+                        <Tv className="h-4 w-4" />
+                        Series
+                        <Badge 
+                            variant={activeCategory === "series" ? "secondary" : "outline"}
+                            className="ml-1"
+                        >
+                            {totalSeries}
+                        </Badge>
+                    </Button>
+
+                    <Button
+                        variant={activeCategory === "anime" ? "default" : "outline"}
+                        size="lg"
+                        onClick={() => handleCategoryChange("anime")}
+                        className="gap-2 transition-all"
+                    >
+                        <Sparkles className="h-4 w-4" />
+                        Anime
+                        <Badge 
+                            variant={activeCategory === "anime" ? "secondary" : "outline"}
+                            className="ml-1"
+                        >
+                            {totalAnime}
+                        </Badge>
+                    </Button>
+                </div>
             </div>
 
+            {/* Results */}
             {displayData.data.length > 0 ? (
                 <>
-                    {/* Tampilkan Movies & Series dengan MovieGrid */}
-                    {(searchType === "all" || searchType === "movies") &&
-                        movieData?.data &&
-                        movieData.data.length > 0 && (
-                            <>
-                                {searchType === "all" && (
-                                    <div className="mb-6">
-                                        <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
-                                            <Film className="h-5 w-5" />
-                                            Movies & Series (
-                                            {movieData.totalItems})
+                    {/* Show category sections when "All" is selected */}
+                    {activeCategory === "all" ? (
+                        <div className="space-y-12">
+                            {/* Anime Section */}
+                            {anime.length > 0 && (
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-2">
+                                        <Sparkles className="h-5 w-5 text-primary" />
+                                        <h2 className="text-2xl font-bold">
+                                            Anime
                                         </h2>
+                                        <Badge variant="secondary">{totalAnime}</Badge>
                                     </div>
-                                )}
-                                <MovieGrid movies={movieData.data} />
-                            </>
-                        )}
-
-                    {/* Tampilkan JAV dengan custom grid */}
-                    {(searchType === "all" || searchType === "hentai") &&
-                        hentaiData &&
-                        hentaiData.length > 0 && (
-                            <>
-                                {searchType === "all" && (
-                                    <div className="mb-6 mt-8">
-                                        <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
-                                            <Heart className="h-5 w-5" />
-                                            JAV ({hentaiData.length})
-                                        </h2>
-                                    </div>
-                                )}
-
-                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                                    {hentaiData.map((item) => (
-                                        <Link
-                                            key={item.id}
-                                            to={`/hentai/nekopoi/${item.id}`}
-                                            className="group"
-                                        >
-                                            <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-                                                <div className="relative aspect-[2/3] overflow-hidden">
-                                                    <img
-                                                        src={item.cover}
-                                                        alt={item.title}
-                                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                                        onError={(e) => {
-                                                            e.currentTarget.src =
-                                                                "/placeholder.svg";
-                                                        }}
-                                                    />
-                                                    <div className="absolute top-2 right-2">
-                                                        <Badge
-                                                            variant="secondary"
-                                                            className="text-xs backdrop-blur-sm bg-black/50 text-white border-none"
-                                                        >
-                                                            JAV
-                                                        </Badge>
-                                                    </div>
-                                                </div>
-                                                <CardContent className="p-3">
-                                                    <h3 className="font-semibold text-sm line-clamp-2 mb-2">
-                                                        {item.title}
-                                                    </h3>
-                                                    <div className="flex flex-wrap gap-1">
-                                                        {item.genre
-                                                            .slice(0, 2)
-                                                            .map((g, idx) => (
-                                                                <Badge
-                                                                    key={idx}
-                                                                    variant="outline"
-                                                                    className="text-xs px-1 py-0"
-                                                                >
-                                                                    {g}
-                                                                </Badge>
-                                                            ))}
-                                                        {item.genre.length >
-                                                            2 && (
-                                                            <Badge
-                                                                variant="outline"
-                                                                className="text-xs px-1 py-0"
-                                                            >
-                                                                +
-                                                                {item.genre
-                                                                    .length - 2}
-                                                            </Badge>
-                                                        )}
-                                                    </div>
-                                                </CardContent>
-                                            </Card>
-                                        </Link>
-                                    ))}
+                                    <MovieGrid movies={anime} />
                                 </div>
-                            </>
-                        )}
+                            )}
 
-                    {/* Pagination hanya untuk movies (karena JAV tidak support pagination) */}
-                    {searchType !== "hentai" &&
+                            {/* Movies Section */}
+                            {movies.length > 0 && (
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-2">
+                                        <Film className="h-5 w-5 text-primary" />
+                                        <h2 className="text-2xl font-bold">
+                                            Movies
+                                        </h2>
+                                        <Badge variant="secondary">{totalMovies}</Badge>
+                                    </div>
+                                    <MovieGrid movies={movies} />
+                                </div>
+                            )}
+
+                            {/* Series Section */}
+                            {series.length > 0 && (
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-2">
+                                        <Tv className="h-5 w-5 text-primary" />
+                                        <h2 className="text-2xl font-bold">
+                                            Series
+                                        </h2>
+                                        <Badge variant="secondary">{totalSeries}</Badge>
+                                    </div>
+                                    <MovieGrid movies={series} />
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        // Show filtered results
+                        <MovieGrid movies={displayData.data} />
+                    )}
+
+                    {/* Pagination (only for movies/series from TMDB) */}
+                    {(activeCategory === "movies" || activeCategory === "series" || activeCategory === "all") &&
                         movieData &&
                         movieData.totalPages > 1 && (
                             <div className="mt-8">
@@ -290,13 +301,21 @@ export default function Search() {
                         No Results Found
                     </h2>
                     <p className="text-muted-foreground">
-                        {searchType === "all"
-                            ? "Try searching with different keywords"
-                            : `No ${searchType} found for "${query}"`}
+                        {activeCategory === "all"
+                            ? `No results found for "${query}"`
+                            : `No ${activeCategory} found for "${query}"`}
                     </p>
+                    {activeCategory !== "all" && (
+                        <Button
+                            variant="outline"
+                            className="mt-4"
+                            onClick={() => handleCategoryChange("all")}
+                        >
+                            View All Categories
+                        </Button>
+                    )}
                 </div>
             )}
         </div>
     );
 }
-<AlertDescription>This search feature is powered by TMDB for</AlertDescription>;
