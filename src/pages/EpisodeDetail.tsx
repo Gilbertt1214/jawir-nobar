@@ -88,27 +88,6 @@ export default function EpisodeDetail() {
         staleTime: 60000,
     });
 
-    // Detect if this is JAV/Hentai content
-    const isJAVContent =
-        window.location.pathname.includes("/hentai/") ||
-        window.location.pathname.includes("/jav/");
-
-    // Query untuk mendapatkan detail episode dari NekoBocc (hanya untuk JAV)
-    const {
-        data: nekoboccDetail,
-        isLoading: nekoboccLoading,
-        error: nekoboccError,
-    } = useQuery({
-        queryKey: ["nekoboccDetail", seriesId],
-        queryFn: async () => {
-            if (!seriesId) throw new Error("Series ID is missing");
-            const detail = await movieAPI.getNekoBoccDetail(seriesId);
-            return detail;
-        },
-        enabled: !!seriesId && isJAVContent,
-        staleTime: 5 * 60 * 1000,
-    });
-
     // Query untuk mendapatkan streaming providers
     const {
         data: providers,
@@ -121,24 +100,10 @@ export default function EpisodeDetail() {
             seriesId,
             episode?.seasonNumber,
             episode?.episodeNumber,
-            isJAVContent,
-            nekoboccDetail?.streamLinks,
         ],
         queryFn: async () => {
             if (!seriesId || !episode)
                 throw new Error("Episode data not available");
-
-            // For JAV content, use NekoBocc stream links
-            if (isJAVContent && nekoboccDetail?.streamLinks) {
-                const streamingProviders =
-                    await movieAPI.getJAVStreamingProviders(
-                        nekoboccDetail.streamLinks
-                    );
-                return streamingProviders.sort((a, b) => {
-                    if (a.tier !== b.tier) return (a.tier || 4) - (b.tier || 4);
-                    return (a as any).priority - (b as any).priority;
-                });
-            }
 
             // For regular TV series, use standard providers
             const streamingProviders = await movieAPI.getEpisodeStreamingUrl(
@@ -152,7 +117,7 @@ export default function EpisodeDetail() {
                 return (a as any).priority - (b as any).priority;
             });
         },
-        enabled: !!seriesId && !!episode && (!isJAVContent || !!nekoboccDetail),
+        enabled: !!seriesId && !!episode,
         staleTime: 5 * 60 * 1000,
     });
 
@@ -205,8 +170,8 @@ export default function EpisodeDetail() {
         refetchProviders();
     };
 
-    const isLoading = episodeLoading || nekoboccLoading || providersLoading;
-    const error = episodeError || nekoboccError || providersError;
+    const isLoading = episodeLoading || providersLoading;
+    const error = episodeError || providersError;
 
     if (isLoading) {
         return (
@@ -275,7 +240,10 @@ export default function EpisodeDetail() {
             {/* Navigation */}
             <div className="max-w-6xl mx-auto mb-6">
                 <Link to={`/series/${seriesId}`}>
-                    <Button variant="ghost" className="pl-0 hover:pl-2 transition-all gap-2 text-muted-foreground hover:text-foreground">
+                    <Button
+                        variant="ghost"
+                        className="pl-0 hover:pl-2 transition-all gap-2 text-muted-foreground hover:text-foreground"
+                    >
                         <ArrowLeft className="h-4 w-4" />
                         Back to Series
                     </Button>
@@ -287,17 +255,23 @@ export default function EpisodeDetail() {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <h1 className="text-xl md:text-2xl font-bold leading-tight">
-                            Episode {episode.episodeNumber}: <span className="text-primary">{episode.title}</span>
+                            Episode {episode.episodeNumber}:{" "}
+                            <span className="text-primary">
+                                {episode.title}
+                            </span>
                         </h1>
                         <p className="text-sm text-muted-foreground mt-1">
-                            Season {episode.seasonNumber} • Episode {episode.episodeNumber}
+                            Season {episode.seasonNumber} • Episode{" "}
+                            {episode.episodeNumber}
                         </p>
                     </div>
 
                     <div className="flex items-center gap-2 bg-muted/30 p-1 rounded-lg border border-white/5">
                         <div className="flex items-center gap-2 px-3">
                             <MonitorPlay className="h-4 w-4 text-primary" />
-                            <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Provider</span>
+                            <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                Provider
+                            </span>
                         </div>
                         {providers && (
                             <Button
@@ -320,23 +294,40 @@ export default function EpisodeDetail() {
                                         disabled={!selectedProvider}
                                     >
                                         <span className="truncate max-w-[150px] text-xs">
-                                            {selectedProvider?.name || "Select Provider"}
+                                            {selectedProvider?.name ||
+                                                "Select Provider"}
                                         </span>
                                         <ChevronDown className="h-3 w-3 opacity-50" />
                                     </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-56">
+                                <DropdownMenuContent
+                                    align="end"
+                                    className="w-56"
+                                >
                                     {providers.map((provider) => (
                                         <DropdownMenuItem
                                             key={provider.name}
-                                            onClick={() => handleProviderChange(provider)}
+                                            onClick={() =>
+                                                handleProviderChange(provider)
+                                            }
                                             className="cursor-pointer text-xs"
                                         >
                                             <div className="flex flex-col gap-0.5">
-                                                <span className="font-medium">{provider.name}</span>
+                                                <span className="font-medium">
+                                                    {provider.name}
+                                                </span>
                                                 <div className="flex items-center gap-2 text-muted-foreground">
-                                                    {provider.quality && <span>{provider.quality}</span>}
-                                                    {provider.language && <span>• {provider.language}</span>}
+                                                    {provider.quality && (
+                                                        <span>
+                                                            {provider.quality}
+                                                        </span>
+                                                    )}
+                                                    {provider.language && (
+                                                        <span>
+                                                            •{" "}
+                                                            {provider.language}
+                                                        </span>
+                                                    )}
                                                 </div>
                                             </div>
                                         </DropdownMenuItem>
@@ -344,7 +335,12 @@ export default function EpisodeDetail() {
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         ) : (
-                            <Button variant="outline" size="sm" disabled className="h-8 text-xs">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                disabled
+                                className="h-8 text-xs"
+                            >
                                 No Providers
                             </Button>
                         )}

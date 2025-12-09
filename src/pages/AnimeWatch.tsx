@@ -5,160 +5,262 @@ import { Button } from "@/components/ui/button";
 import {
     ArrowLeft,
     AlertCircle,
-    Server,
     ExternalLink,
     RefreshCw,
+    ChevronLeft,
+    ChevronRight,
+    Monitor,
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Card, CardContent } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import type { StreamingProvider } from "@/services/api/types";
 
 export default function AnimeWatch() {
     const { slug } = useParams<{ slug: string }>();
     const navigate = useNavigate();
-    const [selectedServer, setSelectedServer] = useState<number>(0);
     const [iframeKey, setIframeKey] = useState(0);
 
+    // Check if this is a "not available" placeholder slug
+    const isNotAvailable = slug?.startsWith("not-available-");
+
+    // Always fetch episode data from Otakudesu API
     const {
-        data: streamData,
-        isLoading,
-        error,
+        data: episodeData,
+        isLoading: loadingEpisode,
+        error: episodeError,
     } = useQuery({
-        queryKey: ["animeStream", slug],
-        queryFn: () => movieAPI.getAnimeStreamLinks(slug!),
-        enabled: !!slug,
+        queryKey: ["animeEpisodeStream", slug],
+        queryFn: async () => {
+            if (!slug || isNotAvailable) return null;
+            console.log("Fetching episode from Otakudesu API:", slug);
+            const data = await movieAPI.getAnimeEpisodeStreamOtakudesu(slug);
+            console.log("Episode data from API:", data);
+            return data;
+        },
+        enabled: Boolean(slug) && !isNotAvailable,
+        retry: 2,
     });
 
-    // Reset selected server when slug changes
-    useEffect(() => {
-        setSelectedServer(0);
+    // Extract episode number from slug
+    const episodeNumber = useMemo(() => {
+        if (!slug) return 1;
+        // Try to extract episode number from various formats
+        const match = slug.match(/episode[_-]?(\d+)/i) || slug.match(/-(\d+)$/);
+        return match ? parseInt(match[1]) : 1;
     }, [slug]);
 
-    if (isLoading) {
+    // Get stream provider from Otakudesu API response
+    const currentStream = useMemo((): StreamingProvider | null => {
+        if (!episodeData) return null;
+
+        // Use stream_url directly from API (desustream.info embed)
+        if (episodeData.streamUrl) {
+            return {
+                name: "Desustream",
+                url: episodeData.streamUrl,
+                available: true,
+                quality: "Multi Quality",
+            };
+        }
+        return null;
+    }, [episodeData]);
+
+    useEffect(() => {
+        setIframeKey((p) => p + 1);
+    }, [slug]);
+
+    // Loading state
+    if (loadingEpisode) {
         return (
-            <div className="container mx-auto px-4 py-8 space-y-6">
-                <Button variant="ghost" disabled>
-                    <ArrowLeft className="h-4 w-4 mr-2" />
-                    Back
-                </Button>
-                <div className="aspect-video bg-muted animate-pulse rounded-lg w-full max-w-5xl mx-auto" />
-                <div className="h-8 w-1/2 bg-muted animate-pulse rounded mx-auto" />
+            <div className="min-h-screen bg-[#0a0a0a]">
+                <div className="container mx-auto px-4 py-8">
+                    <Button
+                        variant="ghost"
+                        disabled
+                        className="mb-4 text-white"
+                    >
+                        <ArrowLeft className="h-4 w-4 mr-2" /> Kembali
+                    </Button>
+                    <div className="max-w-5xl mx-auto">
+                        <div className="aspect-video bg-[#181818] animate-pulse rounded-lg" />
+                        <div className="mt-4 h-12 bg-[#181818] animate-pulse rounded-lg w-48" />
+                    </div>
+                </div>
             </div>
         );
     }
 
-    if (error || !streamData) {
+    if (episodeError) {
         return (
-            <div className="container mx-auto px-4 py-8">
-                <Button variant="ghost" onClick={() => navigate(-1)} className="mb-4">
-                    <ArrowLeft className="h-4 w-4 mr-2" />
-                    Back
-                </Button>
-                <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>
-                        Failed to load stream. Please try again or check your connection.
-                    </AlertDescription>
-                </Alert>
+            <div className="min-h-screen bg-[#0a0a0a]">
+                <div className="container mx-auto px-4 py-8">
+                    <Button
+                        variant="ghost"
+                        onClick={() => navigate(-1)}
+                        className="mb-4 text-white hover:bg-white/10"
+                    >
+                        <ArrowLeft className="h-4 w-4 mr-2" /> Kembali
+                    </Button>
+                    <Alert variant="destructive">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertDescription>
+                            Gagal memuat episode. Episode mungkin tidak tersedia
+                            di Otakudesu.
+                        </AlertDescription>
+                    </Alert>
+                </div>
             </div>
         );
     }
 
-    const currentStream = streamData.streamLinks[selectedServer];
+    if (!currentStream || isNotAvailable) {
+        return (
+            <div className="min-h-screen bg-[#0a0a0a]">
+                <div className="container mx-auto px-4 py-8">
+                    <Button
+                        variant="ghost"
+                        onClick={() => navigate(-1)}
+                        className="mb-4 text-white hover:bg-white/10"
+                    >
+                        <ArrowLeft className="h-4 w-4 mr-2" /> Kembali
+                    </Button>
+                    <Alert variant="destructive">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertDescription>
+                            {isNotAvailable
+                                ? "Episode ini tidak tersedia di Otakudesu. Coba cari anime ini langsung di halaman Anime."
+                                : "Tidak ada streaming tersedia untuk episode ini. Pastikan slug episode valid."}
+                        </AlertDescription>
+                    </Alert>
+                </div>
+            </div>
+        );
+    }
 
-    const handleServerChange = (value: string) => {
-        setSelectedServer(Number(value));
-        setIframeKey((prev) => prev + 1); // Force re-render iframe
-    };
+    // Format title from slug if not available from API
+    const displayTitle =
+        episodeData?.title ||
+        slug
+            ?.replace(/-/g, " ")
+            .replace(/episode \d+$/i, "")
+            .trim() ||
+        "Anime Episode";
 
     return (
-        <div className="container mx-auto px-4 py-6">
-             <div className="mb-6 flex items-center gap-4">
-                <Button
-                    variant="ghost"
-                    onClick={() => navigate(-1)}
-                    className="hover:bg-white/10"
-                >
-                    <ArrowLeft className="h-4 w-4 mr-2" />
-                    Back
-                </Button>
-                <h1 className="text-xl md:text-2xl font-bold truncate flex-1">
-                    {streamData.title}
-                </h1>
-            </div>
+        <div className="min-h-screen bg-[#0a0a0a]">
+            <div className="container mx-auto px-4 py-6">
+                {/* Header */}
+                <div className="mb-6 flex items-center gap-4">
+                    <Button
+                        variant="ghost"
+                        onClick={() => navigate(-1)}
+                        className="text-white hover:bg-white/10"
+                    >
+                        <ArrowLeft className="h-4 w-4 mr-2" /> Kembali
+                    </Button>
+                    <div className="flex-1 min-w-0">
+                        <h1 className="text-xl md:text-2xl font-bold text-white truncate">
+                            {displayTitle}
+                        </h1>
+                        <p className="text-gray-400 text-sm">
+                            Episode {episodeNumber}
+                        </p>
+                    </div>
+                </div>
 
-            <div className="max-w-5xl mx-auto space-y-6">
-                {/* Player Container */}
-                <div className="relative aspect-video bg-black rounded-xl overflow-hidden shadow-2xl border border-white/10 group">
-                    {currentStream ? (
+                <div className="max-w-5xl mx-auto space-y-4">
+                    {/* Video Player */}
+                    <div className="relative aspect-video bg-black rounded-lg overflow-hidden border border-white/10">
                         <iframe
                             key={iframeKey}
                             src={currentStream.url}
                             className="absolute inset-0 w-full h-full"
                             allowFullScreen
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            title="Anime Player"
                         />
-                    ) : (
-                        <div className="flex items-center justify-center h-full text-muted-foreground">
-                            No stream available for this server.
-                        </div>
-                    )}
-                </div>
+                    </div>
 
-                {/* Controls & Servers */}
-                <Card className="bg-card/50 backdrop-blur border-white/10">
-                    <CardContent className="p-4 sm:p-6 flex flex-col sm:flex-row gap-4 justify-between items-center">
-                        <div className="flex items-center gap-2 w-full sm:w-auto">
-                            <Server className="w-5 h-5 text-primary" />
-                            <span className="font-medium whitespace-nowrap">Server:</span>
-                            <Select
-                                value={String(selectedServer)}
-                                onValueChange={handleServerChange}
-                            >
-                                <SelectTrigger className="w-full sm:w-[200px]">
-                                    <SelectValue placeholder="Select Server" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {streamData.streamLinks.map((link, idx) => (
-                                        <SelectItem key={idx} value={String(idx)}>
-                                            {link.server}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                    {/* Controls Bar */}
+                    <div className="flex items-center justify-between gap-3 bg-[#121212] rounded-lg p-3 border border-white/10">
+                        {/* Provider Info */}
+                        <div className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white font-medium rounded-lg">
+                            <Monitor className="w-4 h-4" />
+                            <span>
+                                {currentStream.name || "Default"}
+                                {currentStream.quality &&
+                                    ` (${currentStream.quality})`}
+                            </span>
                         </div>
 
-                        <div className="flex gap-2 w-full sm:w-auto">
-                             <Button
+                        {/* Action Buttons */}
+                        <div className="flex items-center gap-2">
+                            <Button
                                 variant="outline"
-                                onClick={() => setIframeKey(prev => prev + 1)}
-                                className="flex-1 sm:flex-none"
+                                size="icon"
+                                onClick={() => setIframeKey((p) => p + 1)}
+                                className="border-white/20 text-white hover:bg-white/10 h-11 w-11"
+                                title="Refresh Player"
                             >
-                                <RefreshCw className="w-4 h-4 mr-2" />
-                                Reload
+                                <RefreshCw className="w-4 h-4" />
                             </Button>
-                            {currentStream && (
-                                <Button
-                                    variant="secondary"
-                                    onClick={() => window.open(currentStream.url, "_blank")}
-                                    className="flex-1 sm:flex-none"
-                                >
-                                    <ExternalLink className="w-4 h-4 mr-2" />
-                                    Open
-                                </Button>
-                            )}
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={() =>
+                                    window.open(currentStream.url, "_blank")
+                                }
+                                className="border-white/20 text-white hover:bg-white/10 h-11 w-11"
+                                title="Buka di Tab Baru"
+                            >
+                                <ExternalLink className="w-4 h-4" />
+                            </Button>
                         </div>
-                    </CardContent>
-                </Card>
-                
-                 <Alert className="bg-primary/10 border-primary/20 text-primary">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>
-                        If the video doesn't play, try switching servers or click "Open" to watch in a new tab (some adblockers might interfere).
-                    </AlertDescription>
-                </Alert>
+                    </div>
+
+                    {/* Episode Navigation */}
+                    <div className="flex justify-between items-center gap-4">
+                        <Button
+                            variant="outline"
+                            onClick={() => {
+                                if (episodeData?.prevEpisode) {
+                                    navigate(
+                                        `/anime/watch/${episodeData.prevEpisode}`
+                                    );
+                                }
+                            }}
+                            disabled={!episodeData?.prevEpisode}
+                            className="border-white/20 text-white hover:bg-white/10 disabled:opacity-50"
+                        >
+                            <ChevronLeft className="w-4 h-4 mr-2" /> Episode
+                            Sebelumnya
+                        </Button>
+                        <Button
+                            variant="outline"
+                            onClick={() => {
+                                if (episodeData?.nextEpisode) {
+                                    navigate(
+                                        `/anime/watch/${episodeData.nextEpisode}`
+                                    );
+                                }
+                            }}
+                            disabled={!episodeData?.nextEpisode}
+                            className="border-white/20 text-white hover:bg-white/10 disabled:opacity-50"
+                        >
+                            Episode Selanjutnya{" "}
+                            <ChevronRight className="w-4 h-4 ml-2" />
+                        </Button>
+                    </div>
+
+                    {/* Info Alert */}
+                    <Alert className="bg-red-600/10 border-red-600/20">
+                        <AlertCircle className="h-4 w-4 text-red-500" />
+                        <AlertDescription className="text-gray-300">
+                            Jika video tidak bisa diputar, coba refresh player
+                            atau buka di tab baru. Stream disediakan oleh
+                            Otakudesu.
+                        </AlertDescription>
+                    </Alert>
+                </div>
             </div>
         </div>
     );

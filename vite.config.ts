@@ -21,7 +21,9 @@ export default defineConfig((env: ConfigEnv) => ({
                 secure: true,
                 rewrite: (path: string) => {
                     // Get API key from environment variable
-                    const apiKey = process.env.VITE_TMDB_API_KEY || "9998d44e51ed7634a06c4198b289bfe4";
+                    const apiKey =
+                        process.env.VITE_TMDB_API_KEY ||
+                        "9998d44e51ed7634a06c4198b289bfe4";
                     const separator = path.includes("?") ? "&" : "?";
                     return (
                         path.replace(/^\/api/, "") +
@@ -45,11 +47,13 @@ export default defineConfig((env: ConfigEnv) => ({
                     });
                 },
             },
-            "/nekobocc": {
-                target: "https://nekopoi.care",
+            // Sanka Nekopoi API Proxy (Hentai)
+            "/sanka-neko": {
+                target: "https://www.sankavollerei.com",
                 changeOrigin: true,
                 secure: true,
-                rewrite: (path: string) => path.replace(/^\/nekobocc/, ""),
+                rewrite: (path: string) =>
+                    path.replace(/^\/sanka-neko/, "/anime/neko"),
                 configure: (proxy, _options) => {
                     proxy.on("proxyReq", (proxyReq, req, _res) => {
                         proxyReq.setHeader(
@@ -57,10 +61,35 @@ export default defineConfig((env: ConfigEnv) => ({
                             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
                         );
                         proxyReq.setHeader("Accept", "application/json");
-                        console.log("Proxying NekoBocc request:", req.url);
+                        console.log("Proxying Sanka Nekopoi request:", req.url);
+                    });
+                    proxy.on("error", (err, _req, _res) => {
+                        console.error("Sanka Nekopoi proxy error:", err);
                     });
                 },
             },
+            // Sanka Otakudesu API Proxy (Anime)
+            "/sanka-anime": {
+                target: "https://www.sankavollerei.com",
+                changeOrigin: true,
+                secure: true,
+                rewrite: (path: string) =>
+                    path.replace(/^\/sanka-anime/, "/anime"),
+                configure: (proxy, _options) => {
+                    proxy.on("proxyReq", (proxyReq, req, _res) => {
+                        proxyReq.setHeader(
+                            "User-Agent",
+                            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+                        );
+                        proxyReq.setHeader("Accept", "application/json");
+                        console.log("Proxying Sanka Anime request:", req.url);
+                    });
+                    proxy.on("error", (err, _req, _res) => {
+                        console.error("Sanka Anime proxy error:", err);
+                    });
+                },
+            },
+
             "/tv": {
                 target: "https://api.themoviedb.org/3",
                 changeOrigin: true,
@@ -68,7 +97,9 @@ export default defineConfig((env: ConfigEnv) => ({
                 timeout: 60000,
                 proxyTimeout: 60000,
                 rewrite: (path: string) => {
-                    const apiKey = process.env.VITE_TMDB_API_KEY || "9998d44e51ed7634a06c4198b289bfe4";
+                    const apiKey =
+                        process.env.VITE_TMDB_API_KEY ||
+                        "9998d44e51ed7634a06c4198b289bfe4";
                     const separator = path.includes("?") ? "&" : "?";
                     return `${path}${separator}api_key=${apiKey}`;
                 },
@@ -80,7 +111,9 @@ export default defineConfig((env: ConfigEnv) => ({
                 timeout: 60000,
                 proxyTimeout: 60000,
                 rewrite: (path: string) => {
-                    const apiKey = process.env.VITE_TMDB_API_KEY || "9998d44e51ed7634a06c4198b289bfe4";
+                    const apiKey =
+                        process.env.VITE_TMDB_API_KEY ||
+                        "9998d44e51ed7634a06c4198b289bfe4";
                     const separator = path.includes("?") ? "&" : "?";
                     return `${path}${separator}api_key=${apiKey}`;
                 },
@@ -92,7 +125,9 @@ export default defineConfig((env: ConfigEnv) => ({
                 timeout: 60000,
                 proxyTimeout: 60000,
                 rewrite: (path: string) => {
-                    const apiKey = process.env.VITE_TMDB_API_KEY || "9998d44e51ed7634a06c4198b289bfe4";
+                    const apiKey =
+                        process.env.VITE_TMDB_API_KEY ||
+                        "9998d44e51ed7634a06c4198b289bfe4";
                     const separator = path.includes("?") ? "&" : "?";
                     return `${path}${separator}api_key=${apiKey}`;
                 },
@@ -123,9 +158,13 @@ export default defineConfig((env: ConfigEnv) => ({
         rollupOptions: {
             output: {
                 manualChunks: {
-                    'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-                    'ui-vendor': ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-scroll-area'],
-                    'query-vendor': ['@tanstack/react-query', 'axios'],
+                    "react-vendor": ["react", "react-dom", "react-router-dom"],
+                    "ui-vendor": [
+                        "@radix-ui/react-dialog",
+                        "@radix-ui/react-dropdown-menu",
+                        "@radix-ui/react-scroll-area",
+                    ],
+                    "query-vendor": ["@tanstack/react-query", "axios"],
                 },
             },
         },

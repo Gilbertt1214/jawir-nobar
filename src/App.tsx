@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { ScrollToTop } from "@/components/ScrollToTop";
+import { ContextMenu } from "@/components/ContextMenu";
 import Home from "./pages/Home";
 import MovieDetail from "./pages/MovieDetail";
 import SeriesEpisodes from "./pages/SeriesEpisodes";
@@ -21,7 +22,6 @@ import YearMovies from "./pages/YearMovies";
 import BrowseCategory from "./pages/BrowseCategory";
 import HentaiList from "./pages/HentaiList";
 import AnimeDetail from "./pages/AnimeDetail";
-import TestNekoBocc from "./pages/TestNekoBocc";
 import AnimeInfo from "./pages/AnimeInfo";
 import AnimeWatch from "./pages/AnimeWatch";
 
@@ -76,6 +76,7 @@ const App = () => {
                         }}
                     >
                         <ScrollToTop />
+                        <ContextMenu />
                         <div className="flex min-h-screen flex-col bg-background font-sans antialiased">
                             <Navbar />
                             <main className="flex-1">
@@ -110,19 +111,15 @@ const App = () => {
                                         path="/hentai/nekopoi/:id"
                                         element={<AnimeDetail />}
                                     />
-                                    <Route
-                                        path="/test-nekobocc"
-                                        element={<TestNekoBocc />}
-                                    />
 
                                     {/* Anime Scraper Routes */}
-                                    <Route 
-                                        path="/anime/:slug" 
-                                        element={<AnimeInfo />} 
+                                    <Route
+                                        path="/anime/:slug"
+                                        element={<AnimeInfo />}
                                     />
-                                    <Route 
-                                        path="/anime/watch/:slug" 
-                                        element={<AnimeWatch />} 
+                                    <Route
+                                        path="/anime/watch/:slug"
+                                        element={<AnimeWatch />}
                                     />
 
                                     {/* Browse (Kategori Khusus) */}

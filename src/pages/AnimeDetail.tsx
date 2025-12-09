@@ -53,7 +53,7 @@ export default function HentaiDetail() {
         );
     }
 
-    // Try to fetch from NekoBocc first (since it works without proxy)
+    // Fetch from Nekopoi (Sanka API)
     const {
         data: hentaiDetail,
         isLoading: hentaiLoading,
@@ -63,22 +63,9 @@ export default function HentaiDetail() {
         queryFn: async () => {
             console.log("Fetching detail for ID:", id);
 
-            // Try NekoBocc first (works without proxy)
+            // Try Nekopoi (Sanka API)
             try {
-                console.log("Trying NekoBocc...");
-                const nekoboccDetail = await movieAPI.getNekoBoccDetail(id!);
-                console.log("NekoBocc result:", nekoboccDetail);
-                if (nekoboccDetail) {
-                    console.log("✅ NekoBocc success!");
-                    return nekoboccDetail;
-                }
-            } catch (error) {
-                console.warn("NekoBocc fetch failed:", error);
-            }
-
-            // Fallback to Nekopoi (requires proxy)
-            try {
-                console.log("Trying Nekopoi...");
+                console.log("Trying Nekopoi (Sanka API)...");
                 const nekopoiDetail = await movieAPI.getNekopoiDetail(id!);
                 console.log("Nekopoi result:", nekopoiDetail);
                 if (nekopoiDetail) {
@@ -89,24 +76,9 @@ export default function HentaiDetail() {
                 console.warn("Nekopoi fetch failed:", error);
             }
 
-            // Fallback to Nekopoi.care (requires CORS)
-            try {
-                console.log("Trying Nekopoi.care...");
-                const nekopoiCareDetail = await movieAPI.getNekopoiCareDetail(
-                    id!
-                );
-                console.log("Nekopoi.care result:", nekopoiCareDetail);
-                if (nekopoiCareDetail) {
-                    console.log("✅ Nekopoi.care success!");
-                    return nekopoiCareDetail;
-                }
-            } catch (error) {
-                console.warn("Nekopoi.care fetch failed:", error);
-            }
-
-            console.error("❌ All sources failed for ID:", id);
+            console.error("❌ Failed to fetch for ID:", id);
             throw new Error(
-                "Content not found in any source. Please check console for details."
+                "Content not found. Please check console for details."
             );
         },
         enabled: !!id,
@@ -239,9 +211,9 @@ export default function HentaiDetail() {
                                     Possible causes:
                                 </p>
                                 <ul className="list-disc list-inside text-sm space-y-1">
-                                    <li>NekoBocc API returned invalid data</li>
+                                    <li>Nekopoi API returned invalid data</li>
                                     <li>Content ID is incorrect</li>
-                                    <li>All API sources are unavailable</li>
+                                    <li>API source is unavailable</li>
                                 </ul>
                             </div>
                             <Link
@@ -360,11 +332,9 @@ export default function HentaiDetail() {
                         <Alert className="mb-4">
                             <AlertCircle className="h-4 w-4" />
                             <AlertDescription>
-                                <strong>Demo Mode:</strong> Currently using mock
-                                data. Stream links are placeholders. To use real
-                                content, set{" "}
-                                <code>VITE_USE_MOCK_DATA=false</code> in your
-                                .env file and ensure NekoBocc API is accessible.
+                                Content is provided by Nekopoi (Sanka API). If
+                                streaming doesn't work, try the download option
+                                or open in a new tab.
                             </AlertDescription>
                         </Alert>
 

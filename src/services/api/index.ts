@@ -2,18 +2,15 @@
 
 import { TMDBService } from "./tmdb.service";
 import { NekopoiService } from "./nekopoi.service";
-import { NekopoiCareService } from "./nekopoi-care.service";
-import { NekoBoccService } from "./nekobocc.service";
 import { StreamingService } from "./streaming.service";
 import { AnimeService } from "./anime.service";
-import { NEKOPOI_BASE } from "./constants";
+import { sankaNekopoiService } from "./sanka-nekopoi.service";
 import type {
     Movie,
     Episode,
     PaginatedResponse,
     StreamingProvider,
     AnimeDetail,
-    NekoBoccHentai,
     NekopoiHentai,
 } from "./types";
 
@@ -23,16 +20,12 @@ export * from "./types";
 class MovieAPI {
     private tmdb: TMDBService;
     private nekopoi: NekopoiService;
-    private nekopoiCare: NekopoiCareService;
-    private nekobocc: NekoBoccService;
     private streaming: StreamingService;
     private anime: AnimeService;
 
     constructor() {
         this.tmdb = new TMDBService();
         this.nekopoi = new NekopoiService();
-        this.nekopoiCare = new NekopoiCareService();
-        this.nekobocc = new NekoBoccService();
         this.streaming = new StreamingService();
         this.anime = new AnimeService();
     }
@@ -132,21 +125,68 @@ class MovieAPI {
         return this.tmdb.getAnime(page, opts);
     }
 
-    // Anime Scraper Methods (from AnimeService)
+    // Anime Methods (Jikan + Wajik/Otakudesu)
     async getOngoingAnime(): Promise<Movie[]> {
         return this.anime.getOngoingAnime();
     }
 
-    async getAnimeScraperDetail(slug: string): Promise<AnimeDetail | null> {
-        return this.anime.getAnimeDetail(slug);
+    async getAnimeDetail(id: string): Promise<AnimeDetail | null> {
+        return this.anime.getAnimeDetail(id);
     }
 
-    async getAnimeStreamLinks(slug: string) {
-        return this.anime.getStreamLinks(slug);
+    // Get anime detail - uses Otakudesu API as primary
+    async getAnimeScraperDetail(slug: string): Promise<AnimeDetail | null> {
+        // Try Otakudesu API first (primary source)
+        const otakudesuDetail = await this.anime.getAnimeDetailOtakudesu(slug);
+        if (otakudesuDetail) return otakudesuDetail;
+
+        // Fallback to Jikan if numeric ID
+        if (/^\d+$/.test(slug)) {
+            return this.anime.getAnimeDetail(slug);
+        }
+
+        return null;
+    }
+
+    // Get episode stream from Otakudesu API
+    async getAnimeEpisodeStreamOtakudesu(episodeSlug: string) {
+        return this.anime.getEpisodeStreamOtakudesu(episodeSlug);
     }
 
     async searchAnime(query: string): Promise<Movie[]> {
         return this.anime.searchAnime(query);
+    }
+
+    async getOngoingAnimeList(): Promise<Movie[]> {
+        return this.anime.getOngoingAnime();
+    }
+
+    // Otakudesu specific methods (Indonesian sub)
+    async searchAnimeOtakudesu(query: string): Promise<Movie[]> {
+        return this.anime.searchAnimeOtakudesu(query);
+    }
+
+    async getAnimeDetailOtakudesu(animeId: string) {
+        return this.anime.getAnimeDetailOtakudesu(animeId);
+    }
+
+    async getAnimeEpisodeStream(episodeId: string) {
+        return this.anime.getEpisodeStreamOtakudesu(episodeId);
+    }
+
+    // Get complete anime list
+    async getCompleteAnime(page: number = 1) {
+        return this.anime.getCompleteAnime(page);
+    }
+
+    // Get anime genres
+    async getAnimeGenres() {
+        return this.anime.getAnimeGenres();
+    }
+
+    // Get anime by genre
+    async getAnimeByGenre(genreSlug: string, page: number = 1) {
+        return this.anime.getAnimeByGenre(genreSlug, page);
     }
 
     async getAdultMovies(page = 1): Promise<PaginatedResponse<Movie>> {
@@ -177,25 +217,37 @@ class MovieAPI {
         return this.streaming.getEpisodeStreamingUrl(seriesId, season, episode);
     }
 
-    // Get JAV/Hentai streaming providers from NekoBocc
+    // Get JAV/Hentai streaming providers
     async getJAVStreamingProviders(
         streamLinks: any[]
     ): Promise<StreamingProvider[]> {
         return this.streaming.getJAVStreamingProviders(streamLinks);
     }
 
-    // Nekopoi Methods
+    // Nekopoi Methods (Sanka API - Primary)
     async getNekopoiLatest(
         page: number = 1
     ): Promise<PaginatedResponse<NekopoiHentai>> {
+        // Try Sanka API first
+        const sankaResult = await sankaNekopoiService.getReleaseList(page);
+        if (sankaResult.data.length > 0) return sankaResult;
+        // Fallback to old API
         return this.nekopoi.getLatest(page);
     }
 
     async getNekopoiDetail(url: string): Promise<NekopoiHentai | null> {
+        // Try Sanka API first
+        const sankaDetail = await sankaNekopoiService.getDetail(url);
+        if (sankaDetail) return sankaDetail;
+        // Fallback to old API
         return this.nekopoi.getDetail(url);
     }
 
     async searchNekopoi(query: string): Promise<NekopoiHentai[]> {
+        // Try Sanka API first
+        const sankaResults = await sankaNekopoiService.search(query);
+        if (sankaResults.length > 0) return sankaResults;
+        // Fallback to old API
         return this.nekopoi.search(query);
     }
 
@@ -206,64 +258,19 @@ class MovieAPI {
         return this.nekopoi.getByGenre(genre, page);
     }
 
-    // Nekopoi.care Methods (Direct Website)
-    async getNekopoiCareLatest(
-        page: number = 1
-    ): Promise<PaginatedResponse<NekopoiHentai>> {
-        return this.nekopoiCare.getLatest(page);
+    // Sanka Nekopoi specific methods
+    async getSankaNekopoiLatest(): Promise<NekopoiHentai[]> {
+        return sankaNekopoiService.getLatest();
     }
 
-    async getNekopoiCareDetail(slug: string): Promise<NekopoiHentai | null> {
-        return this.nekopoiCare.getDetail(slug);
+    async getSankaNekopoiRandom(): Promise<NekopoiHentai | null> {
+        return sankaNekopoiService.getRandom();
     }
 
-    async searchNekopoiCare(query: string): Promise<NekopoiHentai[]> {
-        return this.nekopoiCare.search(query);
-    }
-
-    async getNekopoiCareByCategory(
-        category: string,
-        page: number = 1
-    ): Promise<PaginatedResponse<NekopoiHentai>> {
-        return this.nekopoiCare.getByCategory(category, page);
-    }
-
-    async getNekopoiCareCategories(): Promise<string[]> {
-        return this.nekopoiCare.getCategories();
-    }
-
-    // NekoBocc Methods
-    async getNekoBoccReleaseList(
-        page: number = 1
-    ): Promise<PaginatedResponse<NekoBoccHentai>> {
-        return this.nekobocc.getReleaseList(page);
-    }
-
-    async getNekoBoccDetail(slug: string): Promise<NekoBoccHentai | null> {
-        return this.nekobocc.getDetail(slug);
-    }
-
-    async searchNekoBocc(query: string): Promise<NekoBoccHentai[]> {
-        return this.nekobocc.search(query);
-    }
-
-    async getNekoBoccRandom(): Promise<NekoBoccHentai | null> {
-        return this.nekobocc.getRandom();
-    }
-
-    async getNekoBoccHentaiList(
-        page: number = 1
-    ): Promise<PaginatedResponse<NekoBoccHentai>> {
-        return this.nekobocc.getHentaiList(page);
-    }
-
-    // Combined Methods
+    // Combined Methods - Using Sanka Nekopoi as primary (only nekopoi source now)
     async getAllHentaiLatest(page: number = 1): Promise<{
         nekopoi: PaginatedResponse<NekopoiHentai>;
-        nekopoiCare: PaginatedResponse<NekopoiHentai>;
-        nekobocc: PaginatedResponse<NekoBoccHentai>;
     }> {
-        // Fetch each source independently to avoid one failure affecting others
         const emptyResponse = {
             data: [],
             page: 1,
@@ -271,64 +278,25 @@ class MovieAPI {
             totalItems: 0,
         };
 
-        // Use NekoBocc (mock data) as primary source since external APIs may be blocked
-        const nekoboccData = await this.nekobocc.getReleaseList(page);
-
-        // Try to fetch from other sources but don't wait too long
-        const [nekopoiData, nekopoiCareData] = await Promise.allSettled([
-            Promise.race([
-                this.nekopoi.getLatest(page),
-                new Promise((_, reject) =>
-                    setTimeout(() => reject(new Error("Timeout")), 3000)
-                ),
-            ]),
-            Promise.race([
-                this.nekopoiCare.getLatest(page),
-                new Promise((_, reject) =>
-                    setTimeout(() => reject(new Error("Timeout")), 3000)
-                ),
-            ]),
-        ]);
+        // Try Sanka Nekopoi (primary source)
+        const sankaData = await sankaNekopoiService
+            .getReleaseList(page)
+            .catch(() => emptyResponse);
 
         return {
-            nekopoi:
-                nekopoiData.status === "fulfilled"
-                    ? (nekopoiData.value as PaginatedResponse<NekopoiHentai>)
-                    : emptyResponse,
-            nekopoiCare:
-                nekopoiCareData.status === "fulfilled"
-                    ? (nekopoiCareData.value as PaginatedResponse<NekopoiHentai>)
-                    : emptyResponse,
-            nekobocc: nekoboccData,
+            nekopoi: sankaData,
         };
     }
 
     async searchAllHentai(query: string): Promise<{
         nekopoi: NekopoiHentai[];
-        nekopoiCare: NekopoiHentai[];
-        nekobocc: NekoBoccHentai[];
     }> {
-        // Fetch each source independently
-        const [nekopoiResults, nekopoiCareResults, nekoboccResults] =
-            await Promise.allSettled([
-                this.nekopoi.search(query),
-                this.nekopoiCare.search(query),
-                this.nekobocc.search(query),
-            ]);
+        const sankaResults = await sankaNekopoiService
+            .search(query)
+            .catch(() => []);
 
         return {
-            nekopoi:
-                nekopoiResults.status === "fulfilled"
-                    ? nekopoiResults.value
-                    : [],
-            nekopoiCare:
-                nekopoiCareResults.status === "fulfilled"
-                    ? nekopoiCareResults.value
-                    : [],
-            nekobocc:
-                nekoboccResults.status === "fulfilled"
-                    ? nekoboccResults.value
-                    : [],
+            nekopoi: sankaResults,
         };
     }
 
@@ -347,38 +315,58 @@ class MovieAPI {
 
     async getAPIStatus(): Promise<{
         nekopoi: boolean;
-        nekobocc: boolean;
         tmdb: boolean;
     }> {
         try {
-            const [nekopoiStatus, nekoboccStatus, tmdbStatus] =
-                await Promise.all([
-                    fetch(`${NEKOPOI_BASE}/latest`)
-                        .then((res) => res.ok)
-                        .catch(() => false),
-                    this.nekobocc
-                        .getReleaseList(1)
-                        .then(() => true)
-                        .catch(() => false),
-                    this.tmdb
-                        .getPopularMovies(1)
-                        .then(() => true)
-                        .catch(() => false),
-                ]);
+            const [nekopoiStatus, tmdbStatus] = await Promise.all([
+                sankaNekopoiService
+                    .getLatest()
+                    .then((data) => {
+                        console.log(
+                            "Nekopoi API status check - items:",
+                            data.length
+                        );
+                        return data.length > 0;
+                    })
+                    .catch((err) => {
+                        console.error("Nekopoi API status check failed:", err);
+                        return false;
+                    }),
+                this.tmdb
+                    .getPopularMovies(1)
+                    .then(() => true)
+                    .catch(() => false),
+            ]);
 
             return {
                 nekopoi: nekopoiStatus,
-                nekobocc: nekoboccStatus,
                 tmdb: tmdbStatus,
             };
         } catch (error) {
             console.error("Failed to get API status:", error);
             return {
                 nekopoi: false,
-                nekobocc: false,
                 tmdb: false,
             };
         }
+    }
+
+    // Anime Scraper Methods (sankavollerei.com)
+    getAnimeStreamingProviders(
+        animeSlug: string,
+        episode: number
+    ): StreamingProvider[] {
+        return this.streaming.getAnimeStreamingProviders(animeSlug, episode);
+    }
+
+    getAnimeScraperUrl(): string {
+        return this.streaming.getAnimeScraperUrl();
+    }
+
+    // Build anime stream URL
+    buildAnimeStreamUrl(animeSlug: string, episode: number): string {
+        const baseUrl = this.streaming.getAnimeScraperUrl();
+        return `${baseUrl}/${animeSlug}/episode-${episode}`;
     }
 }
 

@@ -1,50 +1,20 @@
 // Streaming Provider Service
 
-import { STREAMING_PROVIDERS } from "./constants";
-import type { StreamingProvider } from "./types";
-import type { NekoBoccStreamLink } from "nekobocc";
+import { ANIME_SCRAPER_URL } from "./constants";
+import type { StreamingProvider, StreamLink } from "./types";
 
 export class StreamingService {
     private providerCache: Map<string, boolean> = new Map();
 
-    // Check provider availability with better timeout handling
-    private async checkProviderAvailability(url: string): Promise<boolean> {
-        const cacheKey = url;
-        if (this.providerCache.has(cacheKey)) {
-            return this.providerCache.get(cacheKey)!;
-        }
-
-        try {
-            const controller = new AbortController();
-            const timeout = setTimeout(() => controller.abort(), 3000);
-
-            await fetch(url, {
-                method: "HEAD",
-                mode: "no-cors",
-                signal: controller.signal,
-            });
-
-            clearTimeout(timeout);
-            this.providerCache.set(cacheKey, true);
-            return true;
-        } catch (error) {
-            this.providerCache.set(cacheKey, false);
-            return false;
-        }
-    }
-
-    // Convert NekoBocc stream links to StreamingProvider format
-    convertNekoBoccStreams(
-        streamLinks: NekoBoccStreamLink[]
-    ): StreamingProvider[] {
+    // Convert stream links to StreamingProvider format
+    convertStreamLinks(streamLinks: StreamLink[]): StreamingProvider[] {
         return streamLinks.map((stream, index) => ({
-            name: stream.server || `Server ${index + 1}`,
-            url: stream.link,
+            name: stream.provider || `Server ${index + 1}`,
+            url: stream.url,
             available: true,
             quality: stream.quality || "HD",
             language: "Japanese",
-            tier: this.getServerTier(stream.server),
-            priority: index + 1,
+            tier: this.getServerTier(stream.provider || ""),
         }));
     }
 
@@ -267,15 +237,15 @@ export class StreamingService {
         }));
     }
 
-    // Get JAV/Hentai streaming providers from NekoBocc stream links
+    // Get JAV/Hentai streaming providers from stream links
     async getJAVStreamingProviders(
-        streamLinks: NekoBoccStreamLink[]
+        streamLinks: StreamLink[]
     ): Promise<StreamingProvider[]> {
         if (!streamLinks || streamLinks.length === 0) {
             return [];
         }
 
-        return this.convertNekoBoccStreams(streamLinks);
+        return this.convertStreamLinks(streamLinks);
     }
 
     // Utility methods
@@ -308,5 +278,99 @@ export class StreamingService {
             3: ["DoodStream", "StreamLare"],
             4: ["Other Servers"],
         };
+    }
+
+    // Get anime streaming providers (Otakudesu-style naming)
+    // malId = MyAnimeList ID, episode = episode number
+    getAnimeStreamingProviders(
+        malId: string,
+        episode: number
+    ): StreamingProvider[] {
+        const providers = [
+            // Mirror 720p - High Quality
+            {
+                name: "Vidhide",
+                url: `https://vidlink.pro/anime/${malId}/1/${episode}`,
+                quality: "720p",
+                language: "Sub",
+                tier: 1,
+                priority: 1,
+                available: true,
+            },
+            {
+                name: "Filelions",
+                url: `https://vidsrc.icu/embed/anime/${malId}/1/${episode}`,
+                quality: "720p",
+                language: "Sub",
+                tier: 1,
+                priority: 2,
+                available: true,
+            },
+            {
+                name: "Ondesuhd",
+                url: `https://vidsrc.me/embed/anime?mal=${malId}&episode=${episode}`,
+                quality: "720p",
+                language: "Sub",
+                tier: 1,
+                priority: 3,
+                available: true,
+            },
+
+            // Mirror 480p - Medium Quality
+            {
+                name: "Updesu",
+                url: `https://vidsrc.xyz/embed/anime/${malId}/1/${episode}`,
+                quality: "480p",
+                language: "Sub",
+                tier: 2,
+                priority: 4,
+                available: true,
+            },
+            {
+                name: "Filedon",
+                url: `https://player.autoembed.cc/embed/anime/${malId}/${episode}`,
+                quality: "480p",
+                language: "Sub",
+                tier: 2,
+                priority: 5,
+                available: true,
+            },
+            {
+                name: "Streamwish",
+                url: `https://www.2embed.cc/embedanime/${malId}?ep=${episode}`,
+                quality: "480p",
+                language: "Sub",
+                tier: 2,
+                priority: 6,
+                available: true,
+            },
+
+            // Mirror 360p - Low Quality (Backup)
+            {
+                name: "Mega",
+                url: `https://embed.su/embed/anime/${malId}/${episode}`,
+                quality: "360p",
+                language: "Sub",
+                tier: 3,
+                priority: 7,
+                available: true,
+            },
+            {
+                name: "Mp4upload",
+                url: `https://multiembed.mov/?video_id=${malId}&mal=1&ep=${episode}`,
+                quality: "360p",
+                language: "Sub",
+                tier: 3,
+                priority: 8,
+                available: true,
+            },
+        ];
+
+        return providers;
+    }
+
+    // Get anime scraper base URL
+    getAnimeScraperUrl(): string {
+        return ANIME_SCRAPER_URL;
     }
 }

@@ -10,7 +10,9 @@ export const TMDB_KEY =
 
 export const NEKOPOI_BASE = import.meta.env.VITE_NEKOPOI_PROXY || "/nekopoi";
 
-export const NEKOBOCC_BASE = import.meta.env.VITE_NEKOBOCC_PROXY || "/nekobocc";
+// Anime Scraper URL (sankavollerei.com)
+export const ANIME_SCRAPER_URL =
+    import.meta.env.VITE_ANIME_SCRAPER_URL || "https://www.sankavollerei.com";
 
 // Premium streaming providers (prioritized by quality and reliability)
 // Updated with working providers as of 2024

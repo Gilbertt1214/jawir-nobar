@@ -1,166 +1,322 @@
+/**
+ * Anime Service - Uses Sanka Vollerei API (Otakudesu) as primary source
+ * Jikan API as fallback for search and detail
+ */
+
 import axios from "axios";
 import { Movie, AnimeDetail, AnimeEpisode } from "./types";
+import { sankaAnimeAPI } from "./sanka.service";
 
-// Use sankavollerei.com public API (no server deployment needed!)
-const API_BASE_URL = import.meta.env.VITE_ANIME_SCRAPER_URL || "https://api.sankavollerei.com/anime/otaku";
+const JIKAN_API = "https://api.jikan.moe/v4";
 
-// Define specific types for Anime Scraper response
-export interface OtakudesuAnime {
+interface JikanAnime {
+    mal_id: number;
     title: string;
-    image: string;
-    episode?: string;
-    slug: string;
-    link: string;
-}
-
-export interface OtakudesuDetail {
-    title: string;
-    image: string;
-    synopsis: string;
-    info: {
-        status?: string;
-        genres?: string[];
-        rating?: string;
-        produser?: string;
-        studio?: string;
-        total_episode?: string;
-        duration?: string;
-        release_date?: string;
-        [key: string]: any;
+    title_english?: string;
+    images: {
+        jpg: { image_url: string; large_image_url?: string };
+        webp?: { image_url: string; large_image_url?: string };
     };
-    episodes: {
-        title: string;
-        slug: string;
-        link: string;
-    }[];
+    synopsis?: string;
+    score?: number;
+    episodes?: number;
+    status?: string;
+    aired?: { string?: string };
+    year?: number;
+    genres?: { name: string }[];
+    studios?: { name: string }[];
+    duration?: string;
 }
 
-export interface OtakudesuStream {
-    title: string;
-    streamLinks: {
-        server: string;
-        url: string;
-    }[];
-}
+const ensureImageUrl = (url: string | undefined): string => {
+    if (!url || url === "null") return "/placeholder.svg";
+    return url;
+};
 
-// Mapper functions to convert Otakudesu responses to unified Movie interface
-export const mapAnimeToMovie = (anime: OtakudesuAnime): Movie => ({
-    id: anime.slug,
-    title: anime.title,
-    cover: anime.image,
-    genre: [],
+export const mapJikanAnimeToMovie = (anime: JikanAnime): Movie => ({
+    id: String(anime.mal_id),
+    title: anime.title_english || anime.title,
+    cover: ensureImageUrl(anime.images?.jpg?.large_image_url),
+    genre: anime.genres?.map((g) => g.name) || [],
     type: "anime",
-    slug: anime.slug,
-    latestEpisode: anime.episode,
-});
-
-export const mapAnimeDetailToMovie = (detail: OtakudesuDetail): AnimeDetail => ({
-    id: detail.info.release_date || detail.title.toLowerCase().replace(/\s+/g, "-"),
-    title: detail.title,
-    cover: detail.image,
-    rating: detail.info.rating ? parseFloat(detail.info.rating) : undefined,
-    genre: detail.info.genres || [],
-    type: "anime",
-    synopsis: detail.synopsis,
+    slug: String(anime.mal_id),
+    rating: anime.score || 0,
     country: "Japan",
-    status: detail.info.status,
-    duration: detail.info.duration,
-    studio: detail.info.studio,
-    releaseDate: detail.info.release_date,
-    totalEpisodes: detail.info.total_episode,
-    episodes: detail.episodes.map(ep => ({
-        title: ep.title,
-        slug: ep.slug,
-        link: ep.link
-    })),
-    slug: detail.title.toLowerCase().replace(/\s+/g, "-")
+    year: anime.year ? String(anime.year) : "",
+    synopsis: anime.synopsis || "",
 });
 
 export class AnimeService {
-    
-    // Get ongoing anime and map to Movie interface
+    private lastJikanRequest = 0;
+
+    private async jikanRequest<T>(url: string): Promise<T | null> {
+        const now = Date.now();
+        if (now - this.lastJikanRequest < 350) {
+            await new Promise((r) => setTimeout(r, 350));
+        }
+        this.lastJikanRequest = Date.now();
+        try {
+            const response = await axios.get<T>(url);
+            return response.data;
+        } catch {
+            return null;
+        }
+    }
+
+    /**
+     * Get ongoing anime from Otakudesu (Sanka API)
+     */
     async getOngoingAnime(): Promise<Movie[]> {
         try {
-            const response = await axios.get(`${API_BASE_URL}/ongoing`);
-            if (response.data.status === "success") {
-                return response.data.data.map(mapAnimeToMovie);
-            }
-            return [];
+            const result = await sankaAnimeAPI.getOngoingAnime(1);
+            return result.data.map((anime) => ({
+                id: anime.slug,
+                title: anime.title,
+                cover: ensureImageUrl(anime.poster),
+                genre: [],
+                type: "anime" as const,
+                slug: anime.slug,
+                latestEpisode: anime.current_episode,
+                synopsis: "",
+            }));
         } catch (error) {
-            console.error("Error fetching ongoing anime:", error);
-            return [];
-        }
-    }
-
-    // Get raw Otakudesu anime list (for specific use cases)
-    async getRawOngoingAnime(): Promise<OtakudesuAnime[]> {
-        try {
-            const response = await axios.get(`${API_BASE_URL}/ongoing`);
-            if (response.data.status === "success") {
-                return response.data.data;
-            }
-            return [];
-        } catch (error) {
-            console.error("Error fetching ongoing anime:", error);
+            console.error("Failed to fetch ongoing anime:", error);
             return [];
         }
     }
 
-    // Get anime detail and map to AnimeDetail interface
-    async getAnimeDetail(slug: string): Promise<AnimeDetail | null> {
+    /**
+     * Get completed anime from Otakudesu (Sanka API)
+     */
+    async getCompleteAnime(page: number = 1) {
         try {
-            const response = await axios.get(`${API_BASE_URL}/detail/${slug}`);
-            if (response.data.status === "success") {
-                return mapAnimeDetailToMovie(response.data.data);
-            }
-            return null;
+            const result = await sankaAnimeAPI.getCompletedAnime(page);
+            return {
+                data: result.data.map((anime) => ({
+                    id: anime.slug,
+                    title: anime.title,
+                    cover: ensureImageUrl(anime.poster),
+                    genre: [],
+                    type: "anime" as const,
+                    slug: anime.slug,
+                    synopsis: "",
+                })),
+                page,
+                totalPages: result.pagination?.last_visible_page || 1,
+                totalItems: result.data.length,
+            };
         } catch (error) {
-            console.error(`Error fetching anime detail for ${slug}:`, error);
-            return null;
+            console.error("Failed to fetch completed anime:", error);
+            return { data: [], page: 1, totalPages: 1, totalItems: 0 };
         }
     }
 
-    // Get raw Otakudesu detail (for specific use cases)
-    async getRawAnimeDetail(slug: string): Promise<OtakudesuDetail | null> {
+    /**
+     * Get anime genres from Otakudesu (Sanka API)
+     */
+    async getAnimeGenres() {
         try {
-            const response = await axios.get(`${API_BASE_URL}/detail/${slug}`);
-            if (response.data.status === "success") {
-                return response.data.data;
-            }
-            return null;
+            return await sankaAnimeAPI.getGenres();
         } catch (error) {
-            console.error(`Error fetching anime detail for ${slug}:`, error);
-            return null;
+            console.error("Failed to fetch anime genres:", error);
+            return [];
         }
     }
 
-    async getStreamLinks(slug: string): Promise<OtakudesuStream | null> {
+    /**
+     * Get anime by genre from Otakudesu (Sanka API)
+     */
+    async getAnimeByGenre(genreSlug: string, page: number = 1) {
         try {
-            const response = await axios.get(`${API_BASE_URL}/episode/${slug}`);
-            if (response.data.status === "success") {
-                return response.data.data;
-            }
-            return null;
+            const result = await sankaAnimeAPI.getAnimeByGenre(genreSlug, page);
+            return {
+                data: result.data.map((anime) => ({
+                    id: anime.slug,
+                    title: anime.title,
+                    cover: ensureImageUrl(anime.poster),
+                    genre: [],
+                    type: "anime" as const,
+                    slug: anime.slug,
+                    synopsis: "",
+                })),
+                page,
+                totalPages: result.pagination?.last_visible_page || 1,
+                totalItems: result.data.length,
+            };
         } catch (error) {
-            console.error(`Error fetching stream for ${slug}:`, error);
-            return null;
+            console.error("Failed to fetch anime by genre:", error);
+            return { data: [], page: 1, totalPages: 1, totalItems: 0 };
         }
     }
 
-    // Search anime and map to Movie interface
+    /**
+     * Search anime from Otakudesu (Sanka API) with Jikan fallback
+     */
     async searchAnime(query: string): Promise<Movie[]> {
         try {
-            const response = await axios.get(`${API_BASE_URL}/search/${encodeURIComponent(query)}`);
-            if (response.data.status === "success") {
-                return response.data.data.map(mapAnimeToMovie);
+            // Try Otakudesu first
+            const otakudesuResults = await sankaAnimeAPI.searchAnime(query);
+            if (otakudesuResults.length > 0) {
+                return otakudesuResults.map((anime) => ({
+                    id: anime.slug,
+                    title: anime.title,
+                    cover: ensureImageUrl(anime.poster),
+                    genre: [],
+                    type: "anime" as const,
+                    slug: anime.slug,
+                    synopsis: "",
+                }));
             }
+
+            // Fallback to Jikan
+            const jikanData = await this.jikanRequest<{
+                data: JikanAnime[];
+            }>(`${JIKAN_API}/anime?q=${encodeURIComponent(query)}&limit=20`);
+
+            if (jikanData?.data) {
+                return jikanData.data.map(mapJikanAnimeToMovie);
+            }
+
             return [];
         } catch (error) {
-            console.error(`Error searching anime ${query}:`, error);
+            console.error("Failed to search anime:", error);
             return [];
+        }
+    }
+
+    /**
+     * Search anime from Otakudesu only (Sanka API)
+     */
+    async searchAnimeOtakudesu(query: string): Promise<Movie[]> {
+        try {
+            const results = await sankaAnimeAPI.searchAnime(query);
+            return results.map((anime) => ({
+                id: anime.slug,
+                title: anime.title,
+                cover: ensureImageUrl(anime.poster),
+                genre: [],
+                type: "anime" as const,
+                slug: anime.slug,
+                synopsis: "",
+            }));
+        } catch (error) {
+            console.error("Failed to search Otakudesu anime:", error);
+            return [];
+        }
+    }
+
+    /**
+     * Get anime detail from Otakudesu (Sanka API)
+     */
+    async getAnimeDetailOtakudesu(slug: string): Promise<AnimeDetail | null> {
+        try {
+            const detail = await sankaAnimeAPI.getAnimeDetail(slug);
+            if (!detail) return null;
+
+            const episodes: AnimeEpisode[] =
+                detail.episode_lists?.map((ep) => ({
+                    title: ep.episode,
+                    slug: ep.slug,
+                    link: ep.otakudesu_url || "",
+                })) || [];
+
+            return {
+                id: detail.slug,
+                title: detail.title,
+                cover: ensureImageUrl(detail.poster),
+                genre: detail.genres?.map((g) => g.name) || [],
+                type: "anime",
+                slug: detail.slug,
+                synopsis: detail.synopsis || "",
+                status: detail.status || "",
+                studio: detail.studio || "",
+                duration: detail.duration || "",
+                releaseDate: detail.release_date || "",
+                totalEpisodes: detail.episode_count || "",
+                episodes,
+                rating: parseFloat(detail.rating || "0"),
+            };
+        } catch (error) {
+            console.error("Failed to fetch Otakudesu anime detail:", error);
+            return null;
+        }
+    }
+
+    /**
+     * Get episode stream from Otakudesu (Sanka API)
+     */
+    async getEpisodeStreamOtakudesu(episodeSlug: string) {
+        try {
+            const episodeData = await sankaAnimeAPI.getEpisodeStream(
+                episodeSlug
+            );
+            if (!episodeData) return null;
+
+            return {
+                title: episodeData.episode,
+                streamUrl: episodeData.stream_url,
+                streamServers: episodeData.stream_servers?.flatMap((quality) =>
+                    quality.servers.map((server) => ({
+                        name: `${server.name} (${quality.quality})`,
+                        url: episodeData.stream_url,
+                        available: true,
+                        quality: quality.quality,
+                    }))
+                ),
+                nextEpisode: episodeData.next_episode?.slug,
+                prevEpisode: episodeData.previous_episode?.slug,
+                downloadUrls: episodeData.download_urls,
+            };
+        } catch (error) {
+            console.error("Failed to fetch episode stream:", error);
+            return null;
+        }
+    }
+
+    /**
+     * Get anime detail from Jikan (MAL) - Fallback
+     */
+    async getAnimeDetail(id: string): Promise<AnimeDetail | null> {
+        try {
+            const jikanData = await this.jikanRequest<{ data: JikanAnime }>(
+                `${JIKAN_API}/anime/${id}/full`
+            );
+
+            if (!jikanData?.data) return null;
+
+            const anime = jikanData.data;
+
+            // Get episodes if available
+            const episodesData = await this.jikanRequest<{
+                data: { mal_id: number; title: string; url: string }[];
+            }>(`${JIKAN_API}/anime/${id}/episodes`);
+
+            const episodes: AnimeEpisode[] =
+                episodesData?.data?.map((ep) => ({
+                    title: ep.title || `Episode ${ep.mal_id}`,
+                    slug: `not-available-${ep.mal_id}`,
+                    link: ep.url,
+                })) || [];
+
+            return {
+                id: String(anime.mal_id),
+                title: anime.title_english || anime.title,
+                cover: ensureImageUrl(anime.images?.jpg?.large_image_url),
+                genre: anime.genres?.map((g) => g.name) || [],
+                type: "anime",
+                slug: String(anime.mal_id),
+                synopsis: anime.synopsis || "",
+                status: anime.status || "",
+                studio: anime.studios?.[0]?.name || "",
+                duration: anime.duration || "",
+                releaseDate: anime.aired?.string || "",
+                totalEpisodes: anime.episodes ? String(anime.episodes) : "",
+                episodes,
+                rating: anime.score || 0,
+            };
+        } catch (error) {
+            console.error("Failed to fetch Jikan anime detail:", error);
+            return null;
         }
     }
 }
-
-// Export singleton instance
-export const animeService = new AnimeService();

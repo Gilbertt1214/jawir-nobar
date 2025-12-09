@@ -62,18 +62,6 @@ export interface AnimeDetail extends Movie {
     totalEpisodes?: string;
 }
 
-export interface NekoBoccJAV {
-    type: string;
-    id: string;
-    title: string;
-    cover: string;
-    genre: string[];
-    duration: string;
-    synopsis: string;
-    downloadLinks?: DownloadLink[];
-    streamLinks?: StreamLink[];
-}
-
 export interface NekopoiJAV {
     id: string;
     title: string;
@@ -87,8 +75,7 @@ export interface NekopoiJAV {
     streamLinks?: StreamLink[];
 }
 
-// Legacy aliases for backward compatibility
-export type NekoBoccHentai = NekoBoccJAV;
+// Alias for backward compatibility
 export type NekopoiHentai = NekopoiJAV;
 
 export interface DownloadLink {
