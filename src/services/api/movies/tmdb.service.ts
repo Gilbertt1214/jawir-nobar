@@ -1,7 +1,7 @@
 // TMDB API Service
 
-import { API_HOSTS, TMDB_BASE, TMDB_KEY } from "./constants";
-import type { Movie, Episode, PaginatedResponse } from "./types";
+import { API_HOSTS, TMDB_BASE, TMDB_KEY } from "../common/constants";
+import type { Movie, Episode, PaginatedResponse } from "../common/types";
 
 export class TMDBService {
     private hosts: string[];

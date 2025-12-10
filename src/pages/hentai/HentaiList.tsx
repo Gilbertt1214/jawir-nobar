@@ -293,7 +293,6 @@ export default function HentaiList() {
                                     alt={randomHentai.title}
                                     className="w-full h-full object-cover"
                                     referrerPolicy="no-referrer"
-                                    crossOrigin="anonymous"
                                     onError={(e) => {
                                         e.currentTarget.src =
                                             "/placeholder.svg";
@@ -459,7 +458,6 @@ export default function HentaiList() {
                                                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                                                         loading="lazy"
                                                         referrerPolicy="no-referrer"
-                                                        crossOrigin="anonymous"
                                                         onError={(e) => {
                                                             e.currentTarget.src =
                                                                 "/placeholder.svg";

@@ -11,6 +11,7 @@ import {
     Download,
     ChevronLeft,
     ChevronRight,
+    Play,
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
@@ -183,7 +184,27 @@ export default function HentaiWatch() {
         setTimeout(() => setSelectedProvider(temp), 100);
     };
 
+    // List of domains that are known to block iframe embedding via X-Frame-Options or CSP
+    const UNEMBEDDABLE_DOMAINS = [
+        "jitu77official.makeup",
+        "faphouse4k.com",
+        "dood.re",
+        "dood.wf",
+        "dood.cx",
+        "dood.sh",
+        "dood.watch",
+        "dood.to",
+        "dood.so",
+        "dood.la",
+        "dood.ws"
+    ];
+
+    const isUnembeddable = (url: string) => {
+        return UNEMBEDDABLE_DOMAINS.some(domain => url.includes(domain));
+    };
+
     const currentProvider = streamingProviders[selectedProvider];
+    const isBlocked = currentProvider?.url && isUnembeddable(currentProvider.url);
 
     if (isLoading) {
         return (
@@ -348,14 +369,27 @@ export default function HentaiWatch() {
                             </div>
 
                             {/* Video Player */}
-                            {providerError ? (
-                                <div className="relative aspect-video bg-black rounded-lg flex items-center justify-center">
-                                    <div className="text-center text-white space-y-2">
-                                        <AlertCircle className="h-12 w-12 mx-auto text-red-500" />
-                                        <p>Player diblokir browser</p>
+                            {providerError || isBlocked ? (
+                                <div className="relative aspect-video bg-black/50 border border-white/10 rounded-lg flex items-center justify-center p-6">
+                                    <div className="text-center text-white space-y-4 max-w-md">
+                                        <div className="w-16 h-16 bg-red-600/20 rounded-full flex items-center justify-center mx-auto">
+                                            <ExternalLink className="h-8 w-8 text-red-500" />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <h3 className="font-semibold text-lg">
+                                                {isBlocked ? "Player Eksternal Diperlukan" : "Player Gagal Dimuat"}
+                                            </h3>
+                                            <p className="text-sm text-muted-foreground">
+                                                {isBlocked 
+                                                    ? "Server ini tidak mengizinkan pemutaran langsung di dalam website (diblokir oleh penyedia video)." 
+                                                    : "Terjadi kesalahan saat memuat player atau diblokir oleh browser."
+                                                }
+                                                <br/>
+                                                Silakan tonton langsung di tab baru.
+                                            </p>
+                                        </div>
                                         <Button
-                                            variant="secondary"
-                                            size="sm"
+                                            className="bg-red-600 hover:bg-red-500 w-full sm:w-auto"
                                             onClick={() =>
                                                 window.open(
                                                     currentProvider?.url,
@@ -363,14 +397,14 @@ export default function HentaiWatch() {
                                                 )
                                             }
                                         >
-                                            <ExternalLink className="h-4 w-4 mr-1" />
-                                            Buka di Tab Baru
+                                            <Play className="h-4 w-4 mr-2 fill-current" />
+                                            Buka Player
                                         </Button>
                                     </div>
                                 </div>
                             ) : currentProvider?.url &&
                               currentProvider.url !== "#" ? (
-                                <div className="relative aspect-video bg-black rounded-lg overflow-hidden">
+                                <div className="relative aspect-video bg-black rounded-lg overflow-hidden group">
                                     <iframe
                                         key={currentProvider.url}
                                         src={currentProvider.url}

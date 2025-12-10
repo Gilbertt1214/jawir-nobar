@@ -1,7 +1,7 @@
 // Streaming Provider Service
 
-import { ANIME_SCRAPER_URL } from "./constants";
-import type { StreamingProvider, StreamLink } from "./types";
+import { ANIME_SCRAPER_URL } from "../common/constants";
+import type { StreamingProvider, StreamLink } from "../common/types";
 
 export class StreamingService {
     private providerCache: Map<string, boolean> = new Map();

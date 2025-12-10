@@ -1,10 +1,10 @@
 // Main API Export - Unified MovieAPI Interface
 
-import { TMDBService } from "./tmdb.service";
-import { NekopoiService } from "./nekopoi.service";
-import { StreamingService } from "./streaming.service";
-import { AnimeService } from "./anime.service";
-import { sankaNekopoiService } from "./sanka-nekopoi.service";
+import { TMDBService } from "./movies/tmdb.service";
+import { NekopoiService } from "./hentai/nekopoi.service";
+import { StreamingService } from "./streaming/streaming.service";
+import { AnimeService } from "./anime/anime.service";
+import { sankaNekopoiService } from "./hentai/sanka-nekopoi.service";
 import type {
     Movie,
     Episode,
@@ -12,10 +12,10 @@ import type {
     StreamingProvider,
     AnimeDetail,
     NekopoiHentai,
-} from "./types";
+} from "./common/types";
 
 // Export all types
-export * from "./types";
+export * from "./common/types";
 
 class MovieAPI {
     private tmdb: TMDBService;

@@ -1,0 +1,48 @@
+{
+  "status": "success",
+  "creator": "Sanka Vollerei",
+  "statusCode": 200,
+  "statusMessage": "OK",
+  "message": "",
+  "ok": true,
+  "data": {
+    "animeList": [
+      {
+        "title": "Chainsaw Man (Episode 1 – 12) Subtitle Indonesia",
+        "poster": "https://otakudesu.best/wp-content/uploads/2023/01/Chainsaw-Man-Sub-Indo.jpg",
+        "status": "Completed",
+        "score": "8.72",
+        "animeId": "chaisaw-sub-indo",
+        "href": "/anime/anime/chaisaw-sub-indo",
+        "otakudesuUrl": "https://otakudesu.best/anime/chaisaw-sub-indo/",
+        "genreList": [
+          {
+            "title": "Action",
+            "genreId": "action",
+            "href": "/anime/genre/action",
+            "otakudesuUrl": "https://otakudesu.best/genres/action/"
+          },
+          {
+            "title": "Gore",
+            "genreId": "gore",
+            "href": "/anime/genre/gore",
+            "otakudesuUrl": "https://otakudesu.best/genres/gore/"
+          },
+          {
+            "title": "Shounen",
+            "genreId": "shounen",
+            "href": "/anime/genre/shounen",
+            "otakudesuUrl": "https://otakudesu.best/genres/shounen/"
+          },
+          {
+            "title": "Supernatural",
+            "genreId": "supernatural",
+            "href": "/anime/genre/supernatural",
+            "otakudesuUrl": "https://otakudesu.best/genres/supernatural/"
+          }
+        ]
+      }
+    ]
+  },
+  "pagination": null
+}

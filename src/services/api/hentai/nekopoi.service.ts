@@ -1,7 +1,7 @@
 // Nekopoi API Service
 
-import { NEKOPOI_BASE } from "./constants";
-import { extractIdFromNekopoiUrl } from "./utils";
+import { NEKOPOI_BASE } from "../common/constants";
+import { extractIdFromNekopoiUrl } from "../common/utils";
 import type {
     NekopoiHentai,
     PaginatedResponse,
@@ -10,7 +10,7 @@ import type {
     NekopoiItem,
     NekopoiDetail,
     NekopoiSearchResult,
-} from "./types";
+} from "../common/types";
 
 export class NekopoiService {
     async getLatest(page: number = 1): Promise<PaginatedResponse<NekopoiHentai>> {

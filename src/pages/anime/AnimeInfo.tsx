@@ -23,6 +23,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { commentsService } from "@/services/firebase/comments.service";
 import { FadeIn } from "@/components/animations/FadeIn";
 import { motion, useScroll, useTransform } from "framer-motion";
+import { toast } from "@/hooks/use-toast";
 
 interface Comment {
     name: string;
@@ -106,6 +107,10 @@ export default function AnimeInfo() {
             );
             setName("");
             setMessage("");
+            toast({
+                title: "Komentar Terkirim!",
+                description: "Terima kasih sudah berkomentar.",
+            });
         } catch (error) {
             console.error("Error adding comment:", error);
             const fallbackComment = { name: n, message: m, time: Date.now() };

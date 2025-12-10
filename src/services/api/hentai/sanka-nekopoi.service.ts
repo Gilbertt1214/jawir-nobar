@@ -7,8 +7,8 @@ import type {
     PaginatedResponse,
     StreamingProvider,
     DownloadLink,
-} from "./types";
-import { ANIME_SCRAPER_URL } from "./constants";
+} from "../common/types";
+import { ANIME_SCRAPER_URL } from "../common/constants";
 
 // Use env variable, append /anime/neko path
 const getNekopoiApiUrl = () => {

@@ -10,15 +10,17 @@ import {
     ChevronLeft,
     ChevronRight,
     Monitor,
+    Play,
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useState, useEffect, useMemo } from "react";
-import type { StreamingProvider } from "@/services/api/types";
+import type { StreamingProvider } from "@/services/api";
 
 export default function AnimeWatch() {
     const { slug } = useParams<{ slug: string }>();
     const navigate = useNavigate();
     const [iframeKey, setIframeKey] = useState(0);
+    const [providerError, setProviderError] = useState(false);
 
     // Check if this is a "not available" placeholder slug
     const isNotAvailable = slug?.startsWith("not-available-");
@@ -65,8 +67,31 @@ export default function AnimeWatch() {
         return null;
     }, [episodeData]);
 
+    // List of domains that are known to block iframe embedding via X-Frame-Options or CSP
+    // Also including domains that might cause "Component already rendered" if injected poorly
+    const UNEMBEDDABLE_DOMAINS = [
+        "jitu77official.makeup",
+        "faphouse4k.com",
+        "dood.re",
+        "dood.wf",
+        "dood.cx",
+        "dood.sh",
+        "dood.watch",
+        "dood.to",
+        "dood.so",
+        "dood.la",
+        "dood.ws"
+    ];
+
+    const isUnembeddable = (url: string) => {
+        return UNEMBEDDABLE_DOMAINS.some(domain => url.includes(domain));
+    };
+
+    const isBlocked = currentStream?.url && isUnembeddable(currentStream.url);
+
     useEffect(() => {
         setIframeKey((p) => p + 1);
+        setProviderError(false); // Reset error on slug change
     }, [slug]);
 
     // Loading state
@@ -163,13 +188,51 @@ export default function AnimeWatch() {
                 <div className="max-w-6xl mx-auto space-y-4">
                     {/* Video Player - Full Width */}
                     <div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden border border-border">
-                        <iframe
-                            key={iframeKey}
-                            src={currentStream.url}
-                            className="absolute inset-0 w-full h-full"
-                            allowFullScreen
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        />
+                        {providerError || isBlocked ? (
+                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center p-6">
+                                <div className="text-center text-white space-y-4 max-w-md">
+                                    <div className="w-16 h-16 bg-red-600/20 rounded-full flex items-center justify-center mx-auto">
+                                        <ExternalLink className="h-8 w-8 text-red-500" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <h3 className="font-semibold text-lg">
+                                            {isBlocked ? "Player Eksternal Diperlukan" : "Player Gagal Dimuat"}
+                                        </h3>
+                                        <p className="text-sm text-muted-foreground">
+                                            {isBlocked 
+                                                ? "Server ini tidak mengizinkan pemutaran langsung di dalam website." 
+                                                : "Terjadi kesalahan saat memuat player atau diblokir oleh browser."
+                                            }
+                                            <br/>
+                                            Silakan tonton langsung di tab baru.
+                                        </p>
+                                    </div>
+                                    <Button
+                                        className="bg-red-600 hover:bg-red-500 w-full sm:w-auto"
+                                        onClick={() =>
+                                            window.open(
+                                                currentStream.url,
+                                                "_blank"
+                                            )
+                                        }
+                                    >
+                                        <Play className="h-4 w-4 mr-2 fill-current" />
+                                        Buka Player
+                                    </Button>
+                                </div>
+                            </div>
+                        ) : (
+                            <iframe
+                                key={iframeKey}
+                                src={currentStream.url}
+                                title={`${displayTitle} - Video Player`}
+                                className="absolute inset-0 w-full h-full"
+                                allowFullScreen
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                referrerPolicy="no-referrer"
+                                onError={() => setProviderError(true)}
+                            />
+                        )}
                     </div>
 
                     {/* Controls Bar */}
@@ -189,9 +252,13 @@ export default function AnimeWatch() {
                             <Button
                                 variant="outline"
                                 size="icon"
-                                onClick={() => setIframeKey((p) => p + 1)}
+                                onClick={() => {
+                                    setIframeKey((p) => p + 1);
+                                    setProviderError(false);
+                                }}
                                 className="h-11 w-11"
                                 title="Refresh Player"
+                                aria-label="Refresh Player"
                             >
                                 <RefreshCw className="w-4 h-4" />
                             </Button>
@@ -203,6 +270,7 @@ export default function AnimeWatch() {
                                 }
                                 className="h-11 w-11"
                                 title="Buka di Tab Baru"
+                                aria-label="Buka di Tab Baru"
                             >
                                 <ExternalLink className="w-4 h-4" />
                             </Button>

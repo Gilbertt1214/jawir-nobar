@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { movieAPI } from "@/services/api";
-import { MovieCarousel } from "@/components/MovieCarousel";
-import { SkeletonGrid } from "@/components/SkeletonCard";
+import { MovieCarousel } from "@/components/features/movie/MovieCarousel";
+import { SkeletonGrid } from "@/components/features/movie/SkeletonCard";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
     AlertCircle,
@@ -21,9 +21,9 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import { StaggeredText } from "@/components/StaggeredText";
+import { StaggeredText } from "@/components/common/StaggeredText";
 import { FadeIn } from "@/components/animations/FadeIn";
-import { Section } from "@/components/Section";
+import { Section } from "@/components/layout/Section";
 
 export default function Home() {
     // Anime filters

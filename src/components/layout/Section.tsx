@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { MovieCarousel } from "@/components/MovieCarousel";
+import { MovieCarousel } from "@/components/features/movie/MovieCarousel";
 import { FadeIn } from "@/components/animations/FadeIn";
 import { Movie } from "@/services/api";
 

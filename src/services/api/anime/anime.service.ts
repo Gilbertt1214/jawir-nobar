@@ -4,8 +4,8 @@
  */
 
 import axios from "axios";
-import { Movie, AnimeDetail, AnimeEpisode } from "./types";
-import { sankaAnimeAPI } from "./sanka.service";
+import { Movie, AnimeDetail, AnimeEpisode } from "../common/types";
+import { sankaAnimeAPI } from "../common/sanka.service";
 
 const JIKAN_API = "https://api.jikan.moe/v4";
 
@@ -278,7 +278,47 @@ export class AnimeService {
      */
     async getAnimeDetailOtakudesu(slug: string): Promise<AnimeDetail | null> {
         try {
-            const detail = await sankaAnimeAPI.getAnimeDetail(slug);
+            console.log(`🎥 Fetching detail for slug: ${slug}`);
+            let detail = await sankaAnimeAPI.getAnimeDetail(slug);
+
+            // Smart Recovery: If direct fetch fails, try to search for the correct slug
+            if (!detail) {
+                console.log(
+                    `⚠️ Direct fetch failed for ${slug}. Attempting smart recovery...`
+                );
+
+                // Extract potential title from slug
+                // e.g. "chainsaw-man-subtitle-indonesia" -> "chainsaw man"
+                const searchArray = slug
+                    .split("-")
+                    .filter(
+                        (part) =>
+                            !["subtitle", "indonesia", "sub", "indo", "movie", "season"].includes(
+                                part.toLowerCase()
+                            )
+                    )
+                    .filter(part => part.length > 2); // Filter out short connectors
+
+                const searchQuery = searchArray.join(" ");
+
+                if (searchQuery.length > 2) {
+                    console.log(`🔍 Smart recovery searching for: "${searchQuery}"`);
+                    const searchResults = await this.searchAnimeOtakudesu(
+                        searchQuery
+                    );
+
+                    if (searchResults.length > 0) {
+                        // Find the best match
+                        const improvedSlug = searchResults[0].slug;
+                        
+                        if (improvedSlug && improvedSlug !== slug) {
+                             console.log(`✅ Smart recovery found match! Redirecting to: ${improvedSlug}`);
+                             detail = await sankaAnimeAPI.getAnimeDetail(improvedSlug);
+                        }
+                    }
+                }
+            }
+
             if (!detail) return null;
 
             const episodes: AnimeEpisode[] =
@@ -293,12 +333,12 @@ export class AnimeService {
                 typeof detail.synopsis === "string" ? detail.synopsis : "";
 
             return {
-                id: slug,
+                id: detail.slug || slug,
                 title: detail.title,
                 cover: ensureImageUrl(detail.poster),
                 genre: detail.genres?.map((g: any) => g.name) || [],
                 type: "anime",
-                slug: slug,
+                slug: detail.slug || slug,
                 synopsis,
                 status: detail.status || "",
                 studio: detail.studio || detail.studios || "",

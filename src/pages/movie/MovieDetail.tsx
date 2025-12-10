@@ -41,6 +41,7 @@ import { cn } from "@/lib/utils";
 import { commentsService } from "@/services/firebase/comments.service";
 import { FadeIn } from "@/components/animations/FadeIn";
 import { ScaleIn } from "@/components/animations/ScaleIn";
+import { toast } from "@/hooks/use-toast";
 
 // Animations moved to components/animations
 
@@ -220,6 +221,10 @@ export default function MovieDetail() {
 
             setName("");
             setMessage("");
+            toast({
+                title: "Komentar Terkirim!",
+                description: "Terima kasih sudah berkomentar.",
+            });
         } catch (error) {
             console.error("Error adding comment:", error);
             // Fallback to localStorage

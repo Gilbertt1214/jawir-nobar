@@ -2,9 +2,9 @@
 import { useParams, useSearchParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { movieAPI, PaginatedResponse, Movie } from "@/services/api";
-import { MovieGrid } from "@/components/MovieGrid";
-import { Pagination } from "@/components/Pagination";
-import { SkeletonGrid } from "@/components/SkeletonCard";
+import { MovieGrid } from "@/components/features/movie/MovieGrid";
+import { Pagination } from "@/components/common/Pagination";
+import { SkeletonGrid } from "@/components/features/movie/SkeletonCard";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
     AlertCircle,
