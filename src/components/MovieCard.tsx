@@ -9,20 +9,17 @@ interface MovieCardProps {
     index?: number;
 }
 
-export function MovieCard({ movie }: MovieCardProps) {
+export function MovieCard({ movie, index = 0 }: MovieCardProps) {
     return (
-        <div>
-            <Link
-                to={`/${movie.type}/${movie.slug || movie.id}`}
-                className="block group/card"
-            >
-                <Card className="overflow-hidden border-0 bg-transparent shadow-none">
-                    <div className="relative aspect-[2/3] overflow-hidden rounded-xl bg-muted shadow-card transition-transform duration-300 hover:scale-[1.03] hover:shadow-[0_8px_30px_rgba(0,0,0,0.3)]">
+        <div className="block group/card">
+            <Link to={`/${movie.type}/${movie.slug || movie.id}`}>
+                <Card className="overflow-hidden border-0 bg-transparent shadow-none group/card">
+                    <div className="relative aspect-[2/3] overflow-hidden rounded-xl bg-muted shadow-card transition-all duration-300 ease-out group-hover/card:scale-105 group-hover/card:shadow-lg">
                         {/* Image with fallback */}
                         <img
                             src={movie.cover || "/placeholder.svg"}
                             alt={movie.title}
-                            className="object-cover w-full h-full bg-muted transition-transform duration-500 group-hover/card:scale-110"
+                            className="object-cover w-full h-full bg-muted"
                             loading="lazy"
                             draggable="false"
                             onError={(e) => {
@@ -34,11 +31,11 @@ export function MovieCard({ movie }: MovieCardProps) {
                         />
 
                         {/* Gradient overlay - always visible */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-60 group-hover/card:opacity-80 transition-opacity duration-500" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-60 group-hover/card:opacity-80 transition-opacity duration-300" />
 
                         {/* Hover overlay with play button */}
                         <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-[2px] opacity-0 group-hover/card:opacity-100 transition-opacity duration-300">
-                            <div className="p-4 rounded-full bg-primary/90 text-primary-foreground shadow-lg scale-50 group-hover/card:scale-100 transition-transform duration-300">
+                            <div className="p-4 rounded-full bg-primary/90 text-primary-foreground shadow-lg transform scale-75 opacity-0 group-hover/card:scale-100 group-hover/card:opacity-100 transition-all duration-300">
                                 <Play className="h-8 w-8 fill-current ml-1" />
                             </div>
                         </div>

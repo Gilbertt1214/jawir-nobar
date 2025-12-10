@@ -39,43 +39,10 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { commentsService } from "@/services/firebase/comments.service";
-import { motion } from "framer-motion";
+import { FadeIn } from "@/components/animations/FadeIn";
+import { ScaleIn } from "@/components/animations/ScaleIn";
 
-const fadeInUp = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-        opacity: 1,
-        y: 0,
-        transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as any },
-    },
-};
-
-const fadeInRight = {
-    hidden: { opacity: 0, x: -20 },
-    visible: {
-        opacity: 1,
-        x: 0,
-        transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as any },
-    },
-};
-
-const fadeInLeft = {
-    hidden: { opacity: 0, x: 20 },
-    visible: {
-        opacity: 1,
-        x: 0,
-        transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as any },
-    },
-};
-
-const scaleIn = {
-    hidden: { opacity: 0, scale: 0.9 },
-    visible: {
-        opacity: 1,
-        scale: 1,
-        transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as any },
-    },
-};
+// Animations moved to components/animations
 
 interface Comment {
     name: string;
@@ -128,7 +95,7 @@ export default function MovieDetail() {
             try {
                 const providers = await movieAPI.getStreamingUrls(
                     movie.id,
-                    movie.type
+                    movie.type as "movie" | "series"
                 );
                 // FIXED: Ensure providers is always an array
                 const safeProviders = Array.isArray(providers) ? providers : [];
@@ -330,30 +297,28 @@ export default function MovieDetail() {
         <div className="min-h-screen bg-background pb-20">
             {/* Backdrop */}
             <div className="relative h-[40vh] sm:h-[50vh] md:h-[60vh] -mt-16 sm:-mt-20 overflow-hidden">
-                <motion.div
-                    className="absolute inset-0 bg-cover bg-center"
-                    initial="hidden"
-                    animate="visible"
-                    variants={scaleIn}
-                    style={{
-                        backgroundImage: movie.cover
-                            ? `url(${movie.cover})`
-                            : "none",
-                    }}
-                >
-                    <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/20" />
-                    <div className="absolute inset-0 bg-gradient-to-r from-background via-transparent to-transparent" />
-                </motion.div>
+                <ScaleIn className="absolute inset-0 h-full w-full">
+                    <div
+                        className="w-full h-full bg-cover bg-center"
+                        style={{
+                            backgroundImage: movie.cover
+                                ? `url(${movie.cover})`
+                                : "none",
+                        }}
+                    >
+                        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/20" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-background via-transparent to-transparent" />
+                    </div>
+                </ScaleIn>
             </div>
 
             <div className="container mx-auto px-4 sm:px-6 -mt-32 sm:-mt-48 md:-mt-64 relative z-10">
                 <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] lg:grid-cols-[350px_1fr] gap-8">
                     {/* Poster & Actions */}
-                    <motion.div
+                    <FadeIn
                         className="space-y-6"
-                        initial="hidden"
-                        animate="visible"
-                        variants={fadeInRight}
+                        direction="right"
+                        delay={0.1}
                     >
                         <div className="relative aspect-[2/3] rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/10 group">
                             <img
@@ -394,15 +359,13 @@ export default function MovieDetail() {
                                 Share
                             </Button>
                         </div>
-                    </motion.div>
+                    </FadeIn>
 
                     {/* Details */}
-                    <motion.div
+                    <FadeIn
                         className="space-y-8"
-                        initial="hidden"
-                        animate="visible"
-                        variants={fadeInLeft}
-                        transition={{ delay: 0.2 }}
+                        direction="left"
+                        delay={0.2}
                     >
                         <div className="space-y-4">
                             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-gradient leading-tight">
@@ -974,12 +937,9 @@ export default function MovieDetail() {
                         )}
 
                         {/* Comments Section */}
-                        <motion.div
+                        <FadeIn
                             className="space-y-4 pt-4"
-                            initial="hidden"
-                            whileInView="visible"
-                            viewport={{ once: true }}
-                            variants={fadeInUp}
+                            direction="up"
                         >
                             <h2 className="text-xl font-bold flex items-center gap-2">
                                 <MessageSquare className="h-5 w-5 text-primary" />
@@ -1074,8 +1034,8 @@ export default function MovieDetail() {
                                     </div>
                                 </CardContent>
                             </Card>
-                        </motion.div>
-                    </motion.div>
+                        </FadeIn>
+                    </FadeIn>
                 </div>
             </div>
         </div>

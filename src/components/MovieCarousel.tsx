@@ -27,12 +27,28 @@ export function MovieCarousel({ title, movies }: MovieCarouselProps) {
     useEffect(() => {
         checkScroll();
         const scrollElement = scrollRef.current;
+
         if (scrollElement) {
-            scrollElement.addEventListener("scroll", checkScroll);
-            window.addEventListener("resize", checkScroll);
+            let ticking = false;
+
+            const handleScroll = () => {
+                if (!ticking) {
+                    window.requestAnimationFrame(() => {
+                        checkScroll();
+                        ticking = false;
+                    });
+                    ticking = true;
+                }
+            };
+
+            scrollElement.addEventListener("scroll", handleScroll, {
+                passive: true,
+            });
+            window.addEventListener("resize", handleScroll, { passive: true });
+
             return () => {
-                scrollElement.removeEventListener("scroll", checkScroll);
-                window.removeEventListener("resize", checkScroll);
+                scrollElement.removeEventListener("scroll", handleScroll);
+                window.removeEventListener("resize", handleScroll);
             };
         }
     }, [movies]);

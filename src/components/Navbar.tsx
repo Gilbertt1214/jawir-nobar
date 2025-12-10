@@ -31,10 +31,19 @@ export function Navbar() {
     const navigate = useNavigate();
 
     useEffect(() => {
+        let ticking = false;
+
         const handleScroll = () => {
-            setIsScrolled(window.scrollY > 0);
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    setIsScrolled(window.scrollY > 0);
+                    ticking = false;
+                });
+                ticking = true;
+            }
         };
-        window.addEventListener("scroll", handleScroll);
+
+        window.addEventListener("scroll", handleScroll, { passive: true });
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
@@ -53,10 +62,10 @@ export function Navbar() {
     return (
         <header
             className={cn(
-                "sticky top-0 z-50 w-full transition-all duration-300",
+                "sticky top-0 z-50 w-full transition-all duration-500 ease-in-out",
                 isScrolled
-                    ? "bg-background/80 backdrop-blur-xl border-b border-white/5 shadow-lg"
-                    : "bg-transparent border-transparent"
+                    ? "bg-black/60 backdrop-blur-xl border-b border-white/5 shadow-2xl py-2"
+                    : "bg-transparent border-transparent py-4"
             )}
         >
             <nav className="container mx-auto flex h-16 sm:h-20 items-center justify-between px-4 sm:px-6 gap-4">

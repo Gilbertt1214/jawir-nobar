@@ -22,6 +22,8 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { StaggeredText } from "@/components/StaggeredText";
+import { FadeIn } from "@/components/animations/FadeIn";
+import { Section } from "@/components/Section";
 
 export default function Home() {
     // Anime filters
@@ -172,49 +174,7 @@ export default function Home() {
         );
     }
 
-    // Section component for cleaner code - no animation
-    const Section = ({
-        title,
-        icon,
-        movies,
-        link,
-        children,
-    }: {
-        title: string;
-        icon?: React.ReactNode;
-        movies: any[];
-        link: string;
-        children?: React.ReactNode;
-    }) => (
-        <section className="space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-3 group cursor-pointer">
-                    <div className="h-8 w-1.5 bg-red-600 rounded-full group-hover:h-10 transition-all duration-300" />
-                    <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white group-hover:text-red-500 transition-colors">
-                        {title}
-                    </h2>
-                    {icon && (
-                        <div className="text-red-500 opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300">
-                            {icon}
-                        </div>
-                    )}
-                </div>
-                {children}
-                <Button
-                    asChild
-                    variant="ghost"
-                    size="sm"
-                    className="self-start sm:self-auto hover:bg-white/5 hover:text-red-500 transition-all group/btn"
-                >
-                    <Link to={link} className="flex items-center gap-2">
-                        <span className="text-sm font-medium">View All</span>
-                        <ChevronRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
-                    </Link>
-                </Button>
-            </div>
-            <MovieCarousel title="" movies={movies} />
-        </section>
-    );
+
 
     return (
         <div className="min-h-screen bg-background pb-20">
@@ -261,35 +221,37 @@ export default function Home() {
                 <div className="relative container mx-auto px-4 h-full flex items-center">
                     {heroItem && (
                         <div className="space-y-6 max-w-3xl pt-20">
-                            <div className="flex flex-wrap items-center gap-3">
-                                {heroItem.year && (
+                            <FadeIn direction="down" delay={0.1}>
+                                <div className="flex flex-wrap items-center gap-3">
+                                    {heroItem.year && (
+                                        <Badge
+                                            variant="outline"
+                                            className="text-xs border-white/20 bg-black/40 backdrop-blur-md px-3 py-1"
+                                        >
+                                            {heroItem.year}
+                                        </Badge>
+                                    )}
+                                    {heroItem.rating && (
+                                        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-yellow-500/20 backdrop-blur-md border border-yellow-500/30 text-yellow-500">
+                                            <Star className="w-3.5 h-3.5 fill-current" />
+                                            <span className="text-xs font-bold">
+                                                {heroItem.rating.toFixed(1)}
+                                            </span>
+                                        </div>
+                                    )}
+                                    {heroItem.quality && (
+                                        <Badge className="bg-primary/80 backdrop-blur-md text-xs px-3 py-1">
+                                            {heroItem.quality}
+                                        </Badge>
+                                    )}
                                     <Badge
-                                        variant="outline"
-                                        className="text-xs border-white/20 bg-black/40 backdrop-blur-md px-3 py-1"
+                                        variant="secondary"
+                                        className="text-xs uppercase tracking-wider bg-white/10 hover:bg-white/20 backdrop-blur-md"
                                     >
-                                        {heroItem.year}
+                                        {heroItem.type}
                                     </Badge>
-                                )}
-                                {heroItem.rating && (
-                                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-yellow-500/20 backdrop-blur-md border border-yellow-500/30 text-yellow-500">
-                                        <Star className="w-3.5 h-3.5 fill-current" />
-                                        <span className="text-xs font-bold">
-                                            {heroItem.rating.toFixed(1)}
-                                        </span>
-                                    </div>
-                                )}
-                                {heroItem.quality && (
-                                    <Badge className="bg-primary/80 backdrop-blur-md text-xs px-3 py-1">
-                                        {heroItem.quality}
-                                    </Badge>
-                                )}
-                                <Badge
-                                    variant="secondary"
-                                    className="text-xs uppercase tracking-wider bg-white/10 hover:bg-white/20 backdrop-blur-md"
-                                >
-                                    {heroItem.type}
-                                </Badge>
-                            </div>
+                                </div>
+                            </FadeIn>
 
                             <StaggeredText
                                 text={heroItem.title}
@@ -298,38 +260,42 @@ export default function Home() {
                                 staggerDelay={0.08}
                             />
 
-                            <p className="text-base sm:text-lg text-muted-foreground line-clamp-3 max-w-2xl leading-relaxed">
-                                {heroItem.synopsis ||
-                                    "Discover the latest movies and series to watch. Immerse yourself in the world of cinema."}
-                            </p>
+                            <FadeIn direction="up" delay={0.3}>
+                                <p className="text-base sm:text-lg text-muted-foreground line-clamp-3 max-w-2xl leading-relaxed">
+                                    {heroItem.synopsis ||
+                                        "Discover the latest movies and series to watch. Immerse yourself in the world of cinema."}
+                                </p>
+                            </FadeIn>
 
-                            <div className="flex flex-wrap gap-4 pt-4">
-                                <Button
-                                    asChild
-                                    size="lg"
-                                    className="gap-2 shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:scale-105 transition-all duration-300 rounded-full h-12 px-8 text-base"
-                                >
-                                    <Link
-                                        to={`/${heroItem.type}/${heroItem.id}`}
+                            <FadeIn direction="up" delay={0.4}>
+                                <div className="flex flex-wrap gap-4 pt-4">
+                                    <Button
+                                        asChild
+                                        size="lg"
+                                        className="gap-2 shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:scale-105 transition-all duration-300 rounded-full h-12 px-8 text-base"
                                     >
-                                        <Play className="w-5 h-5 fill-current" />
-                                        <span>Watch Now</span>
-                                    </Link>
-                                </Button>
-                                <Button
-                                    asChild
-                                    size="lg"
-                                    variant="outline"
-                                    className="gap-2 backdrop-blur-md bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20 hover:scale-105 transition-all duration-300 rounded-full h-12 px-8 text-base"
-                                >
-                                    <Link
-                                        to={`/${heroItem.type}/${heroItem.id}`}
+                                        <Link
+                                            to={`/${heroItem.type}/${heroItem.id}`}
+                                        >
+                                            <Play className="w-5 h-5 fill-current" />
+                                            <span>Watch Now</span>
+                                        </Link>
+                                    </Button>
+                                    <Button
+                                        asChild
+                                        size="lg"
+                                        variant="outline"
+                                        className="gap-2 backdrop-blur-md bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20 hover:scale-105 transition-all duration-300 rounded-full h-12 px-8 text-base"
                                     >
-                                        <Info className="w-5 h-5" />
-                                        <span>More Info</span>
-                                    </Link>
-                                </Button>
-                            </div>
+                                        <Link
+                                            to={`/${heroItem.type}/${heroItem.id}`}
+                                        >
+                                            <Info className="w-5 h-5" />
+                                            <span>More Info</span>
+                                        </Link>
+                                    </Button>
+                                </div>
+                            </FadeIn>
                         </div>
                     )}
                 </div>
@@ -365,6 +331,7 @@ export default function Home() {
                         }
                         movies={latestMovies.data}
                         link="/browse/latest-movies"
+                        delay={0.1}
                     />
                 )}
 
@@ -375,6 +342,7 @@ export default function Home() {
                         icon={<TrendingUp className="w-6 h-6 text-red-500" />}
                         movies={popularMovies.data}
                         link="/browse/popular-movies"
+                        delay={0.2}
                     />
                 )}
 
@@ -385,55 +353,67 @@ export default function Home() {
                         icon={<Tv className="w-6 h-6 text-red-500" />}
                         movies={latestSeries.data}
                         link="/browse/latest-series"
+                        delay={0.3}
                     />
                 )}
 
                 {/* Anime Section with Filters */}
                 {(anime?.data?.length || loadingAnime) && (
-                    <section className="space-y-6">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                            <div className="flex items-center gap-3 group cursor-pointer">
-                                <div className="h-8 w-1.5 bg-red-600 rounded-full group-hover:h-10 transition-all duration-300" />
-                                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white group-hover:text-red-500 transition-colors">
-                                    Anime
-                                </h2>
-                                <div className="text-red-500 opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300">
-                                    <Film className="w-6 h-6" />
+                    <FadeIn delay={0.4} direction="up">
+                        <section className="space-y-6">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div className="flex items-center gap-3 group cursor-pointer">
+                                    <div className="h-8 w-1.5 bg-red-600 rounded-full group-hover:h-10 transition-all duration-300" />
+                                    <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white group-hover:text-red-500 transition-colors">
+                                        Anime
+                                    </h2>
+                                    <div className="text-red-500 opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300">
+                                        <Film className="w-6 h-6" />
+                                    </div>
                                 </div>
+
+                                <Button
+                                    asChild
+                                    variant="ghost"
+                                    size="sm"
+                                    className="self-start sm:self-auto hover:bg-white/5 hover:text-red-500 transition-all group/btn"
+                                >
+                                    <Link
+                                        to={`/browse/anime?type=${animeType}&audio=${animeAudio}`}
+                                        className="flex items-center gap-2"
+                                    >
+                                        <span className="text-sm font-medium">
+                                            View All
+                                        </span>
+                                        <ChevronRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
+                                    </Link>
+                                </Button>
                             </div>
 
-                            <Button
-                                asChild
-                                variant="ghost"
-                                size="sm"
-                                className="self-start sm:self-auto hover:bg-white/5 hover:text-red-500 transition-all group/btn"
-                            >
-                                <Link
-                                    to={`/browse/anime?type=${animeType}&audio=${animeAudio}`}
-                                    className="flex items-center gap-2"
-                                >
-                                    <span className="text-sm font-medium">
-                                        View All
-                                    </span>
-                                    <ChevronRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
-                                </Link>
-                            </Button>
-                        </div>
-
-                        {anime?.data && anime.data.length > 0 && (
-                            <MovieCarousel title="" movies={anime.data} />
-                        )}
-                    </section>
+                            {anime?.data && anime.data.length > 0 && (
+                                <MovieCarousel title="" movies={anime.data} />
+                            )}
+                        </section>
+                    </FadeIn>
                 )}
 
                 {/* Ongoing Anime (Scraper) */}
-                {ongoingAnime && ongoingAnime.length > 0 && (
-                    <Section
-                        title="Ongoing Anime"
-                        icon={<Tv className="w-6 h-6 text-red-500" />}
-                        movies={ongoingAnime}
-                        link="/anime"
-                    />
+                {loadingOngoing ? (
+                    <div className="space-y-6">
+                        <div className="h-8 w-48 bg-muted animate-pulse rounded" />
+                        <SkeletonGrid count={6} />
+                    </div>
+                ) : (
+                    ongoingAnime &&
+                    ongoingAnime.length > 0 && (
+                        <Section
+                            title="Ongoing Anime"
+                            icon={<Tv className="w-6 h-6 text-red-500" />}
+                            movies={ongoingAnime}
+                            link="/anime"
+                            delay={0.5}
+                        />
+                    )
                 )}
 
                 {/* Indonesian Movies */}
@@ -443,6 +423,7 @@ export default function Home() {
                         icon={<Globe className="w-6 h-6 text-red-500" />}
                         movies={indo.data}
                         link="/browse/indonesian-movies"
+                        delay={0.6}
                     />
                 )}
 
@@ -453,6 +434,7 @@ export default function Home() {
                         icon={<Heart className="w-6 h-6 text-red-500" />}
                         movies={kdrama.data}
                         link="/browse/korean-drama"
+                        delay={0.7}
                     />
                 )}
 
@@ -463,6 +445,7 @@ export default function Home() {
                         icon={<Heart className="w-6 h-6 text-rose-500" />}
                         movies={adult.data}
                         link="/browse/adult-movies"
+                        delay={0.8}
                     />
                 )}
             </main>

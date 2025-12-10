@@ -46,11 +46,12 @@ import Lenis from "lenis";
 const App = () => {
     useEffect(() => {
         const lenis = new Lenis({
-            duration: 1.2,
+            duration: 0.8, // Reduced from 1.2 for snappier feel
             easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
             orientation: "vertical",
             gestureOrientation: "vertical",
             smoothWheel: true,
+            wheelMultiplier: 1.1, // Slightly faster wheel response
         });
 
         function raf(time: number) {
