@@ -62,6 +62,14 @@ export class StreamingService {
         const baseProviders = [
             // Tier 1: Most reliable (tested working 2024)
             {
+                name: "VidLink",
+                url: `https://vidlink.pro/${mediaType}/${movieId}?primaryColor=63b8bc&secondaryColor=a2a2a2&iconColor=eefdec&icons=default&player=jw&title=true&poster=true&autoplay=false&nextbutton=false`,
+                quality: "HD",
+                language: "Multi",
+                tier: 1,
+                priority: 0,
+            },
+            {
                 name: "VidSrc.to",
                 url: `https://vidsrc.to/embed/${mediaType}/${movieId}`,
                 quality: "HD",
@@ -153,7 +161,7 @@ export class StreamingService {
             // Tier 1 - Most reliable (tested working 2024)
             {
                 name: "VidLink",
-                url: `https://vidlink.pro/tv/${seriesId}/${season}/${episode}`,
+                url: `https://vidlink.pro/tv/${seriesId}/${season}/${episode}?primaryColor=63b8bc&secondaryColor=a2a2a2&iconColor=eefdec&icons=default&player=jw&title=true&poster=true&autoplay=false&nextbutton=false`,
                 quality: "HD",
                 language: "Multi",
                 tier: 1,
