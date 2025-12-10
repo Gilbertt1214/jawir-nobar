@@ -72,18 +72,14 @@ export default function AnimeWatch() {
     // Loading state
     if (loadingEpisode) {
         return (
-            <div className="min-h-screen bg-[#0a0a0a]">
+            <div className="min-h-screen bg-background">
                 <div className="container mx-auto px-4 py-8">
-                    <Button
-                        variant="ghost"
-                        disabled
-                        className="mb-4 text-white"
-                    >
+                    <Button variant="ghost" disabled className="mb-4">
                         <ArrowLeft className="h-4 w-4 mr-2" /> Kembali
                     </Button>
-                    <div className="max-w-5xl mx-auto">
-                        <div className="aspect-video bg-[#181818] animate-pulse rounded-lg" />
-                        <div className="mt-4 h-12 bg-[#181818] animate-pulse rounded-lg w-48" />
+                    <div className="max-w-6xl mx-auto">
+                        <div className="aspect-video bg-muted animate-pulse rounded-lg" />
+                        <div className="mt-4 h-12 bg-muted animate-pulse rounded-lg w-48" />
                     </div>
                 </div>
             </div>
@@ -92,12 +88,12 @@ export default function AnimeWatch() {
 
     if (episodeError) {
         return (
-            <div className="min-h-screen bg-[#0a0a0a]">
+            <div className="min-h-screen bg-background">
                 <div className="container mx-auto px-4 py-8">
                     <Button
                         variant="ghost"
                         onClick={() => navigate(-1)}
-                        className="mb-4 text-white hover:bg-white/10"
+                        className="mb-4"
                     >
                         <ArrowLeft className="h-4 w-4 mr-2" /> Kembali
                     </Button>
@@ -115,12 +111,12 @@ export default function AnimeWatch() {
 
     if (!currentStream || isNotAvailable) {
         return (
-            <div className="min-h-screen bg-[#0a0a0a]">
+            <div className="min-h-screen bg-background">
                 <div className="container mx-auto px-4 py-8">
                     <Button
                         variant="ghost"
                         onClick={() => navigate(-1)}
-                        className="mb-4 text-white hover:bg-white/10"
+                        className="mb-4"
                     >
                         <ArrowLeft className="h-4 w-4 mr-2" /> Kembali
                     </Button>
@@ -147,30 +143,26 @@ export default function AnimeWatch() {
         "Anime Episode";
 
     return (
-        <div className="min-h-screen bg-[#0a0a0a]">
+        <div className="min-h-screen bg-background">
             <div className="container mx-auto px-4 py-6">
                 {/* Header */}
                 <div className="mb-6 flex items-center gap-4">
-                    <Button
-                        variant="ghost"
-                        onClick={() => navigate(-1)}
-                        className="text-white hover:bg-white/10"
-                    >
+                    <Button variant="ghost" onClick={() => navigate(-1)}>
                         <ArrowLeft className="h-4 w-4 mr-2" /> Kembali
                     </Button>
                     <div className="flex-1 min-w-0">
-                        <h1 className="text-xl md:text-2xl font-bold text-white truncate">
+                        <h1 className="text-xl md:text-2xl font-bold text-foreground truncate">
                             {displayTitle}
                         </h1>
-                        <p className="text-gray-400 text-sm">
+                        <p className="text-muted-foreground text-sm">
                             Episode {episodeNumber}
                         </p>
                     </div>
                 </div>
 
-                <div className="max-w-5xl mx-auto space-y-4">
-                    {/* Video Player */}
-                    <div className="relative aspect-video bg-black rounded-lg overflow-hidden border border-white/10">
+                <div className="max-w-6xl mx-auto space-y-4">
+                    {/* Video Player - Full Width */}
+                    <div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden border border-border">
                         <iframe
                             key={iframeKey}
                             src={currentStream.url}
@@ -181,7 +173,7 @@ export default function AnimeWatch() {
                     </div>
 
                     {/* Controls Bar */}
-                    <div className="flex items-center justify-between gap-3 bg-[#121212] rounded-lg p-3 border border-white/10">
+                    <div className="flex flex-wrap items-center justify-between gap-3 bg-card rounded-lg p-3 border border-border">
                         {/* Provider Info */}
                         <div className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white font-medium rounded-lg">
                             <Monitor className="w-4 h-4" />
@@ -198,7 +190,7 @@ export default function AnimeWatch() {
                                 variant="outline"
                                 size="icon"
                                 onClick={() => setIframeKey((p) => p + 1)}
-                                className="border-white/20 text-white hover:bg-white/10 h-11 w-11"
+                                className="h-11 w-11"
                                 title="Refresh Player"
                             >
                                 <RefreshCw className="w-4 h-4" />
@@ -209,7 +201,7 @@ export default function AnimeWatch() {
                                 onClick={() =>
                                     window.open(currentStream.url, "_blank")
                                 }
-                                className="border-white/20 text-white hover:bg-white/10 h-11 w-11"
+                                className="h-11 w-11"
                                 title="Buka di Tab Baru"
                             >
                                 <ExternalLink className="w-4 h-4" />
@@ -229,7 +221,6 @@ export default function AnimeWatch() {
                                 }
                             }}
                             disabled={!episodeData?.prevEpisode}
-                            className="border-white/20 text-white hover:bg-white/10 disabled:opacity-50"
                         >
                             <ChevronLeft className="w-4 h-4 mr-2" /> Episode
                             Sebelumnya
@@ -244,7 +235,6 @@ export default function AnimeWatch() {
                                 }
                             }}
                             disabled={!episodeData?.nextEpisode}
-                            className="border-white/20 text-white hover:bg-white/10 disabled:opacity-50"
                         >
                             Episode Selanjutnya{" "}
                             <ChevronRight className="w-4 h-4 ml-2" />
@@ -254,7 +244,7 @@ export default function AnimeWatch() {
                     {/* Info Alert */}
                     <Alert className="bg-red-600/10 border-red-600/20">
                         <AlertCircle className="h-4 w-4 text-red-500" />
-                        <AlertDescription className="text-gray-300">
+                        <AlertDescription className="text-muted-foreground">
                             Jika video tidak bisa diputar, coba refresh player
                             atau buka di tab baru. Stream disediakan oleh
                             Otakudesu.
