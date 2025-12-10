@@ -107,7 +107,8 @@ All colors MUST be HSL.
         touch-action: manipulation;
     }
 
-    img, video {
+    img,
+    video {
         @apply select-none max-w-full h-auto;
         -webkit-user-drag: none;
         -webkit-touch-callout: none;
@@ -215,7 +216,7 @@ All colors MUST be HSL.
 
     .glow-on-hover:hover {
         box-shadow: 0 0 20px rgba(var(--primary), 0.4),
-                    0 0 40px rgba(var(--primary), 0.2);
+            0 0 40px rgba(var(--primary), 0.2);
     }
 
     /* Smooth Transform with Custom Origin */
@@ -240,4 +241,3 @@ All colors MUST be HSL.
         will-change: opacity;
     }
 }
-

@@ -5,12 +5,12 @@ import { MovieGrid } from "@/components/MovieGrid";
 import { Pagination } from "@/components/Pagination";
 import { SkeletonGrid } from "@/components/SkeletonCard";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, Search as SearchIcon, Film, Tv, Sparkles } from "lucide-react";
+import { AlertCircle, Search as SearchIcon, Film, Tv } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
-type SearchCategory = "all" | "movies" | "series" | "anime";
+type SearchCategory = "all" | "movies" | "series";
 
 export default function Search() {
     const [searchParams] = useSearchParams();
@@ -18,41 +18,27 @@ export default function Search() {
     const [currentPage, setCurrentPage] = useState(1);
     const [activeCategory, setActiveCategory] = useState<SearchCategory>("all");
 
-    // Search Movies & Series (TMDB)
+    // Search Movies & Series (TMDB only - anime removed from general search)
     const {
         data: movieData,
-        isLoading: movieLoading,
-        error: movieError,
+        isLoading,
+        error,
     } = useQuery({
         queryKey: ["searchMovies", query, currentPage],
         queryFn: () => movieAPI.searchMovies(query, currentPage),
-        enabled: !!query && (activeCategory === "all" || activeCategory === "movies" || activeCategory === "series"),
+        enabled: !!query,
     });
-
-    // Search Anime (Sankavollerei)
-    const {
-        data: animeData,
-        isLoading: animeLoading,
-        error: animeError,
-    } = useQuery({
-        queryKey: ["searchAnime", query],
-        queryFn: () => movieAPI.searchAnime(query),
-        enabled: !!query && (activeCategory === "all" || activeCategory === "anime"),
-    });
-
-    const isLoading = movieLoading || animeLoading;
-    const error = movieError || animeError;
 
     // Separate movies and series from TMDB data
-    const movies = movieData?.data?.filter(item => item.type === "movie") || [];
-    const series = movieData?.data?.filter(item => item.type === "series") || [];
-    const anime = animeData || [];
+    const movies =
+        movieData?.data?.filter((item) => item.type === "movie") || [];
+    const series =
+        movieData?.data?.filter((item) => item.type === "series") || [];
 
     // Calculate totals
     const totalMovies = movies.length;
     const totalSeries = series.length;
-    const totalAnime = anime.length;
-    const totalAll = totalMovies + totalSeries + totalAnime;
+    const totalAll = totalMovies + totalSeries;
 
     // Get display data based on active category
     const getDisplayData = () => {
@@ -69,15 +55,9 @@ export default function Search() {
                     total: totalSeries,
                     totalPages: movieData?.totalPages || 1,
                 };
-            case "anime":
-                return {
-                    data: anime,
-                    total: totalAnime,
-                    totalPages: 1, // Anime doesn't have pagination yet
-                };
             default: // "all"
                 return {
-                    data: [...anime, ...movies, ...series],
+                    data: [...movies, ...series],
                     total: totalAll,
                     totalPages: movieData?.totalPages || 1,
                 };
@@ -102,10 +82,11 @@ export default function Search() {
                 <div className="flex flex-col items-center justify-center min-h-[400px] text-center">
                     <SearchIcon className="h-16 w-16 text-muted-foreground mb-4" />
                     <h2 className="text-2xl font-semibold mb-2">
-                        Search for Movies, Series & Anime
+                        Search for Movies & Series
                     </h2>
                     <p className="text-muted-foreground">
-                        Use the search bar above to find your favorite content
+                        Use the search bar above to find your favorite content.
+                        For anime, use the Anime page search.
                     </p>
                 </div>
             </div>
@@ -118,7 +99,6 @@ export default function Search() {
                 <div className="mb-8">
                     <div className="h-8 w-64 bg-muted animate-pulse rounded mb-4" />
                     <div className="flex gap-2 mb-6">
-                        <div className="h-10 w-24 bg-muted animate-pulse rounded" />
                         <div className="h-10 w-24 bg-muted animate-pulse rounded" />
                         <div className="h-10 w-24 bg-muted animate-pulse rounded" />
                         <div className="h-10 w-24 bg-muted animate-pulse rounded" />
@@ -151,10 +131,11 @@ export default function Search() {
                         Search Results for "{query}"
                     </h1>
                     <p className="text-muted-foreground">
-                        {displayData.total} result{displayData.total !== 1 ? "s" : ""} found
+                        {displayData.total} result
+                        {displayData.total !== 1 ? "s" : ""} found
                         {activeCategory === "all" && totalAll > 0 && (
                             <span className="ml-2 text-sm">
-                                ({totalMovies} movies • {totalSeries} series • {totalAnime} anime)
+                                ({totalMovies} movies • {totalSeries} series)
                             </span>
                         )}
                     </p>
@@ -163,15 +144,21 @@ export default function Search() {
                 {/* Category Filter Buttons */}
                 <div className="flex flex-wrap gap-3">
                     <Button
-                        variant={activeCategory === "all" ? "default" : "outline"}
+                        variant={
+                            activeCategory === "all" ? "default" : "outline"
+                        }
                         size="lg"
                         onClick={() => handleCategoryChange("all")}
                         className="gap-2 transition-all"
                     >
                         <SearchIcon className="h-4 w-4" />
                         All
-                        <Badge 
-                            variant={activeCategory === "all" ? "secondary" : "outline"}
+                        <Badge
+                            variant={
+                                activeCategory === "all"
+                                    ? "secondary"
+                                    : "outline"
+                            }
                             className="ml-1"
                         >
                             {totalAll}
@@ -179,15 +166,21 @@ export default function Search() {
                     </Button>
 
                     <Button
-                        variant={activeCategory === "movies" ? "default" : "outline"}
+                        variant={
+                            activeCategory === "movies" ? "default" : "outline"
+                        }
                         size="lg"
                         onClick={() => handleCategoryChange("movies")}
                         className="gap-2 transition-all"
                     >
                         <Film className="h-4 w-4" />
                         Movies
-                        <Badge 
-                            variant={activeCategory === "movies" ? "secondary" : "outline"}
+                        <Badge
+                            variant={
+                                activeCategory === "movies"
+                                    ? "secondary"
+                                    : "outline"
+                            }
                             className="ml-1"
                         >
                             {totalMovies}
@@ -195,34 +188,24 @@ export default function Search() {
                     </Button>
 
                     <Button
-                        variant={activeCategory === "series" ? "default" : "outline"}
+                        variant={
+                            activeCategory === "series" ? "default" : "outline"
+                        }
                         size="lg"
                         onClick={() => handleCategoryChange("series")}
                         className="gap-2 transition-all"
                     >
                         <Tv className="h-4 w-4" />
                         Series
-                        <Badge 
-                            variant={activeCategory === "series" ? "secondary" : "outline"}
+                        <Badge
+                            variant={
+                                activeCategory === "series"
+                                    ? "secondary"
+                                    : "outline"
+                            }
                             className="ml-1"
                         >
                             {totalSeries}
-                        </Badge>
-                    </Button>
-
-                    <Button
-                        variant={activeCategory === "anime" ? "default" : "outline"}
-                        size="lg"
-                        onClick={() => handleCategoryChange("anime")}
-                        className="gap-2 transition-all"
-                    >
-                        <Sparkles className="h-4 w-4" />
-                        Anime
-                        <Badge 
-                            variant={activeCategory === "anime" ? "secondary" : "outline"}
-                            className="ml-1"
-                        >
-                            {totalAnime}
                         </Badge>
                     </Button>
                 </div>
@@ -234,20 +217,6 @@ export default function Search() {
                     {/* Show category sections when "All" is selected */}
                     {activeCategory === "all" ? (
                         <div className="space-y-12">
-                            {/* Anime Section */}
-                            {anime.length > 0 && (
-                                <div className="space-y-4">
-                                    <div className="flex items-center gap-2">
-                                        <Sparkles className="h-5 w-5 text-primary" />
-                                        <h2 className="text-2xl font-bold">
-                                            Anime
-                                        </h2>
-                                        <Badge variant="secondary">{totalAnime}</Badge>
-                                    </div>
-                                    <MovieGrid movies={anime} />
-                                </div>
-                            )}
-
                             {/* Movies Section */}
                             {movies.length > 0 && (
                                 <div className="space-y-4">
@@ -256,7 +225,9 @@ export default function Search() {
                                         <h2 className="text-2xl font-bold">
                                             Movies
                                         </h2>
-                                        <Badge variant="secondary">{totalMovies}</Badge>
+                                        <Badge variant="secondary">
+                                            {totalMovies}
+                                        </Badge>
                                     </div>
                                     <MovieGrid movies={movies} />
                                 </div>
@@ -270,7 +241,9 @@ export default function Search() {
                                         <h2 className="text-2xl font-bold">
                                             Series
                                         </h2>
-                                        <Badge variant="secondary">{totalSeries}</Badge>
+                                        <Badge variant="secondary">
+                                            {totalSeries}
+                                        </Badge>
                                     </div>
                                     <MovieGrid movies={series} />
                                 </div>
@@ -281,18 +254,16 @@ export default function Search() {
                         <MovieGrid movies={displayData.data} />
                     )}
 
-                    {/* Pagination (only for movies/series from TMDB) */}
-                    {(activeCategory === "movies" || activeCategory === "series" || activeCategory === "all") &&
-                        movieData &&
-                        movieData.totalPages > 1 && (
-                            <div className="mt-8">
-                                <Pagination
-                                    currentPage={currentPage}
-                                    totalPages={movieData.totalPages}
-                                    onPageChange={handlePageChange}
-                                />
-                            </div>
-                        )}
+                    {/* Pagination */}
+                    {movieData && movieData.totalPages > 1 && (
+                        <div className="mt-8">
+                            <Pagination
+                                currentPage={currentPage}
+                                totalPages={movieData.totalPages}
+                                onPageChange={handlePageChange}
+                            />
+                        </div>
+                    )}
                 </>
             ) : (
                 <div className="flex flex-col items-center justify-center min-h-[300px] text-center">

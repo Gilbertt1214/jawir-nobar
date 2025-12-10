@@ -179,6 +179,11 @@ class MovieAPI {
         return this.anime.getCompleteAnime(page);
     }
 
+    // Get all anime with pagination (uses /anime/unlimited endpoint)
+    async getAllAnimePaginated(page: number = 1, perPage: number = 24) {
+        return this.anime.getAllAnimePaginated(page, perPage);
+    }
+
     // Get anime genres
     async getAnimeGenres() {
         return this.anime.getAnimeGenres();

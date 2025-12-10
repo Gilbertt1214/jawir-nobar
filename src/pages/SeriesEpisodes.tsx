@@ -320,7 +320,7 @@ export default function SeriesEpisodes() {
 
                 {/* Series Info Card */}
                 {series && (
-                    <Card className="mb-6 bg-gradient-to-br from-background to-muted/20 border-muted">
+                    <Card className="mb-6 bg-black/40 border-white/10">
                         <CardContent className="p-8">
                             <div className="flex flex-col md:flex-row gap-8 items-start">
                                 <img
@@ -351,7 +351,7 @@ export default function SeriesEpisodes() {
                                             {series.rating != null &&
                                                 series.rating > 0 && (
                                                     <div className="flex items-center gap-1.5">
-                                                        <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
+                                                        <Star className="h-4 w-4 fill-red-500 text-red-500" />
                                                         <span className="text-sm font-medium">
                                                             {series.rating.toFixed(
                                                                 1
@@ -381,7 +381,7 @@ export default function SeriesEpisodes() {
                                     {/* Stats */}
                                     <div className="grid grid-cols-3 gap-6">
                                         <div className="text-center">
-                                            <div className="text-4xl font-bold mb-1 bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">
+                                            <div className="text-4xl font-bold mb-1 text-red-500">
                                                 {stats.totalEpisodes}
                                             </div>
                                             <div className="text-sm text-muted-foreground font-medium">
@@ -389,7 +389,7 @@ export default function SeriesEpisodes() {
                                             </div>
                                         </div>
                                         <div className="text-center">
-                                            <div className="text-4xl font-bold mb-1 bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">
+                                            <div className="text-4xl font-bold mb-1 text-red-500">
                                                 {stats.totalSeasons}
                                             </div>
                                             <div className="text-sm text-muted-foreground font-medium">
@@ -397,7 +397,7 @@ export default function SeriesEpisodes() {
                                             </div>
                                         </div>
                                         <div className="text-center">
-                                            <div className="text-4xl font-bold mb-1 bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text text-transparent">
+                                            <div className="text-4xl font-bold mb-1 text-red-500">
                                                 {stats.episodesPerSeason}
                                             </div>
                                             <div className="text-sm text-muted-foreground font-medium">

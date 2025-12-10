@@ -69,14 +69,17 @@ export class AnimeService {
     async getOngoingAnime(): Promise<Movie[]> {
         try {
             const result = await sankaAnimeAPI.getOngoingAnime(1);
+            console.log("Ongoing anime result:", result);
             return result.data.map((anime) => ({
-                id: anime.slug,
+                id: anime.slug || anime.animeId || "",
                 title: anime.title,
                 cover: ensureImageUrl(anime.poster),
                 genre: [],
                 type: "anime" as const,
-                slug: anime.slug,
-                latestEpisode: anime.current_episode,
+                slug: anime.slug || anime.animeId || "",
+                latestEpisode:
+                    anime.current_episode ||
+                    (anime.episodes ? `${anime.episodes} Eps` : ""),
                 synopsis: "",
             }));
         } catch (error) {
@@ -91,23 +94,82 @@ export class AnimeService {
     async getCompleteAnime(page: number = 1) {
         try {
             const result = await sankaAnimeAPI.getCompletedAnime(page);
+            // Handle both old and new pagination format
+            const totalPages =
+                (result.pagination as any)?.totalPages ||
+                (result.pagination as any)?.last_visible_page ||
+                1;
+
             return {
                 data: result.data.map((anime) => ({
-                    id: anime.slug,
+                    id: anime.slug || anime.animeId || "",
                     title: anime.title,
                     cover: ensureImageUrl(anime.poster),
                     genre: [],
                     type: "anime" as const,
-                    slug: anime.slug,
+                    slug: anime.slug || anime.animeId || "",
                     synopsis: "",
                 })),
                 page,
-                totalPages: result.pagination?.last_visible_page || 1,
+                totalPages,
                 totalItems: result.data.length,
             };
         } catch (error) {
             console.error("Failed to fetch completed anime:", error);
             return { data: [], page: 1, totalPages: 1, totalItems: 0 };
+        }
+    }
+
+    /**
+     * Get all anime with pagination (uses /anime/unlimited endpoint)
+     * Posters are fetched from detail endpoint by sanka.service
+     */
+    async getAllAnimePaginated(page: number = 1, perPage: number = 24) {
+        try {
+            const result = await sankaAnimeAPI.getAllAnimePaginated(
+                page,
+                perPage
+            );
+
+            // Log first item to debug poster field
+            if (result.data.length > 0) {
+                console.log("📦 Sample anime data with poster:", {
+                    title: result.data[0].title,
+                    poster: result.data[0].poster,
+                    animeId: result.data[0].animeId,
+                });
+            }
+
+            return {
+                data: result.data.map((anime: any) => ({
+                    id: anime.slug || anime.animeId || "",
+                    title: anime.title,
+                    // Poster is now fetched from detail endpoint
+                    cover: ensureImageUrl(anime.poster),
+                    genre: [],
+                    type: "anime" as const,
+                    slug: anime.slug || anime.animeId || "",
+                    latestEpisode: anime.episodes
+                        ? `${anime.episodes} Eps`
+                        : "",
+                    synopsis: "",
+                })),
+                page,
+                totalPages: result.pagination.totalPages,
+                totalItems: (result.pagination as any).totalItems || 0,
+                hasNextPage: result.pagination.hasNextPage,
+                hasPrevPage: result.pagination.hasPrevPage,
+            };
+        } catch (error) {
+            console.error("Failed to fetch all anime paginated:", error);
+            return {
+                data: [],
+                page: 1,
+                totalPages: 1,
+                totalItems: 0,
+                hasNextPage: false,
+                hasPrevPage: false,
+            };
         }
     }
 
@@ -129,18 +191,24 @@ export class AnimeService {
     async getAnimeByGenre(genreSlug: string, page: number = 1) {
         try {
             const result = await sankaAnimeAPI.getAnimeByGenre(genreSlug, page);
+            // Handle both old and new pagination format
+            const totalPages =
+                (result.pagination as any)?.totalPages ||
+                (result.pagination as any)?.last_visible_page ||
+                1;
+
             return {
                 data: result.data.map((anime) => ({
-                    id: anime.slug,
+                    id: anime.slug || "",
                     title: anime.title,
                     cover: ensureImageUrl(anime.poster),
                     genre: [],
                     type: "anime" as const,
-                    slug: anime.slug,
+                    slug: anime.slug || "",
                     synopsis: "",
                 })),
                 page,
-                totalPages: result.pagination?.last_visible_page || 1,
+                totalPages,
                 totalItems: result.data.length,
             };
         } catch (error) {
@@ -214,27 +282,34 @@ export class AnimeService {
             if (!detail) return null;
 
             const episodes: AnimeEpisode[] =
-                detail.episode_lists?.map((ep) => ({
-                    title: ep.episode,
+                detail.episode_lists?.map((ep: any) => ({
+                    title: ep.episode || `Episode ${ep.episode_number}`,
                     slug: ep.slug,
                     link: ep.otakudesu_url || "",
                 })) || [];
 
+            // Get synopsis - already normalized in sanka.service.ts
+            const synopsis =
+                typeof detail.synopsis === "string" ? detail.synopsis : "";
+
             return {
-                id: detail.slug,
+                id: slug,
                 title: detail.title,
                 cover: ensureImageUrl(detail.poster),
-                genre: detail.genres?.map((g) => g.name) || [],
+                genre: detail.genres?.map((g: any) => g.name) || [],
                 type: "anime",
-                slug: detail.slug,
-                synopsis: detail.synopsis || "",
+                slug: slug,
+                synopsis,
                 status: detail.status || "",
-                studio: detail.studio || "",
+                studio: detail.studio || detail.studios || "",
                 duration: detail.duration || "",
-                releaseDate: detail.release_date || "",
-                totalEpisodes: detail.episode_count || "",
+                releaseDate: detail.release_date || detail.aired || "",
+                totalEpisodes:
+                    detail.episode_count ||
+                    (detail.episodes ? String(detail.episodes) : "") ||
+                    String(episodes.length),
                 episodes,
-                rating: parseFloat(detail.rating || "0"),
+                rating: parseFloat(detail.rating || detail.score || "0"),
             };
         } catch (error) {
             console.error("Failed to fetch Otakudesu anime detail:", error);
@@ -258,14 +333,14 @@ export class AnimeService {
                 streamServers: episodeData.stream_servers?.flatMap((quality) =>
                     quality.servers.map((server) => ({
                         name: `${server.name} (${quality.quality})`,
-                        url: episodeData.stream_url,
+                        url: episodeData.stream_url || "",
                         available: true,
                         quality: quality.quality,
                     }))
                 ),
                 nextEpisode: episodeData.next_episode?.slug,
                 prevEpisode: episodeData.previous_episode?.slug,
-                downloadUrls: episodeData.download_urls,
+                downloadUrls: (episodeData as any).download_urls,
             };
         } catch (error) {
             console.error("Failed to fetch episode stream:", error);

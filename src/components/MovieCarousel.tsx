@@ -58,6 +58,7 @@ export function MovieCarousel({ title, movies }: MovieCarouselProps) {
             className="space-y-4 relative group"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
+            style={{ contain: "layout", willChange: "auto" }}
         >
             {title && (
                 <div className="flex items-center justify-between px-1">
@@ -86,37 +87,41 @@ export function MovieCarousel({ title, movies }: MovieCarouselProps) {
             )}
 
             <div className="relative">
-                {/* Floating Navigation Buttons - Desktop Only */}
+                {/* Floating Navigation Buttons - Desktop Only - Static, no animations */}
                 {canScrollLeft && (
-                    <Button
-                        variant="secondary"
-                        size="icon"
+                    <button
                         onClick={() => scroll("left")}
                         className={cn(
-                            "hidden lg:flex absolute left-2 top-1/2 -translate-y-1/2 z-10 h-12 w-12 rounded-full shadow-xl bg-background/95 hover:bg-primary hover:text-primary-foreground backdrop-blur-sm transition-all duration-300",
+                            "hidden lg:flex items-center justify-center absolute left-2 z-10 h-12 w-12 rounded-full bg-primary text-primary-foreground",
                             isHovered
                                 ? "opacity-100"
                                 : "opacity-0 pointer-events-none"
                         )}
+                        style={{
+                            top: "50%",
+                            transform: "translateY(-50%)",
+                        }}
                     >
                         <ChevronLeft className="h-6 w-6" />
-                    </Button>
+                    </button>
                 )}
 
                 {canScrollRight && (
-                    <Button
-                        variant="secondary"
-                        size="icon"
+                    <button
                         onClick={() => scroll("right")}
                         className={cn(
-                            "hidden lg:flex absolute right-2 top-1/2 -translate-y-1/2 z-10 h-12 w-12 rounded-full shadow-xl bg-background/95 hover:bg-primary hover:text-primary-foreground backdrop-blur-sm transition-all duration-300",
+                            "hidden lg:flex items-center justify-center absolute right-2 z-10 h-12 w-12 rounded-full bg-primary text-primary-foreground",
                             isHovered
                                 ? "opacity-100"
                                 : "opacity-0 pointer-events-none"
                         )}
+                        style={{
+                            top: "50%",
+                            transform: "translateY(-50%)",
+                        }}
                     >
                         <ChevronRight className="h-6 w-6" />
-                    </Button>
+                    </button>
                 )}
 
                 {/* Gradient Overlays - Desktop Only */}

@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import {
-    Film,
     Moon,
     Sun,
     Search,
@@ -8,6 +7,7 @@ import {
     Globe,
     Calendar,
     Tag,
+    Tv,
 } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Button } from "@/components/ui/button";
@@ -78,7 +78,10 @@ export function Navbar() {
                 </Link>
 
                 <div className="flex items-center gap-2 sm:gap-4 flex-1 max-w-[200px] xs:max-w-xs sm:max-w-md mx-auto transition-all duration-300">
-                    <form onSubmit={handleSearch} className="relative flex-1 group">
+                    <form
+                        onSubmit={handleSearch}
+                        className="relative flex-1 group"
+                    >
                         <div className="absolute inset-0 bg-primary/20 blur-md rounded-full opacity-0 group-focus-within:opacity-100 transition-opacity duration-300" />
                         <Input
                             type="search"
@@ -101,6 +104,15 @@ export function Navbar() {
                 <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
                     {/* Desktop Menu */}
                     <div className="hidden md:flex items-center gap-1">
+                        <Link to="/anime">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-sm px-4 rounded-full hover:bg-white/10 hover:text-primary transition-all duration-300"
+                            >
+                                Anime
+                            </Button>
+                        </Link>
                         <Link to="/genres">
                             <Button
                                 variant="ghost"
@@ -152,6 +164,15 @@ export function Navbar() {
                                 </SheetTitle>
                             </SheetHeader>
                             <div className="flex flex-col gap-2 mt-8">
+                                <Link to="/anime" onClick={handleMenuItemClick}>
+                                    <Button
+                                        variant="ghost"
+                                        className="w-full justify-start gap-4 h-12 text-base font-medium rounded-xl hover:bg-primary/10 hover:text-primary transition-all"
+                                    >
+                                        <Tv className="h-5 w-5" />
+                                        Anime
+                                    </Button>
+                                </Link>
                                 <Link
                                     to="/genres"
                                     onClick={handleMenuItemClick}

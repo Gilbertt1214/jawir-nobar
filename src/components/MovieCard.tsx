@@ -3,68 +3,28 @@ import { Star, Play } from "lucide-react";
 import { Movie } from "@/services/api";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { motion } from "framer-motion";
 
 interface MovieCardProps {
     movie: Movie;
-    index?: number; // For determining slide direction
+    index?: number;
 }
 
-export function MovieCard({ movie, index = 0 }: MovieCardProps) {
-    // Framer Motion variants for slide-in effect
-    const variants = {
-        hidden: {
-            opacity: 0,
-            x: 0,
-            y: 20,
-        },
-        visible: {
-            opacity: 1,
-            x: 0,
-            y: 0,
-            transition: {
-                duration: 0.6,
-                ease: [0.22, 1, 0.36, 1] as any, // Custom ease for smooth "premium" feel
-                delay: (index % 4) * 0.1, // Stagger effect
-            },
-        },
-    };
-
+export function MovieCard({ movie }: MovieCardProps) {
     return (
-        <motion.div
-            variants={variants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-50px" }}
-        >
+        <div>
             <Link
-                to={`/${movie.type}/${movie.id}`}
+                to={`/${movie.type}/${movie.slug || movie.id}`}
                 className="block group/card"
             >
                 <Card className="overflow-hidden border-0 bg-transparent shadow-none">
-                    <motion.div
-                        className="relative aspect-[2/3] overflow-hidden rounded-xl bg-muted shadow-card"
-                        whileHover={{
-                            scale: 1.03,
-                            boxShadow: "0 8px 30px rgba(0, 0, 0, 0.3)",
-                            transition: {
-                                duration: 0.3,
-                                ease: [0.4, 0, 0.2, 1],
-                            },
-                        }}
-                    >
+                    <div className="relative aspect-[2/3] overflow-hidden rounded-xl bg-muted shadow-card transition-transform duration-300 hover:scale-[1.03] hover:shadow-[0_8px_30px_rgba(0,0,0,0.3)]">
                         {/* Image with fallback */}
-                        <motion.img
+                        <img
                             src={movie.cover || "/placeholder.svg"}
                             alt={movie.title}
-                            className="object-cover w-full h-full bg-muted"
+                            className="object-cover w-full h-full bg-muted transition-transform duration-500 group-hover/card:scale-110"
                             loading="lazy"
                             draggable="false"
-                            whileHover={{ scale: 1.1 }}
-                            transition={{
-                                duration: 0.6,
-                                ease: [0.4, 0, 0.2, 1],
-                            }}
                             onError={(e) => {
                                 const target = e.currentTarget;
                                 if (target.src !== "/placeholder.svg") {
@@ -77,25 +37,11 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
                         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-60 group-hover/card:opacity-80 transition-opacity duration-500" />
 
                         {/* Hover overlay with play button */}
-                        <motion.div
-                            className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-[2px]"
-                            initial={{ opacity: 0 }}
-                            whileHover={{ opacity: 1 }}
-                            transition={{ duration: 0.3 }}
-                        >
-                            <motion.div
-                                className="p-4 rounded-full bg-primary/90 text-primary-foreground shadow-lg"
-                                initial={{ scale: 0.5 }}
-                                whileHover={{ scale: 1 }}
-                                transition={{
-                                    type: "spring" as const,
-                                    stiffness: 300,
-                                    damping: 15,
-                                }}
-                            >
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-[2px] opacity-0 group-hover/card:opacity-100 transition-opacity duration-300">
+                            <div className="p-4 rounded-full bg-primary/90 text-primary-foreground shadow-lg scale-50 group-hover/card:scale-100 transition-transform duration-300">
                                 <Play className="h-8 w-8 fill-current ml-1" />
-                            </motion.div>
-                        </motion.div>
+                            </div>
+                        </div>
 
                         {/* Type badge */}
                         {movie.type === "series" && (
@@ -104,7 +50,7 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
                             </Badge>
                         )}
                         {movie.type === "anime" && (
-                            <Badge className="absolute top-2 right-2 bg-gradient-to-r from-purple-600 to-pink-600 backdrop-blur-md border border-white/10 text-white px-2 py-0.5 text-xs font-medium uppercase tracking-wider">
+                            <Badge className="absolute top-2 right-2 bg-black/60 backdrop-blur-md border border-white/10 text-white px-2 py-0.5 text-xs font-medium uppercase tracking-wider">
                                 Anime
                             </Badge>
                         )}
@@ -112,7 +58,7 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
                         {/* Rating badge */}
                         {movie.rating && (
                             <div className="absolute top-2 left-2 flex items-center gap-1 bg-black/60 backdrop-blur-md border border-white/10 px-2 py-1 rounded-md">
-                                <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
+                                <Star className="h-3 w-3 fill-red-500 text-red-500" />
                                 <span className="text-xs font-bold text-white">
                                     {movie.rating.toFixed(1)}
                                 </span>
@@ -125,7 +71,7 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
                                 {movie.quality}
                             </Badge>
                         )}
-                    </motion.div>
+                    </div>
 
                     <CardContent className="p-3 space-y-1.5">
                         {/* Title */}
@@ -136,17 +82,19 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
                         {/* Year and Country */}
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
                             {movie.latestEpisode && movie.type === "anime" && (
-                                <span className="text-primary font-medium">
-                                    {movie.latestEpisode}
-                                </span>
+                                <span>{movie.latestEpisode}</span>
                             )}
                             {movie.latestEpisode && movie.year && (
-                                <span className="text-primary/50">•</span>
+                                <span className="text-muted-foreground/50">
+                                    •
+                                </span>
                             )}
                             {movie.year && <span>{movie.year}</span>}
                             {movie.country &&
                                 (movie.year || movie.latestEpisode) && (
-                                    <span className="text-primary/50">•</span>
+                                    <span className="text-muted-foreground/50">
+                                        •
+                                    </span>
                                 )}
                             {movie.country && (
                                 <span className="line-clamp-1">
@@ -157,6 +105,6 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
                     </CardContent>
                 </Card>
             </Link>
-        </motion.div>
+        </div>
     );
 }

@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { movieAPI } from "@/services/api";
 import { Button } from "@/components/ui/button";
@@ -7,18 +7,90 @@ import { Card, CardContent } from "@/components/ui/card";
 import {
     AlertCircle,
     Search,
-    Home,
     RefreshCw,
     Wifi,
     WifiOff,
+    Play,
+    Shuffle,
+    X,
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 
+// Helper to extract base title (remove episode number)
+const extractBaseTitle = (title: string): string => {
+    return title
+        .replace(/\s*[-–]\s*episode\s*\d+/gi, "")
+        .replace(/\s*episode\s*\d+/gi, "")
+        .replace(/\s*ep\s*\d+/gi, "")
+        .replace(/\s*[-–]\s*\d+\s*$/gi, "")
+        .replace(/\s*subtitle\s*indonesia/gi, "")
+        .replace(/\s*sub\s*indo/gi, "")
+        .replace(/\s*\[.*?\]/g, "")
+        .replace(/\s*\(.*?\)/g, "")
+        .trim();
+};
+
+// Helper to extract episode number
+const extractEpisodeNumber = (title: string): number => {
+    const match =
+        title.match(/episode\s*(\d+)/i) ||
+        title.match(/ep\s*(\d+)/i) ||
+        title.match(/[-–]\s*(\d+)\s*$/);
+    return match ? parseInt(match[1]) : 1;
+};
+
+interface GroupedHentai {
+    baseTitle: string;
+    cover: string;
+    episodes: Array<{
+        id: string;
+        title: string;
+        episodeNum: number;
+        uploadDate?: string;
+    }>;
+    latestEpisode: number;
+    firstEpisodeId: string;
+}
+
+interface RandomHentai {
+    id: string;
+    title: string;
+    cover: string;
+    genre: string[];
+    synopsis: string;
+}
+
 export default function HentaiList() {
+    const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState("");
-    const [page] = useState(1);
+    const [page, setPage] = useState(1);
     const [apiStatus, setApiStatus] = useState<boolean | null>(null);
+    const [isLoadingRandom, setIsLoadingRandom] = useState(false);
+    const [randomHentai, setRandomHentai] = useState<RandomHentai | null>(null);
+
+    // Handle random hentai
+    const handleRandom = async () => {
+        setIsLoadingRandom(true);
+        try {
+            console.log("🎲 Requesting random hentai...");
+            const random = await movieAPI.getSankaNekopoiRandom();
+            console.log("🎲 Got random:", random);
+            if (random) {
+                setRandomHentai({
+                    id: random.id,
+                    title: random.title,
+                    cover: random.cover,
+                    genre: random.genre || [],
+                    synopsis: random.synopsis || "",
+                });
+            }
+        } catch (error) {
+            console.error("Failed to get random hentai:", error);
+        } finally {
+            setIsLoadingRandom(false);
+        }
+    };
 
     // Check API status on mount
     useEffect(() => {
@@ -33,91 +105,122 @@ export default function HentaiList() {
         checkAPI();
     }, []);
 
-    // Get all sources combined
+    // Get release list with pagination
     const {
-        data: allLatest,
-        isLoading: latestLoading,
-        error: latestError,
-        refetch: refetchLatest,
+        data: releaseData,
+        isLoading: releaseLoading,
+        error: releaseError,
+        refetch: refetchRelease,
     } = useQuery({
-        queryKey: ["allHentaiLatest", page],
+        queryKey: ["hentaiRelease", page],
         queryFn: async () => {
-            try {
-                return await movieAPI.getAllHentaiLatest(page);
-            } catch (error) {
-                console.error("Error fetching all sources:", error);
-                return {
-                    nekopoi: {
-                        data: [],
-                        page: 1,
-                        totalPages: 1,
-                        totalItems: 0,
-                    },
-                };
-            }
+            const startPage = (page - 1) * 5 + 1;
+            const pagesToLoad = [
+                startPage,
+                startPage + 1,
+                startPage + 2,
+                startPage + 3,
+                startPage + 4,
+            ];
+
+            const results = await Promise.all(
+                pagesToLoad.map((p) => movieAPI.getAllHentaiLatest(p))
+            );
+
+            const allData = results.flatMap((r) => r.nekopoi.data);
+            const uniqueData = allData.filter(
+                (item, index, self) =>
+                    index === self.findIndex((t) => t.id === item.id)
+            );
+
+            return {
+                data: uniqueData,
+                page,
+                totalPages: 10,
+                totalItems: uniqueData.length,
+            };
         },
         enabled: !searchQuery,
-        retry: 2,
-        retryDelay: 1000,
     });
 
-    // Search all sources
-    const {
-        data: allSearchResults,
-        isLoading: searchLoading,
-        error: searchError,
-    } = useQuery({
-        queryKey: ["allHentaiSearch", searchQuery],
-        queryFn: async () => {
-            try {
-                return await movieAPI.searchAllHentai(searchQuery);
-            } catch (error) {
-                console.error("Error searching all sources:", error);
-                return {
-                    nekopoi: [],
-                };
-            }
-        },
+    // Search hentai
+    const { data: searchResults, isLoading: searchLoading } = useQuery({
+        queryKey: ["hentaiSearch", searchQuery],
+        queryFn: () => movieAPI.searchAllHentai(searchQuery),
         enabled: searchQuery.length > 2,
-        retry: 2,
     });
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
     };
 
-    // Get data from nekopoi source
-    const getDisplayData = () => {
-        if (searchQuery.length > 2 && allSearchResults) {
-            return allSearchResults.nekopoi;
+    // Get raw data
+    const getRawData = () => {
+        if (searchQuery.length > 2 && searchResults) {
+            return searchResults.nekopoi;
         }
-
-        if (allLatest) {
-            return allLatest.nekopoi.data;
-        }
-
-        return [];
+        return releaseData?.data || [];
     };
 
-    const displayData = getDisplayData();
-    const isLoading = searchQuery.length > 2 ? searchLoading : latestLoading;
-    const error = searchQuery.length > 2 ? searchError : latestError;
-    const totalItems = allLatest?.nekopoi?.data?.length || 0;
+    const rawData = getRawData();
+
+    // Group episodes by base title
+    const groupedData = useMemo(() => {
+        const groups: Record<string, GroupedHentai> = {};
+
+        rawData.forEach((item) => {
+            const baseTitle = extractBaseTitle(item.title);
+            const episodeNum = extractEpisodeNumber(item.title);
+            const key = baseTitle.toLowerCase();
+
+            if (!groups[key]) {
+                groups[key] = {
+                    baseTitle,
+                    cover: item.cover,
+                    episodes: [],
+                    latestEpisode: episodeNum,
+                    firstEpisodeId: item.id,
+                };
+            }
+
+            groups[key].episodes.push({
+                id: item.id,
+                title: item.title,
+                episodeNum,
+                uploadDate: item.uploadDate,
+            });
+
+            if (episodeNum > groups[key].latestEpisode) {
+                groups[key].latestEpisode = episodeNum;
+                groups[key].cover = item.cover;
+            }
+        });
+
+        Object.values(groups).forEach((group) => {
+            group.episodes.sort((a, b) => a.episodeNum - b.episodeNum);
+        });
+
+        return Object.values(groups).sort(
+            (a, b) => b.latestEpisode - a.latestEpisode
+        );
+    }, [rawData]);
+
+    const isLoading = searchQuery.length > 2 ? searchLoading : releaseLoading;
+    const totalItems = groupedData.length;
 
     return (
-        <div className="min-h-screen" style={{ backgroundColor: "#0a0a0a" }}>
+        <div className="min-h-screen bg-background">
             <div className="container mx-auto px-4 py-8">
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                     <div>
-                        <h1 className="text-3xl font-bold text-white mb-2">
+                        <h1 className="text-3xl font-bold text-foreground mb-2">
                             Hentai
                         </h1>
                         <div className="flex items-center gap-2">
-                            <p className="text-sm text-gray-400">
+                            <p className="text-sm text-muted-foreground">
                                 Powered by Nekopoi (Sanka API)
                             </p>
-                            {/* API Status Indicator */}
                             {apiStatus !== null && (
                                 <div className="flex items-center gap-1">
                                     {apiStatus ? (
@@ -142,31 +245,113 @@ export default function HentaiList() {
                         <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => refetchLatest()}
-                            className="border-gray-700 text-gray-300 hover:bg-gray-800"
+                            onClick={handleRandom}
+                            disabled={isLoadingRandom}
+                            className="border-red-600 text-red-500 hover:bg-red-600 hover:text-white"
+                        >
+                            <Shuffle
+                                className={`mr-2 h-4 w-4 ${
+                                    isLoadingRandom ? "animate-spin" : ""
+                                }`}
+                            />
+                            {isLoadingRandom ? "Loading..." : "Random"}
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => refetchRelease()}
                         >
                             <RefreshCw className="mr-2 h-4 w-4" />
                             Refresh
                         </Button>
-                        <Link to="/">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                className="border-gray-700 text-gray-300 hover:bg-gray-800"
-                            >
-                                <Home className="mr-2 h-4 w-4" />
-                                Home
-                            </Button>
-                        </Link>
                     </div>
                 </div>
 
-                {/* Source Badge - Red Background */}
+                {/* Random Hentai Card */}
+                {randomHentai && (
+                    <div className="mb-8 p-4 rounded-xl bg-card border-2 border-red-600">
+                        <div className="flex items-center gap-2 mb-4">
+                            <Shuffle className="h-5 w-5 text-red-500" />
+                            <h2 className="text-lg font-bold text-foreground">
+                                🎲 Random Pick untuk Kamu!
+                            </h2>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setRandomHentai(null)}
+                                className="ml-auto"
+                            >
+                                <X className="h-4 w-4" />
+                            </Button>
+                        </div>
+                        <div className="flex flex-col sm:flex-row gap-4">
+                            <div className="w-full sm:w-40 h-56 flex-shrink-0 rounded-lg overflow-hidden bg-muted">
+                                <img
+                                    src={
+                                        randomHentai.cover || "/placeholder.svg"
+                                    }
+                                    alt={randomHentai.title}
+                                    className="w-full h-full object-cover"
+                                    referrerPolicy="no-referrer"
+                                    crossOrigin="anonymous"
+                                    onError={(e) => {
+                                        e.currentTarget.src =
+                                            "/placeholder.svg";
+                                    }}
+                                />
+                            </div>
+                            <div className="flex-1">
+                                <h3 className="text-xl font-bold text-foreground mb-2">
+                                    {randomHentai.title}
+                                </h3>
+                                {randomHentai.genre &&
+                                    randomHentai.genre.length > 0 && (
+                                        <div className="flex flex-wrap gap-1 mb-3">
+                                            {randomHentai.genre
+                                                .slice(0, 5)
+                                                .map((g, i) => (
+                                                    <Badge
+                                                        key={i}
+                                                        className="bg-red-600 text-white text-xs"
+                                                    >
+                                                        {g}
+                                                    </Badge>
+                                                ))}
+                                        </div>
+                                    )}
+                                <p className="text-muted-foreground text-sm line-clamp-3 mb-4">
+                                    {randomHentai.synopsis ||
+                                        "Sinopsis tidak tersedia."}
+                                </p>
+                                <div className="flex flex-wrap gap-2">
+                                    <Button
+                                        onClick={() =>
+                                            navigate(
+                                                `/hentai/watch/${randomHentai.id}`
+                                            )
+                                        }
+                                        className="bg-red-600 hover:bg-red-500 text-white"
+                                    >
+                                        <Play className="mr-2 h-4 w-4" />
+                                        Tonton Sekarang
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        onClick={handleRandom}
+                                        disabled={isLoadingRandom}
+                                    >
+                                        <Shuffle className="mr-2 h-4 w-4" />
+                                        Coba Lagi
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Source Badge */}
                 <div className="flex gap-2 mb-6">
-                    <div
-                        className="inline-flex items-center px-4 py-2 rounded-lg"
-                        style={{ backgroundColor: "#dc2626" }}
-                    >
+                    <div className="inline-flex items-center px-4 py-2 rounded-lg bg-red-600">
                         <span className="text-white font-medium">Nekopoi</span>
                         <Badge className="ml-2 bg-white text-red-600 hover:bg-gray-100">
                             {totalItems}
@@ -177,17 +362,17 @@ export default function HentaiList() {
                 {/* Search Bar */}
                 <form onSubmit={handleSearch} className="mb-8">
                     <div className="relative max-w-xl">
-                        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500" />
+                        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                         <Input
                             type="text"
-                            placeholder="Cari anime Hentai... (min 3 karakter)"
+                            placeholder="Cari hentai... (min 3 karakter)"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pl-12 py-6 text-base rounded-xl border-gray-700 bg-[#121212] text-white placeholder:text-gray-500 focus:border-red-500 focus:ring-red-500"
+                            className="pl-12 py-6 text-base rounded-xl border-border bg-secondary text-foreground placeholder:text-muted-foreground focus:border-red-500 focus:ring-red-500"
                         />
                     </div>
                     {searchQuery.length > 0 && searchQuery.length < 3 && (
-                        <p className="text-xs text-gray-500 mt-2 ml-1">
+                        <p className="text-xs text-muted-foreground mt-2 ml-1">
                             Ketik minimal 3 karakter untuk mencari
                         </p>
                     )}
@@ -197,50 +382,26 @@ export default function HentaiList() {
                 {isLoading && (
                     <div className="flex flex-col items-center justify-center py-16">
                         <div className="animate-spin rounded-full h-12 w-12 border-4 border-red-500 border-t-transparent mb-4"></div>
-                        <p className="text-gray-400">Memuat konten...</p>
+                        <p className="text-muted-foreground">
+                            Memuat konten dan thumbnail...
+                        </p>
                     </div>
                 )}
 
                 {/* Error State */}
-                {error && (
-                    <div
-                        className="rounded-xl p-6 mb-6"
-                        style={{
-                            backgroundColor: "#1a1a1a",
-                            border: "1px solid #dc2626",
-                        }}
-                    >
+                {releaseError && (
+                    <div className="rounded-xl p-6 mb-6 bg-card border border-red-600">
                         <div className="flex items-start gap-4">
                             <AlertCircle className="h-6 w-6 text-red-500 flex-shrink-0 mt-0.5" />
                             <div className="space-y-3">
-                                <p className="font-semibold text-white">
+                                <p className="font-semibold text-foreground">
                                     Gagal memuat konten
                                 </p>
-                                <p className="text-sm text-gray-400">
-                                    {(error as Error).message}
+                                <p className="text-sm text-muted-foreground">
+                                    {(releaseError as Error).message}
                                 </p>
-                                {(error as Error).message.includes("CORS") && (
-                                    <div className="text-sm space-y-2 p-4 rounded-lg bg-[#0a0a0a]">
-                                        <p className="font-semibold text-yellow-500">
-                                            CORS Error Terdeteksi
-                                        </p>
-                                        <p className="text-gray-400">
-                                            Untuk memperbaiki masalah ini:
-                                        </p>
-                                        <ol className="list-decimal list-inside space-y-1 ml-2 text-gray-400">
-                                            <li>
-                                                Install ekstensi CORS browser
-                                                (contoh: "CORS Unblock")
-                                            </li>
-                                            <li>
-                                                Atau setup proxy server untuk
-                                                production
-                                            </li>
-                                        </ol>
-                                    </div>
-                                )}
                                 <Button
-                                    onClick={() => refetchLatest()}
+                                    onClick={() => refetchRelease()}
                                     className="bg-red-600 hover:bg-red-700 text-white"
                                 >
                                     <RefreshCw className="mr-2 h-4 w-4" />
@@ -252,139 +413,194 @@ export default function HentaiList() {
                 )}
 
                 {/* Content Grid */}
-                {!isLoading && !error && displayData && (
+                {!isLoading && !releaseError && (
                     <>
-                        {displayData.length === 0 ? (
-                            <div
-                                className="rounded-xl p-8 text-center"
-                                style={{
-                                    backgroundColor: "#121212",
-                                    border: "1px solid #262626",
-                                }}
-                            >
+                        {groupedData.length === 0 ? (
+                            <div className="rounded-xl p-8 text-center bg-card border border-border">
                                 <div className="max-w-md mx-auto">
-                                    <div
-                                        className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
-                                        style={{ backgroundColor: "#1a1a1a" }}
-                                    >
-                                        <AlertCircle className="h-8 w-8 text-gray-500" />
+                                    <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-secondary">
+                                        <AlertCircle className="h-8 w-8 text-muted-foreground" />
                                     </div>
-                                    <h3 className="text-lg font-semibold text-white mb-2">
+                                    <h3 className="text-lg font-semibold text-foreground mb-2">
                                         {searchQuery.length > 2
                                             ? `Tidak ditemukan hasil untuk "${searchQuery}"`
                                             : "Belum ada konten tersedia"}
                                     </h3>
-                                    <p className="text-gray-400 text-sm mb-6">
+                                    <p className="text-muted-foreground text-sm mb-6">
                                         {searchQuery.length > 2
                                             ? "Coba kata kunci lain atau periksa ejaan"
-                                            : "Belum ada konten tersedia saat ini — coba lagi nanti atau cari judul spesifik di atas"}
+                                            : "Coba lagi nanti atau cari judul spesifik"}
                                     </p>
-                                    {!searchQuery && (
-                                        <Button
-                                            onClick={() => refetchLatest()}
-                                            className="bg-red-600 hover:bg-red-700 text-white"
-                                        >
-                                            <RefreshCw className="mr-2 h-4 w-4" />
-                                            Muat Ulang
-                                        </Button>
-                                    )}
                                 </div>
                             </div>
                         ) : (
                             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                                {displayData.map((item, index) => (
-                                    <Link
-                                        key={`${item.id}-${index}`}
-                                        to={`/hentai/nekopoi/${item.id}`}
-                                        className="group"
-                                    >
-                                        <Card
-                                            className="overflow-hidden border-0 transition-all duration-300 hover:scale-[1.02]"
-                                            style={{
-                                                backgroundColor: "#121212",
-                                            }}
-                                        >
-                                            <div className="relative aspect-[2/3] overflow-hidden">
-                                                <img
-                                                    src={item.cover}
-                                                    alt={item.title}
-                                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                                    onError={(e) => {
-                                                        e.currentTarget.src =
-                                                            "/placeholder.svg";
-                                                    }}
-                                                />
-                                                {/* Gradient overlay */}
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                {groupedData.map((group, index) => {
+                                    const hasCover =
+                                        group.cover &&
+                                        group.cover !== "/placeholder.svg" &&
+                                        group.cover !== "" &&
+                                        group.cover.startsWith("http");
+                                    const imageUrl = hasCover
+                                        ? group.cover
+                                        : "/placeholder.svg";
 
-                                                <div className="absolute top-2 right-2">
-                                                    <Badge className="text-xs backdrop-blur-sm bg-red-600 text-white border-none">
-                                                        Hentai
-                                                    </Badge>
-                                                </div>
-                                                {"uploadDate" in item &&
-                                                    item.uploadDate &&
-                                                    item.uploadDate !==
-                                                        "Unknown" && (
-                                                        <div className="absolute bottom-2 left-2">
-                                                            <Badge className="text-xs backdrop-blur-sm bg-black/70 text-white border-none">
-                                                                {String(
-                                                                    item.uploadDate
-                                                                )}
-                                                            </Badge>
+                                    return (
+                                        <Link
+                                            key={`${group.baseTitle}-${index}`}
+                                            to={`/hentai/nekopoi/${group.firstEpisodeId}`}
+                                            className="group"
+                                        >
+                                            <Card className="overflow-hidden border-0 transition-all duration-300 hover:scale-[1.02] bg-card">
+                                                <div className="relative aspect-[2/3] overflow-hidden bg-muted">
+                                                    <img
+                                                        src={imageUrl}
+                                                        alt={group.baseTitle}
+                                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                                        loading="lazy"
+                                                        referrerPolicy="no-referrer"
+                                                        crossOrigin="anonymous"
+                                                        onError={(e) => {
+                                                            e.currentTarget.src =
+                                                                "/placeholder.svg";
+                                                        }}
+                                                    />
+                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <div className="w-12 h-12 rounded-full bg-red-600 flex items-center justify-center">
+                                                            <Play className="w-5 h-5 text-white fill-white" />
                                                         </div>
-                                                    )}
-                                            </div>
-                                            <CardContent className="p-3">
-                                                <h3 className="font-semibold text-sm line-clamp-2 mb-2 text-white group-hover:text-red-400 transition-colors">
-                                                    {item.title}
-                                                </h3>
-                                                <div className="flex flex-wrap gap-1">
-                                                    {item.genre
-                                                        .slice(0, 2)
-                                                        .map((g, idx) => (
-                                                            <Badge
-                                                                key={idx}
-                                                                variant="outline"
-                                                                className="text-xs px-1.5 py-0 border-gray-700 text-gray-400"
-                                                            >
-                                                                {g}
-                                                            </Badge>
-                                                        ))}
-                                                    {item.genre.length > 2 && (
-                                                        <Badge
-                                                            variant="outline"
-                                                            className="text-xs px-1.5 py-0 border-gray-700 text-gray-400"
-                                                        >
-                                                            +
-                                                            {item.genre.length -
-                                                                2}
+                                                    </div>
+                                                    <div className="absolute top-2 right-2">
+                                                        <Badge className="text-xs backdrop-blur-sm bg-red-600 text-white border-none">
+                                                            Hentai
                                                         </Badge>
-                                                    )}
+                                                    </div>
+                                                    <div className="absolute top-2 left-2">
+                                                        <Badge className="text-xs backdrop-blur-sm bg-red-600 text-white border-none">
+                                                            {
+                                                                group.episodes
+                                                                    .length
+                                                            }{" "}
+                                                            Ep
+                                                        </Badge>
+                                                    </div>
+                                                    <div className="absolute bottom-2 left-2">
+                                                        <Badge className="text-xs backdrop-blur-sm bg-red-600/80 text-white border-none">
+                                                            Ep{" "}
+                                                            {
+                                                                group.latestEpisode
+                                                            }
+                                                        </Badge>
+                                                    </div>
                                                 </div>
-                                            </CardContent>
-                                        </Card>
-                                    </Link>
-                                ))}
+                                                <CardContent className="p-3">
+                                                    <h3 className="font-semibold text-sm line-clamp-2 text-foreground group-hover:text-red-500 transition-colors">
+                                                        {group.baseTitle}
+                                                    </h3>
+                                                </CardContent>
+                                            </Card>
+                                        </Link>
+                                    );
+                                })}
                             </div>
                         )}
                     </>
                 )}
 
+                {/* Pagination */}
+                {releaseData && !searchQuery && releaseData.totalPages > 1 && (
+                    <div className="flex flex-col items-center gap-4 mt-8">
+                        <div className="text-sm text-muted-foreground">
+                            Menampilkan {groupedData.length} judul dari halaman{" "}
+                            {page}
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Button
+                                variant="outline"
+                                onClick={() => setPage(1)}
+                                disabled={page <= 1}
+                            >
+                                First
+                            </Button>
+                            <Button
+                                variant="outline"
+                                onClick={() =>
+                                    setPage((p) => Math.max(1, p - 1))
+                                }
+                                disabled={page <= 1}
+                            >
+                                Previous
+                            </Button>
+                            <div className="flex items-center gap-1">
+                                {Array.from(
+                                    {
+                                        length: Math.min(
+                                            5,
+                                            releaseData.totalPages
+                                        ),
+                                    },
+                                    (_, i) => {
+                                        let pageNum;
+                                        if (releaseData.totalPages <= 5)
+                                            pageNum = i + 1;
+                                        else if (page <= 3) pageNum = i + 1;
+                                        else if (
+                                            page >=
+                                            releaseData.totalPages - 2
+                                        )
+                                            pageNum =
+                                                releaseData.totalPages - 4 + i;
+                                        else pageNum = page - 2 + i;
+                                        return (
+                                            <Button
+                                                key={pageNum}
+                                                variant={
+                                                    page === pageNum
+                                                        ? "default"
+                                                        : "outline"
+                                                }
+                                                onClick={() => setPage(pageNum)}
+                                                className={`w-10 h-10 ${
+                                                    page === pageNum
+                                                        ? "bg-red-600 hover:bg-red-500 text-white"
+                                                        : ""
+                                                }`}
+                                            >
+                                                {pageNum}
+                                            </Button>
+                                        );
+                                    }
+                                )}
+                            </div>
+                            <Button
+                                variant="outline"
+                                onClick={() => setPage((p) => p + 1)}
+                                disabled={page >= releaseData.totalPages}
+                            >
+                                Next
+                            </Button>
+                            <Button
+                                variant="outline"
+                                onClick={() => setPage(releaseData.totalPages)}
+                                disabled={page >= releaseData.totalPages}
+                            >
+                                Last
+                            </Button>
+                        </div>
+                        <span className="text-muted-foreground">
+                            Page {page} of {releaseData.totalPages}
+                        </span>
+                    </div>
+                )}
+
                 {/* Footer Info */}
                 <div className="mt-12 text-center">
-                    <div
-                        className="inline-flex items-center gap-3 px-6 py-4 rounded-xl"
-                        style={{
-                            backgroundColor: "#121212",
-                            border: "1px solid #262626",
-                        }}
-                    >
-                        <AlertCircle className="h-4 w-4 text-gray-500 flex-shrink-0" />
-                        <p className="text-xs text-gray-500">
+                    <div className="inline-flex items-center gap-3 px-6 py-4 rounded-xl bg-card border border-border">
+                        <AlertCircle className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                        <p className="text-xs text-muted-foreground">
                             Konten disediakan oleh pihak ketiga. Situs ini tidak
-                            menyimpan file apapun. Pastikan Anda mematuhi hukum
-                            dan peraturan setempat saat mengakses konten ini.
+                            menyimpan file apapun.
                         </p>
                     </div>
                 </div>

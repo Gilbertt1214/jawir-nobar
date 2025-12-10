@@ -21,7 +21,9 @@ import YearList from "./pages/YearList";
 import YearMovies from "./pages/YearMovies";
 import BrowseCategory from "./pages/BrowseCategory";
 import HentaiList from "./pages/HentaiList";
-import AnimeDetail from "./pages/AnimeDetail";
+import HentaiInfo from "./pages/HentaiInfo";
+import HentaiWatch from "./pages/HentaiWatch";
+import AnimeList from "./pages/AnimeList";
 import AnimeInfo from "./pages/AnimeInfo";
 import AnimeWatch from "./pages/AnimeWatch";
 
@@ -102,17 +104,25 @@ const App = () => {
                                         element={<EpisodeDetail />}
                                     />
 
-                                    {/* JAV - Nekopoi */}
+                                    {/* Hentai - Nekopoi */}
                                     <Route
                                         path="/hentai"
                                         element={<HentaiList />}
                                     />
                                     <Route
-                                        path="/hentai/nekopoi/:id"
-                                        element={<AnimeDetail />}
+                                        path="/hentai/nekopoi/:slug"
+                                        element={<HentaiInfo />}
+                                    />
+                                    <Route
+                                        path="/hentai/watch/:id"
+                                        element={<HentaiWatch />}
                                     />
 
-                                    {/* Anime Scraper Routes */}
+                                    {/* Anime Routes (Otakudesu/Sanka API) */}
+                                    <Route
+                                        path="/anime"
+                                        element={<AnimeList />}
+                                    />
                                     <Route
                                         path="/anime/:slug"
                                         element={<AnimeInfo />}

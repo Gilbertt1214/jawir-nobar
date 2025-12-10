@@ -20,7 +20,13 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useEffect, useState, useMemo } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+    CardDescription,
+} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Episode } from "@/services/api";
@@ -37,38 +43,38 @@ import { motion } from "framer-motion";
 
 const fadeInUp = {
     hidden: { opacity: 0, y: 20 },
-    visible: { 
-        opacity: 1, 
+    visible: {
+        opacity: 1,
         y: 0,
-        transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as any }
-    }
+        transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as any },
+    },
 };
 
 const fadeInRight = {
     hidden: { opacity: 0, x: -20 },
-    visible: { 
-        opacity: 1, 
+    visible: {
+        opacity: 1,
         x: 0,
-        transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as any }
-    }
+        transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as any },
+    },
 };
 
 const fadeInLeft = {
     hidden: { opacity: 0, x: 20 },
-    visible: { 
-        opacity: 1, 
+    visible: {
+        opacity: 1,
         x: 0,
-        transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as any }
-    }
+        transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as any },
+    },
 };
 
 const scaleIn = {
     hidden: { opacity: 0, scale: 0.9 },
-    visible: { 
-        opacity: 1, 
+    visible: {
+        opacity: 1,
         scale: 1,
-        transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as any }
-    }
+        transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as any },
+    },
 };
 
 interface Comment {
@@ -145,16 +151,16 @@ export default function MovieDetail() {
     }, [movie?.id, movie?.type]);
 
     // Fetch episodes for series
-    const {
-        data: episodes = [],
-        isLoading: episodesLoading,
-    } = useQuery<Episode[], Error>({
+    const { data: episodes = [], isLoading: episodesLoading } = useQuery<
+        Episode[],
+        Error
+    >({
         queryKey: ["episodes", id],
         queryFn: async () => {
             if (!id || !isSeriesRoute) return [];
             const eps = await movieAPI.getEpisodes(id);
             if (!Array.isArray(eps)) return [];
-            
+
             return eps.filter(
                 (ep) =>
                     ep &&
@@ -173,13 +179,21 @@ export default function MovieDetail() {
             groups[ep.seasonNumber].push(ep);
         });
         // Sort episodes
-        Object.keys(groups).forEach(key => {
-             groups[Number(key)].sort((a,b) => a.episodeNumber - b.episodeNumber);
+        Object.keys(groups).forEach((key) => {
+            groups[Number(key)].sort(
+                (a, b) => a.episodeNumber - b.episodeNumber
+            );
         });
         return groups;
     }, [episodes]);
 
-    const seasons = useMemo(() => Object.keys(seasonGroups).map(Number).sort((a, b) => a - b), [seasonGroups]);
+    const seasons = useMemo(
+        () =>
+            Object.keys(seasonGroups)
+                .map(Number)
+                .sort((a, b) => a - b),
+        [seasonGroups]
+    );
     const [selectedSeason, setSelectedSeason] = useState<string>("1");
 
     // Update selected season when seasons change
@@ -236,7 +250,7 @@ export default function MovieDetail() {
                 `comments:movie:${id}`,
                 JSON.stringify([newComment, ...localComments])
             );
-            
+
             setName("");
             setMessage("");
         } catch (error) {
@@ -300,7 +314,10 @@ export default function MovieDetail() {
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
                         Movie or series not found or failed to load.
-                        <Link to="/" className="ml-2 underline block mt-2 font-medium">
+                        <Link
+                            to="/"
+                            className="ml-2 underline block mt-2 font-medium"
+                        >
                             Return to Home
                         </Link>
                     </AlertDescription>
@@ -332,7 +349,7 @@ export default function MovieDetail() {
             <div className="container mx-auto px-4 sm:px-6 -mt-32 sm:-mt-48 md:-mt-64 relative z-10">
                 <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] lg:grid-cols-[350px_1fr] gap-8">
                     {/* Poster & Actions */}
-                    <motion.div 
+                    <motion.div
                         className="space-y-6"
                         initial="hidden"
                         animate="visible"
@@ -368,7 +385,11 @@ export default function MovieDetail() {
                                     Trailer
                                 </Button>
                             )}
-                            <Button variant="outline" className="w-full gap-2 backdrop-blur-sm bg-background/50" size="lg">
+                            <Button
+                                variant="outline"
+                                className="w-full gap-2 backdrop-blur-sm bg-background/50"
+                                size="lg"
+                            >
                                 <Share2 className="h-4 w-4" />
                                 Share
                             </Button>
@@ -376,8 +397,8 @@ export default function MovieDetail() {
                     </motion.div>
 
                     {/* Details */}
-                    <motion.div 
-                        className="space-y-8" 
+                    <motion.div
+                        className="space-y-8"
                         initial="hidden"
                         animate="visible"
                         variants={fadeInLeft}
@@ -390,7 +411,7 @@ export default function MovieDetail() {
 
                             <div className="flex flex-wrap items-center gap-3 text-sm">
                                 {movie.rating && (
-                                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 font-bold">
+                                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-red-500 font-bold">
                                         <Star className="h-4 w-4 fill-current" />
                                         <span>{movie.rating.toFixed(1)}</span>
                                     </div>
@@ -407,7 +428,10 @@ export default function MovieDetail() {
                                         <span>{movie.country}</span>
                                     </div>
                                 )}
-                                <Badge variant="secondary" className="uppercase tracking-wider">
+                                <Badge
+                                    variant="secondary"
+                                    className="uppercase tracking-wider"
+                                >
                                     {movie.type}
                                 </Badge>
                             </div>
@@ -417,7 +441,9 @@ export default function MovieDetail() {
                                     {movie.genre.map((g) => (
                                         <Link
                                             key={g}
-                                            to={`/genre/${encodeURIComponent(g)}`}
+                                            to={`/genre/${encodeURIComponent(
+                                                g
+                                            )}`}
                                         >
                                             <Badge
                                                 variant="outline"
@@ -458,12 +484,17 @@ export default function MovieDetail() {
                                         >
                                             <div className="relative w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-2 rounded-full overflow-hidden ring-2 ring-transparent group-hover:ring-primary transition-all">
                                                 <img
-                                                    src={actor.profile || "/placeholder.svg"}
+                                                    src={
+                                                        actor.profile ||
+                                                        "/placeholder.svg"
+                                                    }
                                                     alt={actor.name}
                                                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                                                     onError={(e) => {
-                                                        const target = e.target as HTMLImageElement;
-                                                        target.src = "/placeholder.svg";
+                                                        const target =
+                                                            e.target as HTMLImageElement;
+                                                        target.src =
+                                                            "/placeholder.svg";
                                                     }}
                                                 />
                                             </div>
@@ -490,18 +521,25 @@ export default function MovieDetail() {
                                         Episodes
                                     </h2>
                                 </div>
-                                
+
                                 {episodesLoading ? (
                                     <div className="space-y-4">
                                         <Skeleton className="h-10 w-full md:w-1/3" />
                                         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
                                             {[...Array(6)].map((_, i) => (
-                                                <Skeleton key={i} className="aspect-video rounded-lg" />
+                                                <Skeleton
+                                                    key={i}
+                                                    className="aspect-video rounded-lg"
+                                                />
                                             ))}
                                         </div>
                                     </div>
                                 ) : seasons.length > 0 ? (
-                                    <Tabs value={selectedSeason} onValueChange={setSelectedSeason} className="w-full">
+                                    <Tabs
+                                        value={selectedSeason}
+                                        onValueChange={setSelectedSeason}
+                                        className="w-full"
+                                    >
                                         <ScrollArea className="w-full pb-4">
                                             <TabsList className="inline-flex w-auto h-auto p-1 bg-muted/50 backdrop-blur-sm border border-white/5 rounded-xl">
                                                 {seasons.map((season) => (
@@ -517,134 +555,213 @@ export default function MovieDetail() {
                                         </ScrollArea>
 
                                         {seasons.map((season) => {
-                                            const seasonInfo = movie.seasons?.find(s => s.seasonNumber === season);
+                                            const seasonInfo =
+                                                movie.seasons?.find(
+                                                    (s) =>
+                                                        s.seasonNumber ===
+                                                        season
+                                                );
                                             return (
-                                            <TabsContent key={season} value={String(season)} className="mt-4 space-y-6">
-                                                {/* Season Info */}
-                                                {seasonInfo && (
-                                                    <div className="flex flex-col md:flex-row gap-6 bg-white/5 p-6 rounded-xl border border-white/5">
-                                                        {seasonInfo.cover && (
-                                                            <div className="flex-shrink-0 w-32 md:w-40 aspect-[2/3] rounded-lg overflow-hidden shadow-lg">
-                                                                <img 
-                                                                    src={seasonInfo.cover} 
-                                                                    alt={seasonInfo.name}
-                                                                    className="w-full h-full object-cover"
-                                                                />
-                                                            </div>
-                                                        )}
-                                                        <div className="space-y-4 flex-1">
-                                                            <div>
-                                                                <h3 className="text-2xl font-bold">{seasonInfo.name}</h3>
-                                                                <div className="flex items-center gap-3 text-muted-foreground mt-2 text-sm">
-                                                                    {seasonInfo.year && (
-                                                                        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/5">
-                                                                            <Calendar className="h-3.5 w-3.5" />
-                                                                            <span>{seasonInfo.year}</span>
-                                                                        </div>
-                                                                    )}
-                                                                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/5">
-                                                                        <Tv className="h-3.5 w-3.5" />
-                                                                        <span>{seasonInfo.episodeCount} Episodes</span>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            
-                                                            {seasonInfo.overview && (
-                                                                <div className="space-y-2">
-                                                                    <h4 className="text-sm font-semibold text-primary uppercase tracking-wider">Overview</h4>
-                                                                    <p className="text-muted-foreground leading-relaxed">
-                                                                        {seasonInfo.overview}
-                                                                    </p>
+                                                <TabsContent
+                                                    key={season}
+                                                    value={String(season)}
+                                                    className="mt-4 space-y-6"
+                                                >
+                                                    {/* Season Info */}
+                                                    {seasonInfo && (
+                                                        <div className="flex flex-col md:flex-row gap-6 bg-white/5 p-6 rounded-xl border border-white/5">
+                                                            {seasonInfo.cover && (
+                                                                <div className="flex-shrink-0 w-32 md:w-40 aspect-[2/3] rounded-lg overflow-hidden shadow-lg">
+                                                                    <img
+                                                                        src={
+                                                                            seasonInfo.cover
+                                                                        }
+                                                                        alt={
+                                                                            seasonInfo.name
+                                                                        }
+                                                                        className="w-full h-full object-cover"
+                                                                    />
                                                                 </div>
                                                             )}
-                                                        </div>
-                                                    </div>
-                                                )}
-
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                    {(showAllEpisodes
-                                                        ? seasonGroups[season]
-                                                        : seasonGroups[season].slice(0, 12)
-                                                    ).map((episode) => (
-                                                        <Link
-                                                            key={episode.id}
-                                                            to={`/series/${id}/watch?season=${episode.seasonNumber}&episode=${episode.episodeNumber}`}
-                                                        >
-                                                            <Card className="group flex flex-row overflow-hidden border-white/5 bg-black/20 hover:bg-white/5 transition-all hover:scale-[1.01] hover:shadow-xl hover:shadow-primary/5 h-24 sm:h-28">
-                                                                <div className="relative w-32 sm:w-44 flex-shrink-0 overflow-hidden">
-                                                                    <img
-                                                                        src={episode.cover || "/placeholder.svg"}
-                                                                        alt={episode.title}
-                                                                        className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
-                                                                        onError={(e) => {
-                                                                            const target = e.target as HTMLImageElement;
-                                                                            target.src = "/placeholder.svg";
-                                                                        }}
-                                                                    />
-                                                                    <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent" />
-                                                                    <div className="absolute top-1 left-1 sm:top-2 sm:left-2">
-                                                                        <Badge className="bg-black/60 backdrop-blur border-white/10 text-[10px] sm:text-xs px-1.5 py-0">
-                                                                            EP {episode.episodeNumber}
-                                                                        </Badge>
-                                                                    </div>
-                                                                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 bg-black/20 backdrop-blur-[1px]">
-                                                                         <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/40 transform scale-50 group-hover:scale-100 transition-transform">
-                                                                            <Play className="w-4 h-4 sm:w-5 sm:h-5 text-primary-foreground fill-current ml-0.5" />
-                                                                         </div>
+                                                            <div className="space-y-4 flex-1">
+                                                                <div>
+                                                                    <h3 className="text-2xl font-bold">
+                                                                        {
+                                                                            seasonInfo.name
+                                                                        }
+                                                                    </h3>
+                                                                    <div className="flex items-center gap-3 text-muted-foreground mt-2 text-sm">
+                                                                        {seasonInfo.year && (
+                                                                            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/5">
+                                                                                <Calendar className="h-3.5 w-3.5" />
+                                                                                <span>
+                                                                                    {
+                                                                                        seasonInfo.year
+                                                                                    }
+                                                                                </span>
+                                                                            </div>
+                                                                        )}
+                                                                        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/5">
+                                                                            <Tv className="h-3.5 w-3.5" />
+                                                                            <span>
+                                                                                {
+                                                                                    seasonInfo.episodeCount
+                                                                                }{" "}
+                                                                                Episodes
+                                                                            </span>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
-                                                                <div className="p-3 sm:p-4 flex flex-col justify-center flex-1 min-w-0">
-                                                                    <h3 className="font-medium text-sm sm:text-base line-clamp-1 group-hover:text-primary transition-colors">
-                                                                        {episode.title || `Episode ${episode.episodeNumber}`}
-                                                                    </h3>
-                                                                    <div className="flex items-center gap-2 mt-1">
-                                                                        <span className="text-xs text-muted-foreground">
-                                                                            S{episode.seasonNumber} • E{episode.episodeNumber}
-                                                                        </span>
-                                                                        {episode.airDate && (
-                                                                            <>
-                                                                                <span className="text-muted-foreground/30 text-[10px]">•</span>
-                                                                                <span className="text-[10px] sm:text-xs text-muted-foreground">
-                                                                                    {new Date(episode.airDate).getFullYear()}
-                                                                                </span>
-                                                                            </>
+
+                                                                {seasonInfo.overview && (
+                                                                    <div className="space-y-2">
+                                                                        <h4 className="text-sm font-semibold text-primary uppercase tracking-wider">
+                                                                            Overview
+                                                                        </h4>
+                                                                        <p className="text-muted-foreground leading-relaxed">
+                                                                            {
+                                                                                seasonInfo.overview
+                                                                            }
+                                                                        </p>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    )}
+
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                        {(showAllEpisodes
+                                                            ? seasonGroups[
+                                                                  season
+                                                              ]
+                                                            : seasonGroups[
+                                                                  season
+                                                              ].slice(0, 12)
+                                                        ).map((episode) => (
+                                                            <Link
+                                                                key={episode.id}
+                                                                to={`/series/${id}/watch?season=${episode.seasonNumber}&episode=${episode.episodeNumber}`}
+                                                            >
+                                                                <Card className="group flex flex-row overflow-hidden border-white/5 bg-black/20 hover:bg-white/5 transition-all hover:scale-[1.01] hover:shadow-xl hover:shadow-primary/5 h-24 sm:h-28">
+                                                                    <div className="relative w-32 sm:w-44 flex-shrink-0 overflow-hidden">
+                                                                        <img
+                                                                            src={
+                                                                                episode.cover ||
+                                                                                "/placeholder.svg"
+                                                                            }
+                                                                            alt={
+                                                                                episode.title
+                                                                            }
+                                                                            className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
+                                                                            onError={(
+                                                                                e
+                                                                            ) => {
+                                                                                const target =
+                                                                                    e.target as HTMLImageElement;
+                                                                                target.src =
+                                                                                    "/placeholder.svg";
+                                                                            }}
+                                                                        />
+                                                                        <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent" />
+                                                                        <div className="absolute top-1 left-1 sm:top-2 sm:left-2">
+                                                                            <Badge className="bg-black/60 backdrop-blur border-white/10 text-[10px] sm:text-xs px-1.5 py-0">
+                                                                                EP{" "}
+                                                                                {
+                                                                                    episode.episodeNumber
+                                                                                }
+                                                                            </Badge>
+                                                                        </div>
+                                                                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 bg-black/20 backdrop-blur-[1px]">
+                                                                            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/40 transform scale-50 group-hover:scale-100 transition-transform">
+                                                                                <Play className="w-4 h-4 sm:w-5 sm:h-5 text-primary-foreground fill-current ml-0.5" />
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="p-3 sm:p-4 flex flex-col justify-center flex-1 min-w-0">
+                                                                        <h3 className="font-medium text-sm sm:text-base line-clamp-1 group-hover:text-primary transition-colors">
+                                                                            {episode.title ||
+                                                                                `Episode ${episode.episodeNumber}`}
+                                                                        </h3>
+                                                                        <div className="flex items-center gap-2 mt-1">
+                                                                            <span className="text-xs text-muted-foreground">
+                                                                                S
+                                                                                {
+                                                                                    episode.seasonNumber
+                                                                                }{" "}
+                                                                                •
+                                                                                E
+                                                                                {
+                                                                                    episode.episodeNumber
+                                                                                }
+                                                                            </span>
+                                                                            {episode.airDate && (
+                                                                                <>
+                                                                                    <span className="text-muted-foreground/30 text-[10px]">
+                                                                                        •
+                                                                                    </span>
+                                                                                    <span className="text-[10px] sm:text-xs text-muted-foreground">
+                                                                                        {new Date(
+                                                                                            episode.airDate
+                                                                                        ).getFullYear()}
+                                                                                    </span>
+                                                                                </>
+                                                                            )}
+                                                                        </div>
+                                                                        {episode.overview && (
+                                                                            <p className="text-xs text-muted-foreground/60 line-clamp-1 mt-1.5 hidden sm:block">
+                                                                                {
+                                                                                    episode.overview
+                                                                                }
+                                                                            </p>
                                                                         )}
                                                                     </div>
-                                                                    {episode.overview && (
-                                                                        <p className="text-xs text-muted-foreground/60 line-clamp-1 mt-1.5 hidden sm:block">
-                                                                            {episode.overview}
-                                                                        </p>
-                                                                    )}
-                                                                </div>
-                                                            </Card>
-                                                        </Link>
-                                                    ))}
-                                                </div>
-                                                
-                                                {seasonGroups[season].length > 12 && !showAllEpisodes && (
-                                                    <div className="flex justify-center pt-4">
-                                                        <Button
-                                                            variant="outline"
-                                                            className="min-w-[200px] border-white/10 hover:bg-primary hover:text-primary-foreground transition-all"
-                                                            onClick={() => setShowAllEpisodes(true)}
-                                                        >
-                                                            See More Episodes ({seasonGroups[season].length - 12} remaining)
-                                                        </Button>
+                                                                </Card>
+                                                            </Link>
+                                                        ))}
                                                     </div>
-                                                )}
-                                                
-                                                {showAllEpisodes && seasonGroups[season].length > 12 && (
-                                                    <div className="flex justify-center pt-4">
-                                                        <Button
-                                                            variant="ghost"
-                                                            className="text-muted-foreground hover:text-foreground"
-                                                            onClick={() => setShowAllEpisodes(false)}
-                                                        >
-                                                            Show Less
-                                                        </Button>
-                                                    </div>
-                                                )}
-                                            </TabsContent>
+
+                                                    {seasonGroups[season]
+                                                        .length > 12 &&
+                                                        !showAllEpisodes && (
+                                                            <div className="flex justify-center pt-4">
+                                                                <Button
+                                                                    variant="outline"
+                                                                    className="min-w-[200px] border-white/10 hover:bg-primary hover:text-primary-foreground transition-all"
+                                                                    onClick={() =>
+                                                                        setShowAllEpisodes(
+                                                                            true
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    See More
+                                                                    Episodes (
+                                                                    {seasonGroups[
+                                                                        season
+                                                                    ].length -
+                                                                        12}{" "}
+                                                                    remaining)
+                                                                </Button>
+                                                            </div>
+                                                        )}
+
+                                                    {showAllEpisodes &&
+                                                        seasonGroups[season]
+                                                            .length > 12 && (
+                                                            <div className="flex justify-center pt-4">
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    className="text-muted-foreground hover:text-foreground"
+                                                                    onClick={() =>
+                                                                        setShowAllEpisodes(
+                                                                            false
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    Show Less
+                                                                </Button>
+                                                            </div>
+                                                        )}
+                                                </TabsContent>
                                             );
                                         })}
                                     </Tabs>
@@ -678,7 +795,9 @@ export default function MovieDetail() {
                                             {isLoadingProviders ? (
                                                 <div className="text-center text-white/50 space-y-4">
                                                     <RefreshCw className="h-10 w-10 mx-auto animate-spin" />
-                                                    <p className="text-sm font-medium">Searching for streams...</p>
+                                                    <p className="text-sm font-medium">
+                                                        Searching for streams...
+                                                    </p>
                                                 </div>
                                             ) : providerError ? (
                                                 <div className="text-center text-white space-y-4 p-6 max-w-md mx-auto">
@@ -686,24 +805,38 @@ export default function MovieDetail() {
                                                         <AlertCircle className="h-8 w-8 text-red-500" />
                                                     </div>
                                                     <div className="space-y-2">
-                                                        <h3 className="font-semibold text-lg">Stream Unavailable</h3>
+                                                        <h3 className="font-semibold text-lg">
+                                                            Stream Unavailable
+                                                        </h3>
                                                         <p className="text-sm text-white/60">
-                                                            This provider is currently experiencing issues. Please try another one.
+                                                            This provider is
+                                                            currently
+                                                            experiencing issues.
+                                                            Please try another
+                                                            one.
                                                         </p>
                                                     </div>
                                                     <Button
                                                         variant="secondary"
-                                                        onClick={tryNextProvider}
+                                                        onClick={
+                                                            tryNextProvider
+                                                        }
                                                         className="gap-2"
                                                     >
                                                         <RefreshCw className="h-4 w-4" />
                                                         Try Next Provider
                                                     </Button>
                                                 </div>
-                                            ) : streamingProviders[selectedProvider] ? (
+                                            ) : streamingProviders[
+                                                  selectedProvider
+                                              ] ? (
                                                 <iframe
                                                     key={`${streamingProviders[selectedProvider].url}-${selectedProvider}`}
-                                                    src={streamingProviders[selectedProvider].url}
+                                                    src={
+                                                        streamingProviders[
+                                                            selectedProvider
+                                                        ].url
+                                                    }
                                                     className="absolute inset-0 w-full h-full"
                                                     allowFullScreen
                                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -714,7 +847,10 @@ export default function MovieDetail() {
                                             ) : (
                                                 <div className="text-center text-white space-y-4 p-6">
                                                     <AlertCircle className="h-10 w-10 mx-auto text-muted-foreground" />
-                                                    <p className="text-sm text-muted-foreground">No streaming providers available.</p>
+                                                    <p className="text-sm text-muted-foreground">
+                                                        No streaming providers
+                                                        available.
+                                                    </p>
                                                 </div>
                                             )}
                                         </div>
@@ -725,33 +861,70 @@ export default function MovieDetail() {
                                                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                                     <div className="flex items-center gap-3 flex-1">
                                                         <Select
-                                                            value={String(selectedProvider)}
-                                                            onValueChange={handleProviderChange}
+                                                            value={String(
+                                                                selectedProvider
+                                                            )}
+                                                            onValueChange={
+                                                                handleProviderChange
+                                                            }
                                                         >
                                                             <SelectTrigger className="w-full sm:w-[200px] bg-background/50 border-white/10">
                                                                 <SelectValue placeholder="Select provider" />
                                                             </SelectTrigger>
                                                             <SelectContent>
-                                                                {streamingProviders.map((provider, index) => (
-                                                                    <SelectItem key={index} value={String(index)}>
-                                                                        <div className="flex items-center gap-2">
-                                                                            <span className="font-medium">{provider.name}</span>
-                                                                            {provider.quality && (
-                                                                                <Badge variant="secondary" className="text-[10px] h-5">
-                                                                                    {provider.quality}
-                                                                                </Badge>
+                                                                {streamingProviders.map(
+                                                                    (
+                                                                        provider,
+                                                                        index
+                                                                    ) => (
+                                                                        <SelectItem
+                                                                            key={
+                                                                                index
+                                                                            }
+                                                                            value={String(
+                                                                                index
                                                                             )}
-                                                                        </div>
-                                                                    </SelectItem>
-                                                                ))}
+                                                                        >
+                                                                            <div className="flex items-center gap-2">
+                                                                                <span className="font-medium">
+                                                                                    {
+                                                                                        provider.name
+                                                                                    }
+                                                                                </span>
+                                                                                {provider.quality && (
+                                                                                    <Badge
+                                                                                        variant="secondary"
+                                                                                        className="text-[10px] h-5"
+                                                                                    >
+                                                                                        {
+                                                                                            provider.quality
+                                                                                        }
+                                                                                    </Badge>
+                                                                                )}
+                                                                            </div>
+                                                                        </SelectItem>
+                                                                    )
+                                                                )}
                                                             </SelectContent>
                                                         </Select>
 
-                                                        {streamingProviders[selectedProvider] && (
+                                                        {streamingProviders[
+                                                            selectedProvider
+                                                        ] && (
                                                             <div className="hidden sm:flex items-center gap-3 text-xs text-muted-foreground">
-                                                                {streamingProviders[selectedProvider].quality && (
-                                                                    <Badge variant="outline" className="bg-transparent">
-                                                                        {streamingProviders[selectedProvider].quality}
+                                                                {streamingProviders[
+                                                                    selectedProvider
+                                                                ].quality && (
+                                                                    <Badge
+                                                                        variant="outline"
+                                                                        className="bg-transparent"
+                                                                    >
+                                                                        {
+                                                                            streamingProviders[
+                                                                                selectedProvider
+                                                                            ]
+                                                                                .quality
+                                                                        }
                                                                     </Badge>
                                                                 )}
                                                             </div>
@@ -762,9 +935,20 @@ export default function MovieDetail() {
                                                         <Button
                                                             variant="ghost"
                                                             size="sm"
-                                                            onClick={() => window.open(streamingProviders[selectedProvider]?.url, "_blank")}
+                                                            onClick={() =>
+                                                                window.open(
+                                                                    streamingProviders[
+                                                                        selectedProvider
+                                                                    ]?.url,
+                                                                    "_blank"
+                                                                )
+                                                            }
                                                             className="text-xs gap-2"
-                                                            disabled={!streamingProviders[selectedProvider]}
+                                                            disabled={
+                                                                !streamingProviders[
+                                                                    selectedProvider
+                                                                ]
+                                                            }
                                                         >
                                                             <ExternalLink className="h-3.5 w-3.5" />
                                                             Open in New Tab
@@ -772,7 +956,9 @@ export default function MovieDetail() {
                                                         <Button
                                                             variant="ghost"
                                                             size="sm"
-                                                            onClick={() => window.location.reload()}
+                                                            onClick={() =>
+                                                                window.location.reload()
+                                                            }
                                                             className="text-xs gap-2"
                                                         >
                                                             <RefreshCw className="h-3.5 w-3.5" />
@@ -788,7 +974,7 @@ export default function MovieDetail() {
                         )}
 
                         {/* Comments Section */}
-                        <motion.div 
+                        <motion.div
                             className="space-y-4 pt-4"
                             initial="hidden"
                             whileInView="visible"
@@ -805,14 +991,18 @@ export default function MovieDetail() {
                                         <Input
                                             placeholder="Your name"
                                             value={name}
-                                            onChange={(e) => setName(e.target.value)}
+                                            onChange={(e) =>
+                                                setName(e.target.value)
+                                            }
                                             maxLength={50}
                                             className="bg-background/50 border-white/10 focus:border-primary/50"
                                         />
                                         <Textarea
                                             placeholder="Share your thoughts..."
                                             value={message}
-                                            onChange={(e) => setMessage(e.target.value)}
+                                            onChange={(e) =>
+                                                setMessage(e.target.value)
+                                            }
                                             className="min-h-[100px] bg-background/50 border-white/10 focus:border-primary/50 resize-none"
                                             maxLength={500}
                                         />
@@ -822,7 +1012,11 @@ export default function MovieDetail() {
                                             </span>
                                             <Button
                                                 onClick={addComment}
-                                                disabled={!name.trim() || !message.trim() || isLoadingComments}
+                                                disabled={
+                                                    !name.trim() ||
+                                                    !message.trim() ||
+                                                    isLoadingComments
+                                                }
                                                 className="gap-2"
                                             >
                                                 {isLoadingComments ? (
@@ -838,7 +1032,8 @@ export default function MovieDetail() {
                                     </div>
 
                                     <div className="space-y-4">
-                                        {isLoadingComments && comments.length === 0 ? (
+                                        {isLoadingComments &&
+                                        comments.length === 0 ? (
                                             <div className="text-center py-8">
                                                 <RefreshCw className="h-6 w-6 mx-auto animate-spin text-primary" />
                                                 <p className="text-sm text-muted-foreground mt-2">
@@ -848,7 +1043,11 @@ export default function MovieDetail() {
                                         ) : comments.length === 0 ? (
                                             <div className="text-center py-8 text-muted-foreground bg-muted/30 rounded-lg border border-dashed border-white/10">
                                                 <MessageSquare className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                                                <p>No comments yet. Be the first to share your thoughts!</p>
+                                                <p>
+                                                    No comments yet. Be the
+                                                    first to share your
+                                                    thoughts!
+                                                </p>
                                             </div>
                                         ) : (
                                             comments.map((c, idx) => (
@@ -861,7 +1060,9 @@ export default function MovieDetail() {
                                                             {c.name}
                                                         </span>
                                                         <span className="text-xs text-muted-foreground">
-                                                            {new Date(c.time).toLocaleString()}
+                                                            {new Date(
+                                                                c.time
+                                                            ).toLocaleString()}
                                                         </span>
                                                     </div>
                                                     <p className="text-sm text-foreground/90 leading-relaxed">

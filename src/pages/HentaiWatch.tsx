@@ -1,0 +1,468 @@
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { movieAPI } from "@/services/api";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+    ArrowLeft,
+    AlertCircle,
+    RefreshCw,
+    ExternalLink,
+    Download,
+    ChevronLeft,
+    ChevronRight,
+} from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { useState, useEffect, useMemo } from "react";
+
+// Helper to extract base title
+const extractBaseTitle = (title: string): string => {
+    return title
+        .replace(/\s*[-–]\s*episode\s*\d+/gi, "")
+        .replace(/\s*episode\s*\d+/gi, "")
+        .replace(/\s*ep\s*\d+/gi, "")
+        .replace(/\s*[-–]\s*\d+\s*$/gi, "")
+        .replace(/\s*subtitle\s*indonesia/gi, "")
+        .replace(/\s*sub\s*indo/gi, "")
+        .trim();
+};
+
+// Helper to extract episode number
+const extractEpisodeNumber = (title: string): number => {
+    const match =
+        title.match(/episode\s*(\d+)/i) ||
+        title.match(/ep\s*(\d+)/i) ||
+        title.match(/[-–]\s*(\d+)\s*$/);
+    return match ? parseInt(match[1]) : 1;
+};
+
+export default function HentaiWatch() {
+    const { id } = useParams<{ id: string }>();
+    const navigate = useNavigate();
+    const [selectedProvider, setSelectedProvider] = useState(0);
+    const [providerError, setProviderError] = useState(false);
+    const [activeTab, setActiveTab] = useState<"stream" | "download">("stream");
+
+    // Fetch hentai detail
+    const {
+        data: hentaiDetail,
+        isLoading,
+        error,
+    } = useQuery({
+        queryKey: ["hentaiWatch", id],
+        queryFn: async () => {
+            if (!id) return null;
+            return await movieAPI.getNekopoiDetail(id);
+        },
+        enabled: !!id,
+    });
+
+    // Fetch all hentai to find related episodes for navigation
+    const { data: allHentai } = useQuery({
+        queryKey: ["allHentaiForNav"],
+        queryFn: async () => {
+            const pages = [1, 2, 3, 4, 5];
+            const results = await Promise.all(
+                pages.map((p) => movieAPI.getAllHentaiLatest(p))
+            );
+            return results.flatMap((r) => r.nekopoi.data);
+        },
+    });
+
+    // Find related episodes for navigation
+    const { prevEpisode, nextEpisode, currentEpisodeNum, baseTitle } =
+        useMemo(() => {
+            if (!hentaiDetail || !allHentai) {
+                return {
+                    prevEpisode: null,
+                    nextEpisode: null,
+                    currentEpisodeNum: 1,
+                    baseTitle: "",
+                };
+            }
+
+            const base = extractBaseTitle(hentaiDetail.title);
+            const currentNum = extractEpisodeNumber(hentaiDetail.title);
+
+            const relatedEpisodes = allHentai
+                .filter(
+                    (item) =>
+                        extractBaseTitle(item.title).toLowerCase() ===
+                        base.toLowerCase()
+                )
+                .sort(
+                    (a, b) =>
+                        extractEpisodeNumber(a.title) -
+                        extractEpisodeNumber(b.title)
+                );
+
+            const currentIndex = relatedEpisodes.findIndex(
+                (ep) => ep.id === id
+            );
+
+            return {
+                prevEpisode:
+                    currentIndex > 0 ? relatedEpisodes[currentIndex - 1] : null,
+                nextEpisode:
+                    currentIndex < relatedEpisodes.length - 1
+                        ? relatedEpisodes[currentIndex + 1]
+                        : null,
+                currentEpisodeNum: currentNum,
+                baseTitle: base,
+            };
+        }, [hentaiDetail, allHentai, id]);
+
+    // Mark as watched on load
+    useEffect(() => {
+        if (hentaiDetail && id) {
+            const base = extractBaseTitle(hentaiDetail.title);
+            const key = `watched_hentai_${base
+                .toLowerCase()
+                .replace(/\s+/g, "-")}`;
+            const stored = localStorage.getItem(key);
+            const watched = stored ? new Set(JSON.parse(stored)) : new Set();
+            watched.add(id);
+            localStorage.setItem(key, JSON.stringify([...watched]));
+        }
+    }, [hentaiDetail, id]);
+
+    // Build streaming providers
+    const streamingProviders = useMemo(() => {
+        const providers =
+            hentaiDetail?.streamLinks?.map((link) => ({
+                name: `${link.provider || "Stream"} (${link.quality || "HD"})`,
+                url: link.url,
+                available: true,
+            })) || [];
+
+        if (providers.length === 0) {
+            providers.push({
+                name: "No stream available",
+                url: "#",
+                available: false,
+            });
+        }
+        return providers;
+    }, [hentaiDetail]);
+
+    // Build download providers
+    const downloadProviders = useMemo(() => {
+        const providers =
+            hentaiDetail?.downloadLinks?.map((link) => ({
+                name: `${link.type || "Download"} (${link.quality || "HD"})`,
+                url: link.url,
+                available: true,
+            })) || [];
+
+        if (providers.length === 0) {
+            providers.push({
+                name: "No download available",
+                url: "#",
+                available: false,
+            });
+        }
+        return providers;
+    }, [hentaiDetail]);
+
+    const handleProviderChange = (value: string) => {
+        setSelectedProvider(Number(value));
+        setProviderError(false);
+    };
+
+    const handleRefresh = () => {
+        setProviderError(false);
+        const temp = selectedProvider;
+        setSelectedProvider(-1);
+        setTimeout(() => setSelectedProvider(temp), 100);
+    };
+
+    const currentProvider = streamingProviders[selectedProvider];
+
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-background">
+                <div className="container mx-auto px-4 py-6">
+                    <Button variant="ghost" disabled className="mb-6">
+                        <ArrowLeft className="h-4 w-4 mr-2" />
+                        Kembali
+                    </Button>
+                    <div className="max-w-4xl mx-auto">
+                        <div className="h-8 w-3/4 bg-muted animate-pulse rounded mb-4" />
+                        <div className="aspect-video bg-muted animate-pulse rounded-lg" />
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (error || !hentaiDetail) {
+        return (
+            <div className="min-h-screen bg-background">
+                <div className="container mx-auto px-4 py-6">
+                    <Button
+                        variant="ghost"
+                        onClick={() => navigate(-1)}
+                        className="mb-4"
+                    >
+                        <ArrowLeft className="h-4 w-4 mr-2" />
+                        Kembali
+                    </Button>
+                    <Alert variant="destructive">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertDescription>
+                            Gagal memuat video. Konten mungkin tidak tersedia.
+                        </AlertDescription>
+                    </Alert>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="min-h-screen bg-background">
+            <div className="container mx-auto px-4 py-6">
+                {/* Navigation */}
+                <div className="flex items-center gap-3 mb-6">
+                    <Button
+                        variant="ghost"
+                        onClick={() => navigate(-1)}
+                        className="gap-2"
+                    >
+                        <ArrowLeft className="h-4 w-4" />
+                        Kembali
+                    </Button>
+                </div>
+
+                <div className="max-w-4xl mx-auto space-y-6">
+                    {/* Title */}
+                    <div>
+                        <h1 className="text-xl md:text-2xl font-bold text-white mb-2">
+                            {baseTitle}
+                        </h1>
+                        <div className="flex items-center gap-2">
+                            <Badge className="bg-red-600 text-white">
+                                Episode {currentEpisodeNum}
+                            </Badge>
+                            {hentaiDetail.genre?.slice(0, 3).map((g, i) => (
+                                <Badge
+                                    key={i}
+                                    variant="outline"
+                                    className="text-xs"
+                                >
+                                    {g}
+                                </Badge>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Tab Buttons */}
+                    <div className="flex gap-2">
+                        <Button
+                            variant={
+                                activeTab === "stream" ? "default" : "outline"
+                            }
+                            onClick={() => setActiveTab("stream")}
+                            className={
+                                activeTab === "stream"
+                                    ? "bg-red-600 hover:bg-red-500"
+                                    : ""
+                            }
+                        >
+                            Stream
+                        </Button>
+                        <Button
+                            variant={
+                                activeTab === "download" ? "default" : "outline"
+                            }
+                            onClick={() => setActiveTab("download")}
+                            className={
+                                activeTab === "download"
+                                    ? "bg-red-600 hover:bg-red-500"
+                                    : ""
+                            }
+                        >
+                            <Download className="h-4 w-4 mr-2" />
+                            Download
+                        </Button>
+                    </div>
+
+                    {activeTab === "stream" && (
+                        <>
+                            {/* Provider Selector */}
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                                <Select
+                                    value={String(selectedProvider)}
+                                    onValueChange={handleProviderChange}
+                                >
+                                    <SelectTrigger className="w-full sm:w-[300px]">
+                                        <SelectValue placeholder="Pilih server" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {streamingProviders.map(
+                                            (provider, index) => (
+                                                <SelectItem
+                                                    key={index}
+                                                    value={String(index)}
+                                                >
+                                                    {provider.name}
+                                                </SelectItem>
+                                            )
+                                        )}
+                                    </SelectContent>
+                                </Select>
+
+                                <div className="flex gap-2">
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={handleRefresh}
+                                    >
+                                        <RefreshCw className="h-4 w-4 mr-1" />
+                                        Refresh
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() =>
+                                            window.open(
+                                                currentProvider?.url,
+                                                "_blank"
+                                            )
+                                        }
+                                        disabled={
+                                            !currentProvider?.url ||
+                                            currentProvider.url === "#"
+                                        }
+                                    >
+                                        <ExternalLink className="h-4 w-4 mr-1" />
+                                        Tab Baru
+                                    </Button>
+                                </div>
+                            </div>
+
+                            {/* Video Player */}
+                            {providerError ? (
+                                <div className="relative aspect-video bg-black rounded-lg flex items-center justify-center">
+                                    <div className="text-center text-white space-y-2">
+                                        <AlertCircle className="h-12 w-12 mx-auto text-red-500" />
+                                        <p>Player diblokir browser</p>
+                                        <Button
+                                            variant="secondary"
+                                            size="sm"
+                                            onClick={() =>
+                                                window.open(
+                                                    currentProvider?.url,
+                                                    "_blank"
+                                                )
+                                            }
+                                        >
+                                            <ExternalLink className="h-4 w-4 mr-1" />
+                                            Buka di Tab Baru
+                                        </Button>
+                                    </div>
+                                </div>
+                            ) : currentProvider?.url &&
+                              currentProvider.url !== "#" ? (
+                                <div className="relative aspect-video bg-black rounded-lg overflow-hidden">
+                                    <iframe
+                                        key={currentProvider.url}
+                                        src={currentProvider.url}
+                                        className="absolute inset-0 w-full h-full border-0"
+                                        allowFullScreen
+                                        allow="autoplay; encrypted-media; picture-in-picture"
+                                        referrerPolicy="no-referrer"
+                                        onError={() => setProviderError(true)}
+                                    />
+                                </div>
+                            ) : (
+                                <div className="relative aspect-video bg-muted flex items-center justify-center rounded-lg">
+                                    <p className="text-muted-foreground">
+                                        Stream tidak tersedia
+                                    </p>
+                                </div>
+                            )}
+                        </>
+                    )}
+
+                    {activeTab === "download" && (
+                        <div className="space-y-4">
+                            <Alert>
+                                <AlertCircle className="h-4 w-4" />
+                                <AlertDescription>
+                                    Klik tombol download untuk membuka link di
+                                    tab baru.
+                                </AlertDescription>
+                            </Alert>
+                            <div className="grid gap-2">
+                                {downloadProviders.map((provider, index) => (
+                                    <div
+                                        key={index}
+                                        className="flex items-center justify-between p-3 border rounded-lg bg-card"
+                                    >
+                                        <span className="text-sm">
+                                            {provider.name}
+                                        </span>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() =>
+                                                window.open(
+                                                    provider.url,
+                                                    "_blank"
+                                                )
+                                            }
+                                            disabled={
+                                                !provider.url ||
+                                                provider.url === "#"
+                                            }
+                                        >
+                                            <Download className="h-3 w-3 mr-1" />
+                                            Download
+                                        </Button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Episode Navigation */}
+                    <div className="flex items-center justify-between pt-4 border-t border-white/10">
+                        {prevEpisode ? (
+                            <Button asChild variant="outline" className="gap-2">
+                                <Link to={`/hentai/watch/${prevEpisode.id}`}>
+                                    <ChevronLeft className="h-4 w-4" />
+                                    Episode{" "}
+                                    {extractEpisodeNumber(prevEpisode.title)}
+                                </Link>
+                            </Button>
+                        ) : (
+                            <div />
+                        )}
+
+                        {nextEpisode ? (
+                            <Button
+                                asChild
+                                className="bg-red-600 hover:bg-red-500 gap-2"
+                            >
+                                <Link to={`/hentai/watch/${nextEpisode.id}`}>
+                                    Episode{" "}
+                                    {extractEpisodeNumber(nextEpisode.title)}
+                                    <ChevronRight className="h-4 w-4" />
+                                </Link>
+                            </Button>
+                        ) : (
+                            <div />
+                        )}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}

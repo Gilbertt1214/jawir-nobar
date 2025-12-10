@@ -21,18 +21,7 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import { ParallaxWrapper } from "@/components/ParallaxWrapper";
 import { StaggeredText } from "@/components/StaggeredText";
-import { motion } from "framer-motion";
-
-const slideInRight = {
-    hidden: { opacity: 0, x: 20 },
-    visible: { 
-        opacity: 1, 
-        x: 0,
-        transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as any }
-    }
-};
 
 export default function Home() {
     // Anime filters
@@ -108,16 +97,16 @@ export default function Home() {
     });
 
     // Ongoing Anime Query (Scraper)
-    const {
-        data: ongoingAnime,
-        isLoading: loadingOngoing,
-    } = useQuery({
+    const { data: ongoingAnime, isLoading: loadingOngoing } = useQuery({
         queryKey: ["ongoing-anime"],
         queryFn: () => movieAPI.getOngoingAnimeList(),
     });
 
     // Hero carousel state
-    const heroList = latestMovies?.data?.slice(0, 5) || popularMovies?.data?.slice(0, 5) || [];
+    const heroList =
+        latestMovies?.data?.slice(0, 5) ||
+        popularMovies?.data?.slice(0, 5) ||
+        [];
     const [heroIndex, setHeroIndex] = useState(0);
     const heroItem = heroList[heroIndex];
 
@@ -183,7 +172,7 @@ export default function Home() {
         );
     }
 
-    // Section component for cleaner code
+    // Section component for cleaner code - no animation
     const Section = ({
         title,
         icon,
@@ -197,21 +186,15 @@ export default function Home() {
         link: string;
         children?: React.ReactNode;
     }) => (
-        <motion.section 
-            className="space-y-6"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-50px" }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-        >
+        <section className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-3 group cursor-pointer">
-                    <div className="h-8 w-1.5 bg-gradient-to-b from-primary to-purple-500 rounded-full group-hover:h-10 transition-all duration-300" />
-                    <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-gradient group-hover:text-primary transition-colors">
+                    <div className="h-8 w-1.5 bg-red-600 rounded-full group-hover:h-10 transition-all duration-300" />
+                    <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white group-hover:text-red-500 transition-colors">
                         {title}
                     </h2>
                     {icon && (
-                        <div className="text-primary opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300">
+                        <div className="text-red-500 opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300">
                             {icon}
                         </div>
                     )}
@@ -221,7 +204,7 @@ export default function Home() {
                     asChild
                     variant="ghost"
                     size="sm"
-                    className="self-start sm:self-auto hover:bg-white/5 hover:text-primary transition-all group/btn"
+                    className="self-start sm:self-auto hover:bg-white/5 hover:text-red-500 transition-all group/btn"
                 >
                     <Link to={link} className="flex items-center gap-2">
                         <span className="text-sm font-medium">View All</span>
@@ -230,15 +213,18 @@ export default function Home() {
                 </Button>
             </div>
             <MovieCarousel title="" movies={movies} />
-        </motion.section>
+        </section>
     );
 
     return (
         <div className="min-h-screen bg-background pb-20">
             {/* Hero Section */}
-            <section className="relative min-h-[500px] h-[80vh] md:h-[85vh] w-full overflow-hidden">
-                {/* Background Images with Parallax */}
-                <ParallaxWrapper speed={0.5} className="absolute inset-0">
+            <section
+                className="relative min-h-[500px] h-[80vh] md:h-[85vh] w-full overflow-hidden"
+                style={{ isolation: "isolate", contain: "layout paint" }}
+            >
+                {/* Background Images - No Parallax */}
+                <div className="absolute inset-0">
                     <div
                         className="flex h-full transition-transform duration-1000 ease-out"
                         style={{
@@ -248,7 +234,7 @@ export default function Home() {
                         {heroList.map((item, idx) => (
                             <div
                                 key={item.id ?? idx}
-                                className="relative min-w-full h-full"
+                                className="relative min-w-full h-full flex-shrink-0"
                             >
                                 {item.cover ? (
                                     <>
@@ -264,25 +250,23 @@ export default function Home() {
                                         <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
                                     </>
                                 ) : (
-                                    <div className="w-full h-full bg-gradient-to-br from-primary/20 to-accent/20" />
+                                    <div className="w-full h-full bg-red-600/20" />
                                 )}
                             </div>
                         ))}
                     </div>
-                </ParallaxWrapper>
+                </div>
 
                 {/* Hero Content */}
                 <div className="relative container mx-auto px-4 h-full flex items-center">
                     {heroItem && (
-                        <motion.div 
-                            className="space-y-6 max-w-3xl pt-20"
-                            initial="hidden"
-                            animate="visible"
-                            variants={slideInRight}
-                        >
+                        <div className="space-y-6 max-w-3xl pt-20">
                             <div className="flex flex-wrap items-center gap-3">
                                 {heroItem.year && (
-                                    <Badge variant="outline" className="text-xs border-white/20 bg-black/40 backdrop-blur-md px-3 py-1">
+                                    <Badge
+                                        variant="outline"
+                                        className="text-xs border-white/20 bg-black/40 backdrop-blur-md px-3 py-1"
+                                    >
                                         {heroItem.year}
                                     </Badge>
                                 )}
@@ -299,12 +283,15 @@ export default function Home() {
                                         {heroItem.quality}
                                     </Badge>
                                 )}
-                                <Badge variant="secondary" className="text-xs uppercase tracking-wider bg-white/10 hover:bg-white/20 backdrop-blur-md">
+                                <Badge
+                                    variant="secondary"
+                                    className="text-xs uppercase tracking-wider bg-white/10 hover:bg-white/20 backdrop-blur-md"
+                                >
                                     {heroItem.type}
                                 </Badge>
                             </div>
 
-                            <StaggeredText 
+                            <StaggeredText
                                 text={heroItem.title}
                                 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-tight text-gradient drop-shadow-2xl"
                                 delay={0.2}
@@ -343,7 +330,7 @@ export default function Home() {
                                     </Link>
                                 </Button>
                             </div>
-                        </motion.div>
+                        </div>
                     )}
                 </div>
 
@@ -368,12 +355,14 @@ export default function Home() {
             </section>
 
             {/* Main Content */}
-            <main className="container mx-auto px-4 py-12 space-y-16 -mt-20 relative z-10">
+            <main className="container mx-auto px-4 py-12 space-y-16 relative z-20 -mt-20">
                 {/* Latest Movies */}
                 {latestMovies?.data && latestMovies.data.length > 0 && (
                     <Section
                         title="Latest Movies"
-                        icon={<Sparkles className="w-6 h-6 text-yellow-400 animate-pulse" />}
+                        icon={
+                            <Sparkles className="w-6 h-6 text-red-500 animate-pulse" />
+                        }
                         movies={latestMovies.data}
                         link="/browse/latest-movies"
                     />
@@ -393,7 +382,7 @@ export default function Home() {
                 {latestSeries?.data && latestSeries.data.length > 0 && (
                     <Section
                         title="Latest Series"
-                        icon={<Tv className="w-6 h-6 text-blue-500" />}
+                        icon={<Tv className="w-6 h-6 text-red-500" />}
                         movies={latestSeries.data}
                         link="/browse/latest-series"
                     />
@@ -401,33 +390,31 @@ export default function Home() {
 
                 {/* Anime Section with Filters */}
                 {(anime?.data?.length || loadingAnime) && (
-                    <motion.section 
-                        className="space-y-6"
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true, margin: "-50px" }}
-                        transition={{ duration: 0.6, ease: "easeOut" }}
-                    >
-                        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                    <section className="space-y-6">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <div className="flex items-center gap-3 group cursor-pointer">
-                                <div className="h-8 w-1.5 bg-gradient-to-b from-primary to-purple-500 rounded-full group-hover:h-10 transition-all duration-300" />
-                                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-gradient group-hover:text-primary transition-colors">
+                                <div className="h-8 w-1.5 bg-red-600 rounded-full group-hover:h-10 transition-all duration-300" />
+                                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white group-hover:text-red-500 transition-colors">
                                     Anime
                                 </h2>
-                                <Film className="w-6 h-6 text-primary opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300" />
+                                <div className="text-red-500 opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300">
+                                    <Film className="w-6 h-6" />
+                                </div>
                             </div>
 
                             <Button
                                 asChild
                                 variant="ghost"
                                 size="sm"
-                                className="self-start lg:self-auto hover:bg-white/5 hover:text-primary transition-all group/btn"
+                                className="self-start sm:self-auto hover:bg-white/5 hover:text-red-500 transition-all group/btn"
                             >
                                 <Link
                                     to={`/browse/anime?type=${animeType}&audio=${animeAudio}`}
                                     className="flex items-center gap-2"
                                 >
-                                    <span className="text-sm font-medium">View All</span>
+                                    <span className="text-sm font-medium">
+                                        View All
+                                    </span>
                                     <ChevronRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
                                 </Link>
                             </Button>
@@ -436,16 +423,16 @@ export default function Home() {
                         {anime?.data && anime.data.length > 0 && (
                             <MovieCarousel title="" movies={anime.data} />
                         )}
-                    </motion.section>
+                    </section>
                 )}
 
                 {/* Ongoing Anime (Scraper) */}
                 {ongoingAnime && ongoingAnime.length > 0 && (
-                     <Section
+                    <Section
                         title="Ongoing Anime"
-                        icon={<Tv className="w-6 h-6 text-green-400" />}
+                        icon={<Tv className="w-6 h-6 text-red-500" />}
                         movies={ongoingAnime}
-                        link="/browse/ongoing-anime"
+                        link="/anime"
                     />
                 )}
 
@@ -453,7 +440,7 @@ export default function Home() {
                 {indo?.data && indo.data.length > 0 && (
                     <Section
                         title="Indonesian Movies"
-                        icon={<Globe className="w-6 h-6 text-green-500" />}
+                        icon={<Globe className="w-6 h-6 text-red-500" />}
                         movies={indo.data}
                         link="/browse/indonesian-movies"
                     />
@@ -463,7 +450,7 @@ export default function Home() {
                 {kdrama?.data && kdrama.data.length > 0 && (
                     <Section
                         title="Korean Drama"
-                        icon={<Heart className="w-6 h-6 text-pink-500" />}
+                        icon={<Heart className="w-6 h-6 text-red-500" />}
                         movies={kdrama.data}
                         link="/browse/korean-drama"
                     />
@@ -481,6 +468,4 @@ export default function Home() {
             </main>
         </div>
     );
-
-
 }

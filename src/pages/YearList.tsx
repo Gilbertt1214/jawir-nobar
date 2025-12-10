@@ -1,60 +1,90 @@
-import { useQuery } from '@tanstack/react-query';
-import { movieAPI } from '@/services/api';
-import { Link } from 'react-router-dom';
-import { Card, CardContent } from '@/components/ui/card';
-import { Calendar } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
+import { useQuery } from "@tanstack/react-query";
+import { movieAPI } from "@/services/api";
+import { Link } from "react-router-dom";
+import { Calendar } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 export default function YearList() {
-  const { data: years, isLoading, error } = useQuery({
-    queryKey: ['years'],
-    queryFn: () => movieAPI.getYears(),
-  });
+    const {
+        data: years,
+        isLoading,
+        error,
+    } = useQuery({
+        queryKey: ["years"],
+        queryFn: () => movieAPI.getYears(),
+    });
 
-  if (isLoading) {
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-background">
+                <div className="container mx-auto px-4 py-10 md:py-12">
+                    <Skeleton className="h-12 w-64 mb-10 bg-secondary" />
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                        {Array.from({ length: 20 }).map((_, i) => (
+                            <Skeleton
+                                key={i}
+                                className="h-16 rounded-lg bg-secondary"
+                            />
+                        ))}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="min-h-screen bg-background">
+                <div className="container mx-auto px-4 py-10">
+                    <Alert variant="destructive">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertDescription>
+                            Gagal memuat daftar tahun.
+                        </AlertDescription>
+                    </Alert>
+                </div>
+            </div>
+        );
+    }
+
     return (
-      <div className="container mx-auto px-4 py-8">
-        <Skeleton className="h-10 w-48 mb-8" />
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          {Array.from({ length: 15 }).map((_, i) => (
-            <Skeleton key={i} className="h-24" />
-          ))}
+        <div className="min-h-screen bg-background">
+            <div className="container mx-auto px-4 py-10 md:py-12">
+                {/* Title */}
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-10 md:mb-12">
+                    Browse by Year
+                </h1>
+
+                {/* Year Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                    {years
+                        ?.sort((a, b) => Number(b) - Number(a))
+                        .map((year) => (
+                            <Link
+                                key={year}
+                                to={`/year/${year}`}
+                                className="block"
+                            >
+                                <div className="flex items-center justify-center gap-3 px-5 py-4 bg-card border border-border rounded-lg transition-all duration-300 hover:bg-secondary hover:border-red-500/30 hover:shadow-[0_0_20px_rgba(239,68,68,0.1)] group">
+                                    <Calendar className="w-5 h-5 text-red-500 flex-shrink-0 group-hover:scale-110 transition-transform duration-300" />
+                                    <span className="font-semibold text-foreground group-hover:text-red-500 transition-colors duration-300">
+                                        {year}
+                                    </span>
+                                </div>
+                            </Link>
+                        ))}
+                </div>
+
+                {/* Footer Info */}
+                <div className="mt-12 text-center">
+                    <p className="text-muted-foreground text-sm">
+                        Pilih tahun untuk menemukan film dan series dari tahun
+                        tersebut
+                    </p>
+                </div>
+            </div>
         </div>
-      </div>
     );
-  }
-
-  if (error) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>Failed to load years.</AlertDescription>
-        </Alert>
-      </div>
-    );
-  }
-
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl md:text-4xl font-bold mb-8">Browse by Year</h1>
-      
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-        {years?.sort((a, b) => Number(b) - Number(a)).map((year) => (
-          <Link key={year} to={`/year/${year}`}>
-            <Card className="cursor-pointer hover:shadow-card-hover transition-smooth group">
-              <CardContent className="p-6 flex items-center justify-center gap-3 min-h-24">
-                <Calendar className="h-5 w-5 text-primary group-hover:scale-110 transition-smooth" />
-                <h3 className="text-xl font-semibold group-hover:text-primary transition-smooth">
-                  {year}
-                </h3>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
-      </div>
-    </div>
-  );
 }

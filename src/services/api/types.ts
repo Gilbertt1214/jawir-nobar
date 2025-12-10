@@ -71,6 +71,7 @@ export interface NekopoiJAV {
     synopsis: string;
     type: string;
     uploadDate: string;
+    nekopoiUrl?: string;
     downloadLinks?: DownloadLink[];
     streamLinks?: StreamLink[];
 }

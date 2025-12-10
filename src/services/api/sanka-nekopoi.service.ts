@@ -185,6 +185,114 @@ export class SankaNekopoiService {
         return [];
     }
 
+    // Cache for hentai covers to avoid repeated API calls
+    private coverCache: Map<string, string> = new Map();
+
+    // Fetch cover from detail endpoint
+    private async fetchCoverFromDetail(nekopoiUrl: string): Promise<string> {
+        const cacheKey = extractSlug(nekopoiUrl);
+        if (this.coverCache.has(cacheKey)) {
+            return this.coverCache.get(cacheKey) || "/placeholder.svg";
+        }
+
+        try {
+            const detail = await this.getDetail(nekopoiUrl);
+            if (detail?.cover && detail.cover !== "/placeholder.svg") {
+                this.coverCache.set(cacheKey, detail.cover);
+                return detail.cover;
+            }
+        } catch (error) {
+            console.error("Failed to fetch cover from detail:", error);
+        }
+        return "/placeholder.svg";
+    }
+
+    // Fetch covers for multiple items in parallel
+    private async fetchCoversInBatch(
+        items: NekopoiHentai[],
+        concurrency: number = 4
+    ): Promise<NekopoiHentai[]> {
+        console.log(`🖼️ Fetching covers for ${items.length} hentai items...`);
+
+        // Log first few items to debug
+        items.slice(0, 3).forEach((item, i) => {
+            console.log(`🖼️ Item ${i} before fetch:`, {
+                title: item.title,
+                cover: item.cover,
+                nekopoiUrl: item.nekopoiUrl,
+            });
+        });
+
+        const results: NekopoiHentai[] = [];
+
+        for (let i = 0; i < items.length; i += concurrency) {
+            const batch = items.slice(i, i + concurrency);
+            console.log(
+                `🖼️ Processing batch ${Math.floor(i / concurrency) + 1}...`
+            );
+
+            const batchPromises = batch.map(async (item) => {
+                // Skip if already has cover
+                if (
+                    item.cover &&
+                    item.cover !== "/placeholder.svg" &&
+                    item.cover.startsWith("http")
+                ) {
+                    console.log(`✅ ${item.title} already has cover`);
+                    return item;
+                }
+
+                // Check cache
+                const cacheKey = item.id || extractSlug(item.nekopoiUrl || "");
+                if (this.coverCache.has(cacheKey)) {
+                    console.log(`✅ ${item.title} found in cache`);
+                    return {
+                        ...item,
+                        cover:
+                            this.coverCache.get(cacheKey) || "/placeholder.svg",
+                    };
+                }
+
+                // Fetch from detail
+                if (item.nekopoiUrl) {
+                    console.log(
+                        `📥 Fetching cover for ${item.title} from ${item.nekopoiUrl}`
+                    );
+                    const cover = await this.fetchCoverFromDetail(
+                        item.nekopoiUrl
+                    );
+                    console.log(
+                        `📥 Got cover for ${item.title}:`,
+                        cover?.substring(0, 50)
+                    );
+                    return { ...item, cover };
+                }
+
+                console.log(`⚠️ ${item.title} has no nekopoiUrl`);
+                return item;
+            });
+
+            const batchResults = await Promise.all(batchPromises);
+            results.push(...batchResults);
+
+            // Small delay between batches
+            if (i + concurrency < items.length) {
+                await new Promise((r) => setTimeout(r, 50));
+            }
+        }
+
+        console.log(`✅ Covers fetched for ${results.length} items`);
+        // Log results
+        results.slice(0, 3).forEach((item, i) => {
+            console.log(`🖼️ Item ${i} after fetch:`, {
+                title: item.title,
+                cover: item.cover?.substring(0, 50),
+            });
+        });
+
+        return results;
+    }
+
     // Get release list with pagination - try multiple endpoints
     async getReleaseList(
         page: number = 1
@@ -236,7 +344,13 @@ export class SankaNekopoiService {
                 console.log("Nekopoi release items found:", items.length);
 
                 if (items.length > 0) {
-                    const data = items.map((item) => {
+                    // Log first item to debug
+                    console.log(
+                        "📦 First item raw data:",
+                        JSON.stringify(items[0])
+                    );
+
+                    const data = items.map((item, index) => {
                         const link = item.link || item.url || item.slug || "";
                         const cover =
                             item.image ||
@@ -248,6 +362,17 @@ export class SankaNekopoiService {
                             extractSlug(link) ||
                             item.title?.toLowerCase().replace(/\s+/g, "-") ||
                             String(Date.now());
+
+                        // Log first few items
+                        if (index < 3) {
+                            console.log(`📦 Item ${index}:`, {
+                                title: item.title,
+                                link,
+                                cover,
+                                hasImage: !!item.image,
+                                hasImg: !!item.img,
+                            });
+                        }
 
                         return {
                             id,
@@ -262,11 +387,17 @@ export class SankaNekopoiService {
                         };
                     });
 
-                    return {
+                    // Fetch covers from detail for items without covers
+                    const dataWithCovers = await this.fetchCoversInBatch(
                         data,
+                        4
+                    );
+
+                    return {
+                        data: dataWithCovers,
                         page,
                         totalPages: 10,
-                        totalItems: data.length,
+                        totalItems: dataWithCovers.length,
                     };
                 }
             } catch (error: unknown) {
@@ -347,20 +478,38 @@ export class SankaNekopoiService {
     // Get random hentai
     async getRandom(): Promise<NekopoiHentai | null> {
         try {
-            console.log("Fetching random from Nekopoi API");
+            console.log(
+                "🎲 Fetching random from Nekopoi API:",
+                `${this.baseUrl}/random`
+            );
             const response = await axios.get<{
-                status: string;
-                success: boolean;
-                data: NekopoiDetailData;
+                status?: string;
+                success?: boolean;
+                data?: NekopoiDetailData;
             }>(`${this.baseUrl}/random`);
 
-            if (response.data?.success && response.data?.data) {
+            console.log(
+                "🎲 Random response:",
+                JSON.stringify(response.data).substring(0, 300)
+            );
+
+            // Handle both response formats: success=true or status="success"
+            const isSuccess =
+                response.data?.success || response.data?.status === "success";
+
+            if (isSuccess && response.data?.data) {
                 const data = response.data.data;
-                return this.transformDetailToHentai(data, "random");
+                const result = this.transformDetailToHentai(
+                    data,
+                    "random-" + Date.now()
+                );
+                console.log("🎲 Random result:", result.title, result.cover);
+                return result;
             }
+            console.log("🎲 Random API returned no data");
             return null;
         } catch (error) {
-            console.error("Nekopoi API getRandom error:", error);
+            console.error("❌ Nekopoi API getRandom error:", error);
             return null;
         }
     }
@@ -377,20 +526,43 @@ export class SankaNekopoiService {
                 url += "/";
             }
 
-            console.log(`Fetching detail from Nekopoi API: ${url}`);
+            console.log(`🔞 Fetching detail from Nekopoi API: ${url}`);
+            console.log(
+                `🔞 API endpoint: ${this.baseUrl}/get?url=${encodeURIComponent(
+                    url
+                )}`
+            );
+
             const response = await axios.get<{
                 status: string;
                 success: boolean;
                 data: NekopoiDetailData;
             }>(`${this.baseUrl}/get?url=${encodeURIComponent(url)}`);
 
+            console.log(
+                "📦 Nekopoi detail response:",
+                JSON.stringify(response.data).substring(0, 500)
+            );
+
             if (response.data?.success && response.data?.data) {
                 const data = response.data.data;
-                return this.transformDetailToHentai(data, extractSlug(url));
+                const result = this.transformDetailToHentai(
+                    data,
+                    extractSlug(url)
+                );
+                console.log("✅ Transformed hentai detail:", {
+                    title: result.title,
+                    cover: result.cover,
+                    streamLinksCount: result.streamLinks?.length || 0,
+                    downloadLinksCount: result.downloadLinks?.length || 0,
+                });
+                return result;
             }
+
+            console.warn("⚠️ Nekopoi API returned no data or success=false");
             return null;
         } catch (error) {
-            console.error("Nekopoi API getDetail error:", error);
+            console.error("❌ Nekopoi API getDetail error:", error);
             return null;
         }
     }
@@ -400,6 +572,15 @@ export class SankaNekopoiService {
         data: NekopoiDetailData,
         id: string
     ): NekopoiHentai {
+        console.log("🔄 Transforming detail data:", {
+            title: data.title,
+            hasImg: !!data.img,
+            hasImage: !!data.image,
+            hasPoster: !!data.poster,
+            hasStreams: !!(data.streams || data.stream_links),
+            hasDownload: !!(data.download || data.download_links),
+        });
+
         // Parse genres - handle both string and array formats
         let genres: string[] = [];
         if (data.genres && Array.isArray(data.genres)) {
@@ -419,6 +600,7 @@ export class SankaNekopoiService {
             url: s.url,
             provider: s.name,
         }));
+        console.log("📺 Stream links found:", streamLinks.length, streamLinks);
 
         // Transform download links - handle multiple formats
         const downloads = data.download || data.download_links || [];
@@ -426,18 +608,21 @@ export class SankaNekopoiService {
         downloads.forEach((dl) => {
             dl.links?.forEach((link) => {
                 downloadLinks.push({
-                    quality: dl.type || "unknown",
+                    quality: dl.type || dl.title || "unknown",
                     size: "",
                     url: link.link,
                     type: link.name,
                 });
             });
         });
+        console.log("📥 Download links found:", downloadLinks.length);
 
         // Get cover image from multiple possible fields
         const cover =
             data.img || data.image || data.poster || "/placeholder.svg";
         const synopsis = data.sinopsis || data.synopsis || "";
+
+        console.log("🖼️ Cover image:", cover);
 
         return {
             id,
