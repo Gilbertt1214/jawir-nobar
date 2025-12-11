@@ -2,7 +2,6 @@ import { defineConfig, type ConfigEnv } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import * as path from "path";
 import { componentTagger } from "lovable-tagger";
-import { cloudflare } from "@cloudflare/vite-plugin";
 
 // Helper untuk menambahkan TMDB API key ke path
 const appendTmdbApiKey = (urlPath: string): string => {
@@ -100,11 +99,9 @@ export default defineConfig((env: ConfigEnv) => ({
             "/search": createTmdbProxy(),
         },
     },
-    plugins: [
-        react(),
-        cloudflare(),
-        env.mode === "development" && componentTagger(),
-    ].filter(Boolean),
+    plugins: [react(), env.mode === "development" && componentTagger()].filter(
+        Boolean
+    ),
     resolve: {
         alias: {
             "@": path.resolve(__dirname, "./src"),
