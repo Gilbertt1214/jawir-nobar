@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { movieAPI } from "@/services/api";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ import type { StreamingProvider } from "@/services/api";
 
 export default function AnimeWatch() {
     const { slug } = useParams<{ slug: string }>();
+    const navigate = useNavigate();
     const [iframeKey, setIframeKey] = useState(0);
     const [providerError, setProviderError] = useState(false);
 
@@ -159,7 +160,6 @@ export default function AnimeWatch() {
                     <p className="text-muted-foreground text-sm">
                         Episode {episodeNumber}
                     </p>
-                </div>
                 </div>
 
                 <div className="max-w-6xl mx-auto space-y-4">
