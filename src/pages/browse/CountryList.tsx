@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { getCountryName } from "@/lib/countries";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function CountryList() {
     const {
@@ -16,6 +17,8 @@ export default function CountryList() {
         queryKey: ["countries"],
         queryFn: () => movieAPI.getAllCountries(),
     });
+
+    const { t } = useLanguage();
 
     if (isLoading) {
         return (
@@ -42,7 +45,7 @@ export default function CountryList() {
                     <Alert variant="destructive">
                         <AlertCircle className="h-4 w-4" />
                         <AlertDescription>
-                            Gagal memuat daftar negara.
+                            {t('failedToLoadCountries')}
                         </AlertDescription>
                     </Alert>
                 </div>
@@ -55,7 +58,7 @@ export default function CountryList() {
             <div className="container mx-auto px-4 py-10 md:py-12">
                 {/* Title */}
                 <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-10 md:mb-12">
-                    Browse by Country
+                    {t('browseByCountry')}
                 </h1>
 
                 {/* Country Grid */}
@@ -66,9 +69,9 @@ export default function CountryList() {
                             to={`/country/${encodeURIComponent(country)}`}
                             className="block"
                         >
-                            <div className="flex items-center gap-3 px-5 py-4 bg-card border border-border rounded-lg transition-all duration-300 hover:bg-secondary hover:border-red-500/30 hover:shadow-[0_0_20px_rgba(239,68,68,0.1)] group">
-                                <Globe className="w-5 h-5 text-red-500 flex-shrink-0 group-hover:scale-110 transition-transform duration-300" />
-                                <span className="font-semibold text-foreground group-hover:text-red-500 transition-colors duration-300">
+                            <div className="flex items-center gap-3 px-5 py-4 bg-card border border-border rounded-lg transition-all duration-300 hover:border-foreground hover:shadow-[4px_4px_0px_#000] dark:hover:shadow-[4px_4px_0px_#fff] group">
+                                <Globe className="w-5 h-5 text-primary flex-shrink-0 group-hover:scale-110 transition-transform duration-300" />
+                                <span className="font-semibold text-foreground group-hover:text-primary transition-colors duration-300">
                                     {getCountryName(country)}
                                 </span>
                             </div>
@@ -79,8 +82,7 @@ export default function CountryList() {
                 {/* Footer Info */}
                 <div className="mt-12 text-center">
                     <p className="text-muted-foreground text-sm">
-                        Pilih negara untuk menemukan film dan series dari negara
-                        tersebut
+                        {t('selectCountryHint')}
                     </p>
                 </div>
             </div>

@@ -139,6 +139,22 @@ export class StreamingService {
                 tier: 3,
                 priority: 8,
             },
+            {
+                name: "StreamSB",
+                url: `https://sbembed.com/e/${movieId}`,
+                quality: "HD",
+                language: "Multi",
+                tier: 3,
+                priority: 9,
+            },
+            {
+                name: "Doodstream",
+                url: `https://dood.to/e/${movieId}`,
+                quality: "HD",
+                language: "Multi",
+                tier: 3,
+                priority: 10,
+            },
         ];
 
         // Skip availability check for faster loading - just return all providers
@@ -235,6 +251,22 @@ export class StreamingService {
                 tier: 3,
                 priority: 8,
             },
+            {
+                name: "StreamSB",
+                url: `https://sbembed.com/e/tv-${seriesId}-${season}-${episode}`,
+                quality: "HD",
+                language: "Multi",
+                tier: 3,
+                priority: 9,
+            },
+            {
+                name: "Doodstream",
+                url: `https://dood.to/e/tv-${seriesId}-${season}-${episode}`,
+                quality: "HD",
+                language: "Multi",
+                tier: 3,
+                priority: 10,
+            },
         ];
 
         // Skip availability check for faster loading - just return all providers
@@ -273,7 +305,7 @@ export class StreamingService {
         return {
             1: ["VidLink Pro", "VidSrc Pro"],
             2: ["VidSrc", "VidSrc XYZ", "VidSrc.me", "VidSrc PM"],
-            3: ["Embed.su", "SuperEmbed", "MoviesAPI"],
+            3: ["Embed.su", "SuperEmbed", "MoviesAPI", "StreamSB", "Doodstream"],
             4: ["2Embed", "NontonGo"],
         };
     }

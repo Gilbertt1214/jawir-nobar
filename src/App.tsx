@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { ScrollToTop } from "@/components/layout/ScrollToTop";
@@ -69,7 +70,8 @@ const App = () => {
     return (
         <QueryClientProvider client={queryClient}>
             <ThemeProvider>
-                <TooltipProvider>
+                <LanguageProvider>
+                    <TooltipProvider>
                     <Toaster />
                     <Sonner />
                     <BrowserRouter
@@ -183,6 +185,7 @@ const App = () => {
                         </div>
                     </BrowserRouter>
                 </TooltipProvider>
+                </LanguageProvider>
             </ThemeProvider>
         </QueryClientProvider>
     );

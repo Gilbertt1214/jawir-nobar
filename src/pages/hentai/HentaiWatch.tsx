@@ -268,7 +268,7 @@ export default function HentaiWatch() {
                             {baseTitle}
                         </h1>
                         <div className="flex items-center gap-2">
-                            <Badge className="bg-red-600 text-white">
+                            <Badge className="bg-primary text-white">
                                 Episode {currentEpisodeNum}
                             </Badge>
                             {hentaiDetail.genre?.slice(0, 3).map((g, i) => (
@@ -292,7 +292,7 @@ export default function HentaiWatch() {
                             onClick={() => setActiveTab("stream")}
                             className={
                                 activeTab === "stream"
-                                    ? "bg-red-600 hover:bg-red-500"
+                                    ? "bg-primary hover:bg-primary"
                                     : ""
                             }
                         >
@@ -305,7 +305,7 @@ export default function HentaiWatch() {
                             onClick={() => setActiveTab("download")}
                             className={
                                 activeTab === "download"
-                                    ? "bg-red-600 hover:bg-red-500"
+                                    ? "bg-primary hover:bg-primary"
                                     : ""
                             }
                         >
@@ -372,8 +372,8 @@ export default function HentaiWatch() {
                             {providerError || isBlocked ? (
                                 <div className="relative aspect-video bg-black/50 border border-white/10 rounded-lg flex items-center justify-center p-6">
                                     <div className="text-center text-white space-y-4 max-w-md">
-                                        <div className="w-16 h-16 bg-red-600/20 rounded-full flex items-center justify-center mx-auto">
-                                            <ExternalLink className="h-8 w-8 text-red-500" />
+                                        <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto">
+                                            <ExternalLink className="h-8 w-8 text-primary" />
                                         </div>
                                         <div className="space-y-2">
                                             <h3 className="font-semibold text-lg">
@@ -389,7 +389,7 @@ export default function HentaiWatch() {
                                             </p>
                                         </div>
                                         <Button
-                                            className="bg-red-600 hover:bg-red-500 w-full sm:w-auto"
+                                            className="bg-primary hover:bg-primary w-full sm:w-auto"
                                             onClick={() =>
                                                 window.open(
                                                     currentProvider?.url,
@@ -483,7 +483,7 @@ export default function HentaiWatch() {
                         {nextEpisode ? (
                             <Button
                                 asChild
-                                className="bg-red-600 hover:bg-red-500 gap-2"
+                                className="bg-primary hover:bg-primary gap-2"
                             >
                                 <Link to={`/hentai/watch/${nextEpisode.id}`}>
                                     Episode{" "}

@@ -42,6 +42,7 @@ import { commentsService } from "@/services/firebase/comments.service";
 import { FadeIn } from "@/components/animations/FadeIn";
 import { ScaleIn } from "@/components/animations/ScaleIn";
 import { toast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 // Animations moved to components/animations
 
@@ -75,6 +76,8 @@ export default function MovieDetail() {
                 : movieAPI.getMovieById(id!),
         enabled: !!id,
     });
+
+    const { t } = useLanguage();
 
     const [name, setName] = useState("");
     const [message, setMessage] = useState("");
@@ -379,7 +382,7 @@ export default function MovieDetail() {
 
                             <div className="flex flex-wrap items-center gap-3 text-sm">
                                 {movie.rating && (
-                                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-red-500 font-bold">
+                                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary font-bold">
                                         <Star className="h-4 w-4 fill-current" />
                                         <span>{movie.rating.toFixed(1)}</span>
                                     </div>
@@ -429,7 +432,7 @@ export default function MovieDetail() {
                             <div className="space-y-2">
                                 <h2 className="text-lg font-semibold flex items-center gap-2">
                                     <span className="w-1 h-6 bg-primary rounded-full" />
-                                    Synopsis
+                                    {t('synopsis')}
                                 </h2>
                                 <p className="text-muted-foreground leading-relaxed text-base sm:text-lg">
                                     {movie.synopsis}
@@ -442,7 +445,7 @@ export default function MovieDetail() {
                             <div className="space-y-3">
                                 <h2 className="text-lg font-semibold flex items-center gap-2">
                                     <span className="w-1 h-6 bg-primary rounded-full" />
-                                    Cast
+                                    {t('cast')}
                                 </h2>
                                 <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide mask-linear-fade">
                                     {movie.cast.map((actor) => (
@@ -769,8 +772,8 @@ export default function MovieDetail() {
                                                 </div>
                                             ) : providerError ? (
                                                 <div className="text-center text-white space-y-4 p-6 max-w-md mx-auto">
-                                                    <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center mx-auto">
-                                                        <AlertCircle className="h-8 w-8 text-red-500" />
+                                                    <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto">
+                                                        <AlertCircle className="h-8 w-8 text-primary" />
                                                     </div>
                                                     <div className="space-y-2">
                                                         <h3 className="font-semibold text-lg">

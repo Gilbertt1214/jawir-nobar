@@ -24,6 +24,7 @@ import { commentsService } from "@/services/firebase/comments.service";
 import { FadeIn } from "@/components/animations/FadeIn";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Comment {
     name: string;
@@ -108,7 +109,7 @@ export default function AnimeInfo() {
             setName("");
             setMessage("");
             toast({
-                title: "Komentar Terkirim!",
+                title: "{t('comments')} Terkirim!",
                 description: "Terima kasih sudah berkomentar.",
             });
         } catch (error) {
@@ -128,6 +129,7 @@ export default function AnimeInfo() {
     };
 
     const isNumericId = slug && /^\d+$/.test(slug);
+    const { t } = useLanguage();
 
     const {
         data: anime,
@@ -171,7 +173,7 @@ export default function AnimeInfo() {
     const getStatusColor = (status?: string) => {
         if (status?.toLowerCase().includes("ongoing")) return "bg-green-500";
         if (status?.toLowerCase().includes("completed")) return "bg-blue-500";
-        return "bg-red-600";
+        return "bg-primary";
     };
 
     if (isLoading) {
@@ -207,11 +209,11 @@ export default function AnimeInfo() {
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
                         {isNumericId
-                            ? "Anime ini dari TMDB/MAL dan tidak tersedia untuk streaming."
-                            : "Gagal memuat detail anime."}
+                            ? "This anime is from TMDB/MAL and not available for streaming."
+                            : t('failedToLoadAnimeDetails')}
                     </AlertDescription>
                 </Alert>
-                <Button asChild className="bg-red-600 hover:bg-red-500">
+                <Button asChild className="bg-primary hover:bg-primary">
                     <Link to="/anime">
                         <Tv className="h-4 w-4 mr-2" />
                         Lihat Daftar Anime
@@ -287,21 +289,21 @@ export default function AnimeInfo() {
                             <div className="grid grid-cols-3 gap-4 text-center">
                                 {anime.rating && (
                                     <div>
-                                        <Star className="h-4 w-4 mx-auto mb-1 text-red-500" />
+                                        <Star className="h-4 w-4 mx-auto mb-1 text-primary" />
                                         <span className="text-sm font-medium">
                                             {anime.rating}
                                         </span>
                                     </div>
                                 )}
                                 <div>
-                                    <Tv className="h-4 w-4 mx-auto mb-1 text-red-500" />
+                                    <Tv className="h-4 w-4 mx-auto mb-1 text-primary" />
                                     <span className="text-sm font-medium">
                                         {sortedEpisodes.length} Ep
                                     </span>
                                 </div>
                                 {anime.duration && (
                                     <div>
-                                        <Clock className="h-4 w-4 mx-auto mb-1 text-red-500" />
+                                        <Clock className="h-4 w-4 mx-auto mb-1 text-primary" />
                                         <span className="text-sm font-medium">
                                             {anime.duration}
                                         </span>
@@ -324,7 +326,7 @@ export default function AnimeInfo() {
                         <FadeIn delay={0.5} direction="left">
                             <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-sm">
                                 {anime.rating && (
-                                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-red-500 font-bold">
+                                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary font-bold">
                                         <Star className="h-4 w-4 fill-current" />
                                         <span>{anime.rating}</span>
                                     </div>
@@ -357,7 +359,7 @@ export default function AnimeInfo() {
                                         <Badge
                                             key={i}
                                             variant="outline"
-                                            className="hover:bg-red-600 hover:text-white hover:border-red-600 transition-all cursor-pointer px-3 py-1"
+                                            className="hover:bg-primary hover:text-white hover:border-primary transition-all cursor-pointer px-3 py-1"
                                         >
                                             {genre}
                                         </Badge>
@@ -371,8 +373,8 @@ export default function AnimeInfo() {
                             <FadeIn delay={0.7} direction="up">
                                 <div className="space-y-2">
                                     <h2 className="text-lg font-semibold flex items-center gap-2">
-                                        <span className="w-1 h-6 bg-red-600 rounded-full" />
-                                        Sinopsis
+                                        <span className="w-1 h-6 bg-primary rounded-full" />
+                                        {t('synopsis')}
                                     </h2>
                                     <p className="text-muted-foreground leading-relaxed">
                                         {anime.synopsis}
@@ -386,7 +388,7 @@ export default function AnimeInfo() {
                             <FadeIn delay={0.8} direction="up">
                                 <div className="flex items-center justify-between">
                                     <h2 className="text-lg font-semibold flex items-center gap-2">
-                                        <span className="w-1 h-6 bg-red-600 rounded-full" />
+                                        <span className="w-1 h-6 bg-primary rounded-full" />
                                         Daftar Episode
                                     </h2>
                                     <span className="text-muted-foreground text-sm">
@@ -419,7 +421,7 @@ export default function AnimeInfo() {
                                                 <div
                                                     className={`group flex flex-row overflow-hidden rounded-lg border transition-all hover:scale-[1.01] hover:shadow-xl h-24 sm:h-28 ${
                                                         isWatched
-                                                            ? "border-red-500/30 bg-red-500/10 hover:bg-red-500/20"
+                                                            ? "border-primary/30 bg-primary/10 hover:bg-primary/20"
                                                             : "border-white/5 bg-black/20 hover:bg-white/5"
                                                     }`}
                                                 >
@@ -442,7 +444,7 @@ export default function AnimeInfo() {
                                                             <Badge
                                                                 className={`backdrop-blur border-white/10 text-[10px] sm:text-xs px-1.5 py-0 ${
                                                                     isWatched
-                                                                        ? "bg-red-600"
+                                                                        ? "bg-primary"
                                                                         : "bg-black/60"
                                                                 }`}
                                                             >
@@ -454,7 +456,7 @@ export default function AnimeInfo() {
                                                             </Badge>
                                                         </div>
                                                         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 bg-black/20 backdrop-blur-[1px]">
-                                                            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-red-600 flex items-center justify-center shadow-lg shadow-red-600/40 transform scale-50 group-hover:scale-100 transition-transform">
+                                                            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/40 transform scale-50 group-hover:scale-100 transition-transform">
                                                                 <Play className="w-4 h-4 sm:w-5 sm:h-5 text-white fill-current ml-0.5" />
                                                             </div>
                                                         </div>
@@ -464,8 +466,8 @@ export default function AnimeInfo() {
                                                         <h3
                                                             className={`font-medium text-sm sm:text-base line-clamp-1 transition-colors ${
                                                                 isWatched
-                                                                    ? "text-red-400"
-                                                                    : "group-hover:text-red-400"
+                                                                    ? "text-primary"
+                                                                    : "group-hover:text-primary"
                                                             }`}
                                                         >
                                                             Episode {episodeNum}
@@ -476,7 +478,7 @@ export default function AnimeInfo() {
                                                             </span>
                                                         </div>
                                                         {isWatched && (
-                                                            <span className="text-[10px] sm:text-xs text-red-500 mt-1">
+                                                            <span className="text-[10px] sm:text-xs text-primary mt-1">
                                                                 ✓ Sudah
                                                             </span>
                                                         )}
@@ -495,7 +497,7 @@ export default function AnimeInfo() {
                                                             }}
                                                             className={`h-8 w-8 p-0 ${
                                                                 isWatched
-                                                                    ? "text-red-400 hover:bg-red-500/20"
+                                                                    ? "text-primary hover:bg-primary/20"
                                                                     : "text-muted-foreground hover:bg-white/10"
                                                             }`}
                                                         >
@@ -514,28 +516,28 @@ export default function AnimeInfo() {
                         <FadeIn delay={0.9} direction="up">
                             <div className="space-y-4 pt-6">
                                 <h2 className="text-lg font-semibold flex items-center gap-2">
-                                    <MessageSquare className="h-5 w-5 text-red-500" />
-                                    Komentar
+                                    <MessageSquare className="h-5 w-5 text-primary" />
+                                    {t('comments')}
                                 </h2>
                                 <Card className="bg-card/50 backdrop-blur-sm border-white/5">
                                     <CardContent className="p-4 sm:p-6 space-y-6">
                                         <div className="space-y-4">
                                             <Input
-                                                placeholder="Nama kamu"
+                                                placeholder={t('yourName')}
                                                 value={name}
                                                 onChange={(e) =>
                                                     setName(e.target.value)
                                                 }
                                                 maxLength={50}
-                                                className="bg-background/50 border-white/10 focus:border-red-500/50"
+                                                className="bg-background/50 border-white/10 focus:border-primary/50"
                                             />
                                             <Textarea
-                                                placeholder="Tulis komentar..."
+                                                placeholder={t('writeComment')}
                                                 value={message}
                                                 onChange={(e) =>
                                                     setMessage(e.target.value)
                                                 }
-                                                className="min-h-[100px] bg-background/50 border-white/10 focus:border-red-500/50 resize-none"
+                                                className="min-h-[100px] bg-background/50 border-white/10 focus:border-primary/50 resize-none"
                                                 maxLength={500}
                                             />
                                             <div className="flex justify-between items-center">
@@ -550,7 +552,7 @@ export default function AnimeInfo() {
                                                         !message.trim() ||
                                                         isLoadingComments
                                                     }
-                                                    className="gap-2 bg-red-600 hover:bg-red-500"
+                                                    className="gap-2 bg-primary hover:bg-primary"
                                                 >
                                                     {isLoadingComments ? (
                                                         <>
@@ -558,7 +560,7 @@ export default function AnimeInfo() {
                                                             Posting...
                                                         </>
                                                     ) : (
-                                                        "Kirim Komentar"
+                                                        "Kirim {t('comments')}"
                                                     )}
                                                 </Button>
                                             </div>
@@ -568,7 +570,7 @@ export default function AnimeInfo() {
                                             {isLoadingComments &&
                                             comments.length === 0 ? (
                                                 <div className="text-center py-8">
-                                                    <RefreshCw className="h-6 w-6 mx-auto animate-spin text-red-500" />
+                                                    <RefreshCw className="h-6 w-6 mx-auto animate-spin text-primary" />
                                                     <p className="text-sm text-muted-foreground mt-2">
                                                         Memuat komentar...
                                                     </p>
@@ -590,7 +592,7 @@ export default function AnimeInfo() {
                                                     >
                                                         <div className="p-4 rounded-xl bg-muted/30 border border-white/5 space-y-2">
                                                             <div className="flex items-center justify-between">
-                                                                <span className="font-semibold text-sm text-red-400">
+                                                                <span className="font-semibold text-sm text-primary">
                                                                     {c.name}
                                                                 </span>
                                                                 <span className="text-xs text-muted-foreground">

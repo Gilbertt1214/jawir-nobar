@@ -17,6 +17,7 @@ import {
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 type TabType = "ongoing" | "complete";
 
@@ -25,6 +26,7 @@ export default function AnimeList() {
     const [page, setPage] = useState(1);
     const [activeTab, setActiveTab] = useState<TabType>("ongoing");
     const [apiStatus, setApiStatus] = useState<boolean | null>(null);
+    const { t } = useLanguage();
 
     // Check API status on mount
     useEffect(() => {
@@ -117,16 +119,16 @@ export default function AnimeList() {
                                     {apiStatus ? (
                                         <Wifi className="h-3 w-3 text-green-500" />
                                     ) : (
-                                        <WifiOff className="h-3 w-3 text-red-500" />
+                                        <WifiOff className="h-3 w-3 text-primary" />
                                     )}
                                     <span
                                         className={`text-xs ${
                                             apiStatus
                                                 ? "text-green-500"
-                                                : "text-red-500"
+                                                : "text-primary"
                                         }`}
                                     >
-                                        {apiStatus ? "Online" : "Offline"}
+                                        {apiStatus ? t('online') : t('offline')}
                                     </span>
                                 </div>
                             )}
@@ -134,7 +136,7 @@ export default function AnimeList() {
                     </div>
                     <Button variant="outline" size="sm" onClick={handleRefresh}>
                         <RefreshCw className="mr-2 h-4 w-4" />
-                        Refresh
+                        {t('refresh')}
                     </Button>
                 </div>
 
@@ -150,17 +152,17 @@ export default function AnimeList() {
                     <TabsList className="bg-secondary border border-border">
                         <TabsTrigger
                             value="ongoing"
-                            className="data-[state=active]:bg-red-600 data-[state=active]:text-white"
+                            className="data-[state=active]:bg-primary data-[state=active]:text-white"
                         >
                             <Tv className="w-4 h-4 mr-2" />
-                            Ongoing
+                            {t('ongoing')}
                         </TabsTrigger>
                         <TabsTrigger
                             value="complete"
-                            className="data-[state=active]:bg-red-600 data-[state=active]:text-white"
+                            className="data-[state=active]:bg-primary data-[state=active]:text-white"
                         >
                             <CheckCircle className="w-4 h-4 mr-2" />
-                            Complete
+                            {t('complete')}
                         </TabsTrigger>
                     </TabsList>
                 </Tabs>
@@ -171,15 +173,15 @@ export default function AnimeList() {
                         <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                         <Input
                             type="text"
-                            placeholder="Cari anime... (min 3 karakter)"
+                            placeholder={t('searchAnime')}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pl-12 py-6 text-base rounded-xl border-border bg-secondary text-foreground placeholder:text-muted-foreground focus:border-red-500 focus:ring-red-500"
+                            className="pl-12 py-6 text-base rounded-xl border-border bg-secondary text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary"
                         />
                     </div>
                     {searchQuery.length > 0 && searchQuery.length < 3 && (
                         <p className="text-xs text-muted-foreground mt-2 ml-1">
-                            Ketik minimal 3 karakter untuk mencari
+                            {t('minCharSearch')}
                         </p>
                     )}
                 </form>
@@ -187,11 +189,11 @@ export default function AnimeList() {
                 {/* Loading State */}
                 {isLoading && (
                     <div className="flex flex-col items-center justify-center py-16">
-                        <div className="animate-spin rounded-full h-12 w-12 border-4 border-red-500 border-t-transparent mb-4"></div>
+                        <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent mb-4"></div>
                         <p className="text-muted-foreground">
                             {activeTab === "complete"
-                                ? "Memuat anime dan thumbnail... (mungkin butuh waktu)"
-                                : "Memuat anime..."}
+                                ? t('loadingAnimeThumbnails')
+                                : t('loading')}
                         </p>
                     </div>
                 )}
@@ -259,7 +261,7 @@ export default function AnimeList() {
 
                                                     {/* Play button on hover */}
                                                     <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                                        <div className="w-12 h-12 rounded-full bg-red-600 flex items-center justify-center">
+                                                        <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center">
                                                             <Play className="w-5 h-5 text-white fill-white" />
                                                         </div>
                                                     </div>
@@ -267,7 +269,7 @@ export default function AnimeList() {
                                                     {/* Episode badge */}
                                                     {item.latestEpisode && (
                                                         <div className="absolute top-2 right-2">
-                                                            <Badge className="text-xs backdrop-blur-sm bg-red-600 text-white border-none">
+                                                            <Badge className="text-xs backdrop-blur-sm bg-primary text-white border-none">
                                                                 {
                                                                     item.latestEpisode
                                                                 }
@@ -276,7 +278,7 @@ export default function AnimeList() {
                                                     )}
                                                 </div>
                                                 <CardContent className="p-3">
-                                                    <h3 className="font-semibold text-sm line-clamp-2 text-foreground group-hover:text-red-500 transition-colors">
+                                                    <h3 className="font-semibold text-sm line-clamp-2 text-foreground group-hover:text-primary transition-colors">
                                                         {item.title}
                                                     </h3>
                                                 </CardContent>
@@ -359,7 +361,7 @@ export default function AnimeList() {
                                                     }
                                                     className={`w-10 h-10 ${
                                                         page === pageNum
-                                                            ? "bg-red-600 hover:bg-red-500 text-white"
+                                                            ? "bg-primary hover:bg-primary text-white"
                                                             : ""
                                                     }`}
                                                 >

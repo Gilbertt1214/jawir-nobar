@@ -24,11 +24,13 @@ import { Badge } from "@/components/ui/badge";
 import { StaggeredText } from "@/components/common/StaggeredText";
 import { FadeIn } from "@/components/animations/FadeIn";
 import { Section } from "@/components/layout/Section";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Home() {
     // Anime filters
     const [animeType, setAnimeType] = useState<"all" | "tv" | "movie">("all");
     const [animeAudio, setAnimeAudio] = useState<"all" | "sub" | "dub">("all");
+    const { t } = useLanguage();
 
     // Data queries
     const {
@@ -210,7 +212,7 @@ export default function Home() {
                                         <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
                                     </>
                                 ) : (
-                                    <div className="w-full h-full bg-red-600/20" />
+                                    <div className="w-full h-full bg-muted/20" />
                                 )}
                             </div>
                         ))}
@@ -325,9 +327,9 @@ export default function Home() {
                 {/* Latest Movies */}
                 {latestMovies?.data && latestMovies.data.length > 0 && (
                     <Section
-                        title="Latest Movies"
+                        title={t('latestMovies')}
                         icon={
-                            <Sparkles className="w-6 h-6 text-red-500 animate-pulse" />
+                            <Sparkles className="w-6 h-6 text-primary animate-pulse" />
                         }
                         movies={latestMovies.data}
                         link="/browse/latest-movies"
@@ -338,8 +340,8 @@ export default function Home() {
                 {/* Popular Movies */}
                 {popularMovies?.data && popularMovies.data.length > 0 && (
                     <Section
-                        title="Popular Movies"
-                        icon={<TrendingUp className="w-6 h-6 text-red-500" />}
+                        title={t('popularMovies')}
+                        icon={<TrendingUp className="w-6 h-6 text-primary" />}
                         movies={popularMovies.data}
                         link="/browse/popular-movies"
                         delay={0.2}
@@ -349,8 +351,8 @@ export default function Home() {
                 {/* Latest Series */}
                 {latestSeries?.data && latestSeries.data.length > 0 && (
                     <Section
-                        title="Latest Series"
-                        icon={<Tv className="w-6 h-6 text-red-500" />}
+                        title={t('latestSeries')}
+                        icon={<Tv className="w-6 h-6 text-primary" />}
                         movies={latestSeries.data}
                         link="/browse/latest-series"
                         delay={0.3}
@@ -363,11 +365,11 @@ export default function Home() {
                         <section className="space-y-6">
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                 <div className="flex items-center gap-3 group cursor-pointer">
-                                    <div className="h-8 w-1.5 bg-red-600 rounded-full group-hover:h-10 transition-all duration-300" />
-                                    <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white group-hover:text-red-500 transition-colors">
+                                    <div className="h-8 w-1.5 bg-primary rounded-full group-hover:h-10 transition-all duration-300" />
+                                    <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground group-hover:text-primary transition-colors">
                                         Anime
                                     </h2>
-                                    <div className="text-red-500 opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300">
+                                    <div className="text-primary opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300">
                                         <Film className="w-6 h-6" />
                                     </div>
                                 </div>
@@ -376,7 +378,7 @@ export default function Home() {
                                     asChild
                                     variant="ghost"
                                     size="sm"
-                                    className="self-start sm:self-auto hover:bg-white/5 hover:text-red-500 transition-all group/btn"
+                                    className="self-start sm:self-auto hover:bg-secondary hover:text-primary transition-all group/btn"
                                 >
                                     <Link
                                         to={`/browse/anime?type=${animeType}&audio=${animeAudio}`}
@@ -407,8 +409,8 @@ export default function Home() {
                     ongoingAnime &&
                     ongoingAnime.length > 0 && (
                         <Section
-                            title="Ongoing Anime"
-                            icon={<Tv className="w-6 h-6 text-red-500" />}
+                            title={t('ongoingAnime')}
+                            icon={<Tv className="w-6 h-6 text-primary" />}
                             movies={ongoingAnime}
                             link="/anime"
                             delay={0.5}
@@ -419,8 +421,8 @@ export default function Home() {
                 {/* Indonesian Movies */}
                 {indo?.data && indo.data.length > 0 && (
                     <Section
-                        title="Indonesian Movies"
-                        icon={<Globe className="w-6 h-6 text-red-500" />}
+                        title={t('indonesianMovies')}
+                        icon={<Globe className="w-6 h-6 text-primary" />}
                         movies={indo.data}
                         link="/browse/indonesian-movies"
                         delay={0.6}
@@ -430,8 +432,8 @@ export default function Home() {
                 {/* Korean Drama */}
                 {kdrama?.data && kdrama.data.length > 0 && (
                     <Section
-                        title="Korean Drama"
-                        icon={<Heart className="w-6 h-6 text-red-500" />}
+                        title={t('koreanDrama')}
+                        icon={<Heart className="w-6 h-6 text-primary" />}
                         movies={kdrama.data}
                         link="/browse/korean-drama"
                         delay={0.7}

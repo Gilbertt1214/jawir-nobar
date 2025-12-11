@@ -191,8 +191,8 @@ export default function AnimeWatch() {
                         {providerError || isBlocked ? (
                             <div className="absolute inset-0 bg-black/50 flex items-center justify-center p-6">
                                 <div className="text-center text-white space-y-4 max-w-md">
-                                    <div className="w-16 h-16 bg-red-600/20 rounded-full flex items-center justify-center mx-auto">
-                                        <ExternalLink className="h-8 w-8 text-red-500" />
+                                    <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto">
+                                        <ExternalLink className="h-8 w-8 text-primary" />
                                     </div>
                                     <div className="space-y-2">
                                         <h3 className="font-semibold text-lg">
@@ -208,7 +208,7 @@ export default function AnimeWatch() {
                                         </p>
                                     </div>
                                     <Button
-                                        className="bg-red-600 hover:bg-red-500 w-full sm:w-auto"
+                                        className="bg-primary hover:bg-primary w-full sm:w-auto"
                                         onClick={() =>
                                             window.open(
                                                 currentStream.url,
@@ -238,7 +238,7 @@ export default function AnimeWatch() {
                     {/* Controls Bar */}
                     <div className="flex flex-wrap items-center justify-between gap-3 bg-card rounded-lg p-3 border border-border">
                         {/* Provider Info */}
-                        <div className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white font-medium rounded-lg">
+                        <div className="flex items-center gap-2 px-4 py-2 bg-primary text-white font-medium rounded-lg">
                             <Monitor className="w-4 h-4" />
                             <span>
                                 {currentStream.name || "Default"}
@@ -310,8 +310,8 @@ export default function AnimeWatch() {
                     </div>
 
                     {/* Info Alert */}
-                    <Alert className="bg-red-600/10 border-red-600/20">
-                        <AlertCircle className="h-4 w-4 text-red-500" />
+                    <Alert className="bg-primary/10 border-primary/20">
+                        <AlertCircle className="h-4 w-4 text-primary" />
                         <AlertDescription className="text-muted-foreground">
                             Jika video tidak bisa diputar, coba refresh player
                             atau buka di tab baru. Stream disediakan oleh

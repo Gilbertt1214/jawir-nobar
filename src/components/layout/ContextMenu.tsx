@@ -1,8 +1,10 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@/contexts/ThemeContext";
-import { RefreshCw, Moon, Sun, Share2, Home } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { RotateCw, Share, Home, Circle, Globe } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface MenuPosition {
     x: number;
@@ -12,15 +14,16 @@ interface MenuPosition {
 export function ContextMenu() {
     const [isVisible, setIsVisible] = useState(false);
     const [position, setPosition] = useState<MenuPosition>({ x: 0, y: 0 });
+    const menuRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
-    const { theme, toggleTheme } = useTheme();
+    const { theme, setTheme } = useTheme();
+    const { language, setLanguage, t } = useLanguage();
 
     const handleContextMenu = useCallback((e: MouseEvent) => {
         e.preventDefault();
 
-        // Calculate position to keep menu within viewport
         const menuWidth = 200;
-        const menuHeight = 200;
+        const menuHeight = 240;
 
         let x = e.clientX;
         let y = e.clientY;
@@ -36,8 +39,10 @@ export function ContextMenu() {
         setIsVisible(true);
     }, []);
 
-    const handleClick = useCallback(() => {
-        setIsVisible(false);
+    const handleClick = useCallback((e: MouseEvent) => {
+        if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+            setIsVisible(false);
+        }
     }, []);
 
     const handleKeyDown = useCallback((e: KeyboardEvent) => {
@@ -63,17 +68,29 @@ export function ContextMenu() {
         setIsVisible(false);
     };
 
-    const handleToggleTheme = () => {
-        toggleTheme();
+    const cycleTheme = () => {
+        if (theme === 'light') {
+            setTheme('dark');
+            toast.success(t('switchedToDark'));
+        } else if (theme === 'dark') {
+            setTheme('system');
+            toast.success(t('switchedToSystem'));
+        } else {
+            setTheme('light');
+            toast.success(t('switchedToLight'));
+        }
         setIsVisible(false);
-        toast.success(
-            `Tema diubah ke ${theme === "dark" ? "Light" : "Dark"} mode`
-        );
+    };
+
+    const toggleLanguage = () => {
+        const newLang = language === 'en' ? 'id' : 'en';
+        setLanguage(newLang);
+        toast.success(newLang === 'en' ? 'Language: English' : 'Bahasa: Indonesia');
+        setIsVisible(false);
     };
 
     const handleShareLink = async () => {
         const url = window.location.href;
-
         if (navigator.share) {
             try {
                 await navigator.share({
@@ -81,13 +98,12 @@ export function ContextMenu() {
                     url: url,
                 });
             } catch (err) {
-                // User cancelled or error
                 await navigator.clipboard.writeText(url);
-                toast.success("Link berhasil disalin!");
+                toast.success("Link copied to clipboard!");
             }
         } else {
             await navigator.clipboard.writeText(url);
-            toast.success("Link berhasil disalin!");
+            toast.success("Link copied to clipboard!");
         }
         setIsVisible(false);
     };
@@ -101,61 +117,86 @@ export function ContextMenu() {
 
     return (
         <div
-            className="fixed z-[9999] min-w-[180px] bg-white dark:bg-gray-900 rounded-xl shadow-2xl border-2 border-gray-900 dark:border-gray-700 overflow-hidden animate-in fade-in zoom-in-95 duration-150"
+            ref={menuRef}
+            className={cn(
+                "fixed z-[9999] min-w-[200px]",
+                "bg-white dark:bg-zinc-900",
+                "rounded-2xl",
+                "shadow-xl shadow-black/10 dark:shadow-black/30",
+                "border border-gray-100 dark:border-zinc-800",
+                "p-2",
+                "animate-in fade-in zoom-in-95 duration-150"
+            )}
             style={{
                 left: position.x,
                 top: position.y,
             }}
         >
-            <div className="py-2">
-                {/* Refresh */}
-                <button
-                    onClick={handleRefresh}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                >
-                    <RefreshCw className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-                    <span className="font-medium text-gray-900 dark:text-white">
-                        Refresh
-                    </span>
-                </button>
+            <div className="flex flex-col">
+                <MenuItem 
+                    icon={<RotateCw className="w-5 h-5" strokeWidth={2} />} 
+                    label={t('refresh')} 
+                    onClick={handleRefresh} 
+                />
+                
+                <MenuItem 
+                    icon={<Circle className="w-5 h-5 fill-current" strokeWidth={2} />} 
+                    label={t('changeTheme')} 
+                    onClick={cycleTheme} 
+                />
 
-                {/* Ganti Tema */}
-                <button
-                    onClick={handleToggleTheme}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                >
-                    {theme === "dark" ? (
-                        <Sun className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-                    ) : (
-                        <Moon className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-                    )}
-                    <span className="font-medium text-gray-900 dark:text-white">
-                        Ganti Tema
-                    </span>
-                </button>
+                <MenuItem 
+                    icon={<Share className="w-5 h-5" strokeWidth={2} />} 
+                    label={t('shareLink')} 
+                    onClick={handleShareLink} 
+                />
 
-                {/* Share Link */}
-                <button
-                    onClick={handleShareLink}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                >
-                    <Share2 className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-                    <span className="font-medium text-gray-900 dark:text-white">
-                        Share Link
-                    </span>
-                </button>
+                <MenuItem 
+                    icon={<Home className="w-5 h-5" strokeWidth={2} />} 
+                    label={t('home')} 
+                    onClick={handleHome} 
+                />
 
-                {/* Home */}
-                <button
-                    onClick={handleHome}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                >
-                    <Home className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-                    <span className="font-medium text-gray-900 dark:text-white">
-                        Home
-                    </span>
-                </button>
+                <div className="my-1 border-t border-gray-100 dark:border-zinc-800" />
+
+                <MenuItem 
+                    icon={<Globe className="w-5 h-5" strokeWidth={2} />} 
+                    label={language === 'en' ? 'English' : 'Indonesia'}
+                    onClick={toggleLanguage} 
+                />
             </div>
         </div>
     );
 }
+
+function MenuItem({ 
+    icon, 
+    label, 
+    onClick, 
+    className 
+}: { 
+    icon: React.ReactNode; 
+    label: string; 
+    onClick: () => void;
+    className?: string;
+}) {
+    return (
+        <button
+            onClick={onClick}
+            className={cn(
+                "w-full flex items-center gap-4 px-4 py-3 rounded-xl",
+                "hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors duration-150",
+                "group text-left",
+                className
+            )}
+        >
+            <div className="text-gray-700 dark:text-gray-300">
+                {icon}
+            </div>
+            <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                {label}
+            </span>
+        </button>
+    );
+}
+

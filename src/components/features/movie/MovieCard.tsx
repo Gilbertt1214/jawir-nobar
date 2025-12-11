@@ -55,7 +55,7 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
                         {/* Rating badge */}
                         {movie.rating && (
                             <div className="absolute top-2 left-2 flex items-center gap-1 bg-black/60 backdrop-blur-md border border-white/10 px-2 py-1 rounded-md">
-                                <Star className="h-3 w-3 fill-red-500 text-red-500" />
+                                <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
                                 <span className="text-xs font-bold text-white">
                                     {movie.rating.toFixed(1)}
                                 </span>

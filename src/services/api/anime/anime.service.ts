@@ -1,8 +1,3 @@
-/**
- * Anime Service - Uses Sanka Vollerei API (Otakudesu) as primary source
- * Jikan API as fallback for search and detail
- */
-
 import axios from "axios";
 import { Movie, AnimeDetail, AnimeEpisode } from "../common/types";
 import { sankaAnimeAPI } from "../common/sanka.service";
@@ -62,10 +57,6 @@ export class AnimeService {
             return null;
         }
     }
-
-    /**
-     * Get ongoing anime from Otakudesu (Sanka API)
-     */
     async getOngoingAnime(): Promise<Movie[]> {
         try {
             const result = await sankaAnimeAPI.getOngoingAnime(1);
@@ -87,10 +78,6 @@ export class AnimeService {
             return [];
         }
     }
-
-    /**
-     * Get completed anime from Otakudesu (Sanka API)
-     */
     async getCompleteAnime(page: number = 1) {
         try {
             const result = await sankaAnimeAPI.getCompletedAnime(page);
@@ -119,11 +106,6 @@ export class AnimeService {
             return { data: [], page: 1, totalPages: 1, totalItems: 0 };
         }
     }
-
-    /**
-     * Get all anime with pagination (uses /anime/unlimited endpoint)
-     * Posters are fetched from detail endpoint by sanka.service
-     */
     async getAllAnimePaginated(page: number = 1, perPage: number = 24) {
         try {
             const result = await sankaAnimeAPI.getAllAnimePaginated(
@@ -172,10 +154,6 @@ export class AnimeService {
             };
         }
     }
-
-    /**
-     * Get anime genres from Otakudesu (Sanka API)
-     */
     async getAnimeGenres() {
         try {
             return await sankaAnimeAPI.getGenres();
@@ -184,10 +162,6 @@ export class AnimeService {
             return [];
         }
     }
-
-    /**
-     * Get anime by genre from Otakudesu (Sanka API)
-     */
     async getAnimeByGenre(genreSlug: string, page: number = 1) {
         try {
             const result = await sankaAnimeAPI.getAnimeByGenre(genreSlug, page);
@@ -216,10 +190,6 @@ export class AnimeService {
             return { data: [], page: 1, totalPages: 1, totalItems: 0 };
         }
     }
-
-    /**
-     * Search anime from Otakudesu (Sanka API) with Jikan fallback
-     */
     async searchAnime(query: string): Promise<Movie[]> {
         try {
             // Try Otakudesu first
@@ -251,10 +221,6 @@ export class AnimeService {
             return [];
         }
     }
-
-    /**
-     * Search anime from Otakudesu only (Sanka API)
-     */
     async searchAnimeOtakudesu(query: string): Promise<Movie[]> {
         try {
             const results = await sankaAnimeAPI.searchAnime(query);
@@ -272,10 +238,6 @@ export class AnimeService {
             return [];
         }
     }
-
-    /**
-     * Get anime detail from Otakudesu (Sanka API)
-     */
     async getAnimeDetailOtakudesu(slug: string): Promise<AnimeDetail | null> {
         try {
             console.log(`🎥 Fetching detail for slug: ${slug}`);
@@ -356,10 +318,6 @@ export class AnimeService {
             return null;
         }
     }
-
-    /**
-     * Get episode stream from Otakudesu (Sanka API)
-     */
     async getEpisodeStreamOtakudesu(episodeSlug: string) {
         try {
             const episodeData = await sankaAnimeAPI.getEpisodeStream(
@@ -387,10 +345,6 @@ export class AnimeService {
             return null;
         }
     }
-
-    /**
-     * Get anime detail from Jikan (MAL) - Fallback
-     */
     async getAnimeDetail(id: string): Promise<AnimeDetail | null> {
         try {
             const jikanData = await this.jikanRequest<{ data: JikanAnime }>(

@@ -2,94 +2,96 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here.
 All colors MUST be HSL.
 */
 
 @layer base {
     :root {
-        --background: 0 0% 100%;
-        --foreground: 222 47% 11%;
+        /* Brutalist Light Mode (SankAnime Inspired) */
+        --background: 0 0% 100%; /* Pure White */
+        --foreground: 0 0% 0%; /* Pure Black */
 
-        --card: 0 0% 98%;
-        --card-foreground: 222 47% 11%;
+        --card: 0 0% 100%;
+        --card-foreground: 0 0% 0%;
 
         --popover: 0 0% 100%;
-        --popover-foreground: 222 47% 11%;
+        --popover-foreground: 0 0% 0%;
 
-        --primary: 0 72% 51%;
+        --primary: 217.2 91.2% 59.8%; /* Blue Accent */
         --primary-foreground: 0 0% 100%;
 
-        --secondary: 210 17% 95%;
-        --secondary-foreground: 222 47% 11%;
+        --secondary: 0 0% 96%;
+        --secondary-foreground: 0 0% 0%;
 
-        --muted: 210 17% 95%;
-        --muted-foreground: 215 16% 47%;
+        --muted: 0 0% 96%;
+        --muted-foreground: 0 0% 40%;
 
-        --accent: 43 96% 56%;
-        --accent-foreground: 222 47% 11%;
+        --accent: 0 0% 96%;
+        --accent-foreground: 0 0% 0%;
 
-        --destructive: 0 84% 60%;
+        --destructive: 0 84.2% 60.2%;
         --destructive-foreground: 0 0% 100%;
 
-        --border: 214 32% 91%;
-        --input: 214 32% 91%;
-        --ring: 0 72% 51%;
+        --border: 0 0% 80%; /* Softer grey border by default */
+        --input: 0 0% 90%;
+        --ring: 217.2 91.2% 59.8%;
 
-        --radius: 0.5rem;
+        --radius: 0.5rem; /* Sharper edges for brutalist feel */
 
         --gradient-primary: linear-gradient(
             135deg,
-            hsl(0 72% 51%),
-            hsl(0 72% 41%)
+            hsl(217.2 91.2% 59.8%),
+            hsl(210 40% 98%)
         );
         --gradient-hero: linear-gradient(
             180deg,
             hsl(0 0% 100% / 0),
             hsl(0 0% 100%)
         );
-        --shadow-card: 0 4px 12px hsl(0 0% 0% / 0.05);
-        --shadow-card-hover: 0 8px 24px hsl(0 0% 0% / 0.1);
+        --shadow-card: 4px 4px 0px hsl(0 0% 0%); /* Brutalist shadow */
+        --shadow-card-hover: 6px 6px 0px hsl(0 0% 0%);
     }
 
     .dark {
-        --background: 222 47% 5%;
+        /* Dark Mode: Modern Midnight (Socially Inspired) */
+        --background: 222.2 84% 4.9%; /* Deepest Navy */
         --foreground: 210 40% 98%;
 
-        --card: 222 47% 8%;
+        --card: 217.2 32.6% 12.5%; /* Lighter Navy Surface */
         --card-foreground: 210 40% 98%;
 
-        --popover: 222 47% 8%;
+        --popover: 222.2 84% 4.9%;
         --popover-foreground: 210 40% 98%;
 
-        --primary: 0 72% 51%;
-        --primary-foreground: 0 0% 100%;
+        --primary: 217.2 91.2% 59.8%; /* Vivid Blue Accent */
+        --primary-foreground: 222.2 47.4% 11.2%;
 
-        --secondary: 217 33% 12%;
+        --secondary: 217.2 32.6% 17.5%;
         --secondary-foreground: 210 40% 98%;
 
-        --muted: 217 33% 12%;
-        --muted-foreground: 215 20% 65%;
+        --muted: 217.2 32.6% 17.5%;
+        --muted-foreground: 215 20.2% 65.1%;
 
-        --accent: 43 96% 56%;
-        --accent-foreground: 222 47% 11%;
+        --accent: 217.2 32.6% 17.5%;
+        --accent-foreground: 210 40% 98%;
 
-        --destructive: 0 63% 31%;
+        --destructive: 0 62.8% 30.6%;
         --destructive-foreground: 210 40% 98%;
 
-        --border: 217 33% 17%;
-        --input: 217 33% 17%;
-        --ring: 0 72% 51%;
+        --border: 217.2 32.6% 17.5%;
+        --input: 217.2 32.6% 17.5%;
+        --ring: 224.3 76.3% 48%;
 
         --gradient-primary: linear-gradient(
             135deg,
-            hsl(0 72% 51%),
-            hsl(0 72% 41%)
+            hsl(217.2 91.2% 59.8%),
+            hsl(222.2 84% 4.9%)
         );
         --gradient-hero: linear-gradient(
             180deg,
-            hsl(222 47% 5% / 0),
-            hsl(222 47% 5%)
+            hsl(222.2 84% 4.9% / 0),
+            hsl(222.2 84% 4.9%)
         );
         --shadow-card: 0 4px 12px hsl(0 0% 0% / 0.3);
         --shadow-card-hover: 0 8px 24px hsl(0 0% 0% / 0.5);
@@ -215,6 +217,32 @@ All colors MUST be HSL.
     /* Fix group hover isolation */
     .group {
         isolation: isolate;
+    }
+
+    /* Custom Blue Scrollbar */
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: hsl(var(--background));
+        border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: hsl(var(--primary));
+        border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: hsl(217.2, 91.2%, 50%);
+    }
+
+    /* Firefox scrollbar */
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: hsl(var(--primary)) hsl(var(--background));
     }
 
     .scrollbar-hide {

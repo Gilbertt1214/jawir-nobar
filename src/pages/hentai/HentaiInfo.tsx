@@ -240,7 +240,7 @@ export default function HentaiInfo() {
                         Gagal memuat detail. Konten mungkin tidak tersedia.
                     </AlertDescription>
                 </Alert>
-                <Button asChild className="bg-red-600 hover:bg-red-500">
+                <Button asChild className="bg-primary hover:bg-primary">
                     <Link to="/hentai">
                         <Tv className="h-4 w-4 mr-2" />
                         Kembali ke Daftar
@@ -299,7 +299,7 @@ export default function HentaiInfo() {
                                         e.currentTarget.src = "/placeholder.svg";
                                     }}
                                 />
-                                <Badge className="absolute top-3 right-3 bg-red-600 text-white text-xs">
+                                <Badge className="absolute top-3 right-3 bg-primary text-white text-xs">
                                     Hentai
                                 </Badge>
                             </div>
@@ -309,14 +309,14 @@ export default function HentaiInfo() {
                         <FadeIn delay={0.4} className="md:hidden bg-card/80 backdrop-blur rounded-lg border border-white/10 p-4">
                             <div className="grid grid-cols-2 gap-4 text-center">
                                 <div>
-                                    <Tv className="h-4 w-4 mx-auto mb-1 text-red-500" />
+                                    <Tv className="h-4 w-4 mx-auto mb-1 text-primary" />
                                     <span className="text-sm font-medium">
                                         {totalEpisodes} Ep
                                     </span>
                                 </div>
                                 {hentaiDetail.duration && (
                                     <div>
-                                        <Clock className="h-4 w-4 mx-auto mb-1 text-red-500" />
+                                        <Clock className="h-4 w-4 mx-auto mb-1 text-primary" />
                                         <span className="text-sm font-medium">
                                             {hentaiDetail.duration}
                                         </span>
@@ -338,7 +338,7 @@ export default function HentaiInfo() {
                         {/* Meta Info */}
                         <FadeIn delay={0.5} direction="left">
                             <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-sm">
-                                <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-red-400">
+                                <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary">
                                     <Tv className="h-3.5 w-3.5" />
                                     <span>{totalEpisodes} Episode</span>
                                 </div>
@@ -350,7 +350,7 @@ export default function HentaiInfo() {
                                 )}
                                 <Badge
                                     variant="secondary"
-                                    className="bg-red-600 text-white uppercase tracking-wider"
+                                    className="bg-primary text-white uppercase tracking-wider"
                                 >
                                     Hentai
                                 </Badge>
@@ -366,7 +366,7 @@ export default function HentaiInfo() {
                                             <Badge
                                                 key={i}
                                                 variant="outline"
-                                                className="hover:bg-red-600 hover:text-white hover:border-red-600 transition-all cursor-pointer px-3 py-1"
+                                                className="hover:bg-primary hover:text-white hover:border-primary transition-all cursor-pointer px-3 py-1"
                                             >
                                                 {genre}
                                             </Badge>
@@ -379,7 +379,7 @@ export default function HentaiInfo() {
                         <FadeIn delay={0.7} direction="up">
                             <div className="space-y-2">
                                 <h2 className="text-lg font-semibold flex items-center gap-2">
-                                    <span className="w-1 h-6 bg-red-600 rounded-full" />
+                                    <span className="w-1 h-6 bg-primary rounded-full" />
                                     Sinopsis
                                 </h2>
                                 <p className="text-muted-foreground leading-relaxed">
@@ -394,7 +394,7 @@ export default function HentaiInfo() {
                             <FadeIn delay={0.8} direction="up">
                                 <div className="flex items-center justify-between">
                                     <h2 className="text-lg font-semibold flex items-center gap-2">
-                                        <span className="w-1 h-6 bg-red-600 rounded-full" />
+                                        <span className="w-1 h-6 bg-primary rounded-full" />
                                         Daftar Episode
                                     </h2>
                                     <span className="text-muted-foreground text-sm">
@@ -422,7 +422,7 @@ export default function HentaiInfo() {
                                                     <div
                                                         className={`group flex flex-row overflow-hidden rounded-lg border transition-all hover:scale-[1.01] hover:shadow-xl h-24 sm:h-28 ${
                                                             isWatched
-                                                                ? "border-red-500/30 bg-red-500/10 hover:bg-red-500/20"
+                                                                ? "border-primary/30 bg-primary/10 hover:bg-primary/20"
                                                                 : "border-white/5 bg-black/20 hover:bg-white/5"
                                                         }`}
                                                     >
@@ -445,7 +445,7 @@ export default function HentaiInfo() {
                                                                 <Badge
                                                                     className={`backdrop-blur border-white/10 text-[10px] sm:text-xs px-1.5 py-0 ${
                                                                         isWatched
-                                                                            ? "bg-red-600"
+                                                                            ? "bg-primary"
                                                                             : "bg-black/60"
                                                                     }`}
                                                                 >
@@ -457,7 +457,7 @@ export default function HentaiInfo() {
                                                                 </Badge>
                                                             </div>
                                                             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 bg-black/20 backdrop-blur-[1px]">
-                                                                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-red-600 flex items-center justify-center shadow-lg shadow-red-600/40 transform scale-50 group-hover:scale-100 transition-transform">
+                                                                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/40 transform scale-50 group-hover:scale-100 transition-transform">
                                                                     <Play className="w-4 h-4 sm:w-5 sm:h-5 text-white fill-current ml-0.5" />
                                                                 </div>
                                                             </div>
@@ -467,8 +467,8 @@ export default function HentaiInfo() {
                                                             <h3
                                                                 className={`font-medium text-sm sm:text-base line-clamp-1 transition-colors ${
                                                                     isWatched
-                                                                        ? "text-red-400"
-                                                                        : "group-hover:text-red-400"
+                                                                        ? "text-primary"
+                                                                        : "group-hover:text-primary"
                                                                 }`}
                                                             >
                                                                 Episode {episodeNum}
@@ -479,7 +479,7 @@ export default function HentaiInfo() {
                                                                 </span>
                                                             </div>
                                                             {isWatched && (
-                                                                <span className="text-[10px] sm:text-xs text-red-500 mt-1">
+                                                                <span className="text-[10px] sm:text-xs text-primary mt-1">
                                                                     ✓ Sudah ditonton
                                                                 </span>
                                                             )}
@@ -498,7 +498,7 @@ export default function HentaiInfo() {
                                                                 }}
                                                                 className={`h-8 w-8 p-0 ${
                                                                     isWatched
-                                                                        ? "text-red-400 hover:bg-red-500/20"
+                                                                        ? "text-primary hover:bg-primary/20"
                                                                         : "text-muted-foreground hover:bg-white/10"
                                                                 }`}
                                                             >
@@ -540,14 +540,14 @@ export default function HentaiInfo() {
                                                         </Badge>
                                                     </div>
                                                     <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 bg-black/20 backdrop-blur-[1px]">
-                                                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-red-600 flex items-center justify-center shadow-lg shadow-red-600/40 transform scale-50 group-hover:scale-100 transition-transform">
+                                                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/40 transform scale-50 group-hover:scale-100 transition-transform">
                                                             <Play className="w-4 h-4 sm:w-5 sm:h-5 text-white fill-current ml-0.5" />
                                                         </div>
                                                     </div>
                                                 </div>
                                                 {/* Info */}
                                                 <div className="p-3 sm:p-4 flex flex-col justify-center flex-1 min-w-0">
-                                                    <h3 className="font-medium text-sm sm:text-base line-clamp-1 group-hover:text-red-400 transition-colors">
+                                                    <h3 className="font-medium text-sm sm:text-base line-clamp-1 group-hover:text-primary transition-colors">
                                                         Episode{" "}
                                                         {extractEpisodeNumber(
                                                             hentaiDetail.title
@@ -570,7 +570,7 @@ export default function HentaiInfo() {
                         <FadeIn delay={0.9} direction="up">
                             <div className="space-y-4 pt-6">
                                 <h2 className="text-lg font-semibold flex items-center gap-2">
-                                    <MessageSquare className="h-5 w-5 text-red-500" />
+                                    <MessageSquare className="h-5 w-5 text-primary" />
                                     Komentar
                                 </h2>
                                 <Card className="bg-card/50 backdrop-blur-sm border-white/5">
@@ -583,7 +583,7 @@ export default function HentaiInfo() {
                                                     setName(e.target.value)
                                                 }
                                                 maxLength={50}
-                                                className="bg-background/50 border-white/10 focus:border-red-500/50"
+                                                className="bg-background/50 border-white/10 focus:border-primary/50"
                                             />
                                             <Textarea
                                                 placeholder="Tulis komentar..."
@@ -591,7 +591,7 @@ export default function HentaiInfo() {
                                                 onChange={(e) =>
                                                     setMessage(e.target.value)
                                                 }
-                                                className="min-h-[100px] bg-background/50 border-white/10 focus:border-red-500/50 resize-none"
+                                                className="min-h-[100px] bg-background/50 border-white/10 focus:border-primary/50 resize-none"
                                                 maxLength={500}
                                             />
                                             <div className="flex justify-between items-center">
@@ -605,7 +605,7 @@ export default function HentaiInfo() {
                                                         !message.trim() ||
                                                         isLoadingComments
                                                     }
-                                                    className="gap-2 bg-red-600 hover:bg-red-500"
+                                                    className="gap-2 bg-primary hover:bg-primary"
                                                 >
                                                     {isLoadingComments ? (
                                                         <>
@@ -623,7 +623,7 @@ export default function HentaiInfo() {
                                             {isLoadingComments &&
                                             comments.length === 0 ? (
                                                 <div className="text-center py-8">
-                                                    <RefreshCw className="h-6 w-6 mx-auto animate-spin text-red-500" />
+                                                    <RefreshCw className="h-6 w-6 mx-auto animate-spin text-primary" />
                                                     <p className="text-sm text-muted-foreground mt-2">
                                                         Memuat komentar...
                                                     </p>
@@ -643,7 +643,7 @@ export default function HentaiInfo() {
                                                             className="p-4 rounded-xl bg-muted/30 border border-white/5 space-y-2"
                                                         >
                                                             <div className="flex items-center justify-between">
-                                                                <span className="font-semibold text-sm text-red-400">
+                                                                <span className="font-semibold text-sm text-primary">
                                                                     {c.name}
                                                                 </span>
                                                                 <span className="text-xs text-muted-foreground">

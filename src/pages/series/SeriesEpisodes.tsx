@@ -351,7 +351,7 @@ export default function SeriesEpisodes() {
                                             {series.rating != null &&
                                                 series.rating > 0 && (
                                                     <div className="flex items-center gap-1.5">
-                                                        <Star className="h-4 w-4 fill-red-500 text-red-500" />
+                                                        <Star className="h-4 w-4 fill-primary text-primary" />
                                                         <span className="text-sm font-medium">
                                                             {series.rating.toFixed(
                                                                 1
@@ -381,7 +381,7 @@ export default function SeriesEpisodes() {
                                     {/* Stats */}
                                     <div className="grid grid-cols-3 gap-6">
                                         <div className="text-center">
-                                            <div className="text-4xl font-bold mb-1 text-red-500">
+                                            <div className="text-4xl font-bold mb-1 text-primary">
                                                 {stats.totalEpisodes}
                                             </div>
                                             <div className="text-sm text-muted-foreground font-medium">
@@ -389,7 +389,7 @@ export default function SeriesEpisodes() {
                                             </div>
                                         </div>
                                         <div className="text-center">
-                                            <div className="text-4xl font-bold mb-1 text-red-500">
+                                            <div className="text-4xl font-bold mb-1 text-primary">
                                                 {stats.totalSeasons}
                                             </div>
                                             <div className="text-sm text-muted-foreground font-medium">
@@ -397,7 +397,7 @@ export default function SeriesEpisodes() {
                                             </div>
                                         </div>
                                         <div className="text-center">
-                                            <div className="text-4xl font-bold mb-1 text-red-500">
+                                            <div className="text-4xl font-bold mb-1 text-primary">
                                                 {stats.episodesPerSeason}
                                             </div>
                                             <div className="text-sm text-muted-foreground font-medium">
@@ -762,7 +762,7 @@ function EpisodeCard({
                         <Play className="h-6 w-6 text-primary-foreground fill-current" />
                     </div>
                 </div>
-                <Badge className="absolute top-2 left-2 font-semibold shadow-lg bg-red-600 hover:bg-red-600">
+                <Badge className="absolute top-2 left-2 font-semibold shadow-lg bg-primary hover:bg-primary">
                     {showSeason ? `S${episode.seasonNumber} ` : ""}EP{" "}
                     {episode.episodeNumber}
                 </Badge>

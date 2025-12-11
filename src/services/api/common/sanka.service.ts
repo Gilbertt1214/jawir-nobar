@@ -1,38 +1,9 @@
-/**
- * Sanka Vollerei API Service
- * API Documentation: https://api.sankavollerei.com
- *
- * This service handles all anime-related API calls from Sanka Vollerei.
- * It is completely separate from TMDB and Vidlink APIs.
- *
- * Available Endpoints (Otakudesu):
- * - GET /anime/ongoing-anime - Get ongoing anime list
- * - GET /anime/complete-anime/{page} - Get completed anime
- * - GET /anime/anime/{slug} - Get anime detail
- * - GET /anime/episode/{slug} - Get episode streaming
- * - GET /anime/search/{keyword} - Search anime
- * - GET /anime/genre - Get all genres
- * - GET /anime/genre/{slug} - Get anime by genre
- * - GET /anime/server/{serverId} - Get server embed URL
- *
- * Available Endpoints (Nekopoi - Hentai):
- * - GET /anime/neko/latest - Get latest hentai
- * - GET /anime/neko/release/{page} - Get release list
- * - GET /anime/neko/search/{query} - Search hentai
- * - GET /anime/neko/get?url={url} - Get hentai detail
- * - GET /anime/neko/random - Get random hentai
- */
-
 import axios, { AxiosInstance } from "axios";
 
-// Get base URL from environment variable
 const SANKA_BASE_URL =
     import.meta.env.VITE_ANIME_SCRAPER_URL || "https://www.sankavollerei.com";
 
-// Use proxy in development to avoid CORS
 const isDev = import.meta.env.DEV;
-
-// API endpoints
 const ANIME_API = isDev ? "/sanka-anime" : `${SANKA_BASE_URL}/anime`;
 const NEKOPOI_API = isDev ? "/sanka-neko" : `${SANKA_BASE_URL}/anime/neko`;
 
@@ -42,19 +13,14 @@ console.log("  - Anime API:", ANIME_API);
 console.log("  - Nekopoi API:", NEKOPOI_API);
 console.log("  - Development mode:", isDev);
 
-// ==================== TYPE DEFINITIONS ====================
-
-// Anime Types - Updated to match new API response
 export interface SankaAnimeItem {
     title: string;
     poster: string;
-    // New API format
     animeId?: string;
     episodes?: number;
     releaseDay?: string;
     latestReleaseDate?: string;
     href?: string;
-    // Old API format (fallback)
     slug?: string;
     current_episode?: string;
     release_day?: string;
@@ -65,7 +31,6 @@ export interface SankaAnimeItem {
 export interface SankaAnimeDetail {
     title: string;
     poster: string;
-    // New API format
     japanese?: string;
     score?: string;
     producers?: string;
@@ -88,7 +53,6 @@ export interface SankaAnimeDetail {
         episodeId: string;
         href: string;
     }[];
-    // Old API format (fallback)
     slug?: string;
     japanese_title?: string;
     rating?: string;
@@ -111,7 +75,6 @@ export interface SankaAnimeDetail {
 }
 
 export interface SankaEpisodeDetail {
-    // New API format
     title?: string;
     animeId?: string;
     releaseTime?: string;
@@ -135,7 +98,6 @@ export interface SankaEpisodeDetail {
             }[];
         }[];
     };
-    // Old API format (fallback)
     episode?: string;
     anime?: {
         slug: string;
@@ -162,7 +124,6 @@ export interface SankaEpisodeDetail {
     };
 }
 
-// Nekopoi Types
 export interface SankaNekopoiItem {
     title: string;
     upload?: string;
@@ -188,18 +149,15 @@ export interface SankaNekopoiDetail {
     }[];
 }
 
-// Generic API Response
 interface ApiResponse<T> {
     status: string;
     data: T;
 }
 
-// Updated API Response format
 interface NewApiResponse<T> {
     status: string;
     ok?: boolean;
     data: {
-        // New format
         animeList?: T[];
         pagination?: {
             currentPage: number;
@@ -207,7 +165,6 @@ interface NewApiResponse<T> {
             hasNextPage: boolean;
             hasPrevPage: boolean;
         };
-        // Old format (fallback)
         paginationData?: {
             current_page: number;
             last_visible_page: number;
@@ -218,8 +175,6 @@ interface NewApiResponse<T> {
         animeData?: T[];
     };
 }
-
-// ==================== AXIOS INSTANCE ====================
 
 const createAxiosInstance = (baseURL: string): AxiosInstance => {
     return axios.create({
@@ -232,8 +187,6 @@ const createAxiosInstance = (baseURL: string): AxiosInstance => {
     });
 };
 
-// ==================== SANKA ANIME SERVICE ====================
-
 class SankaAnimeAPI {
     private api: AxiosInstance;
 
@@ -241,9 +194,6 @@ class SankaAnimeAPI {
         this.api = createAxiosInstance(ANIME_API);
     }
 
-    /**
-     * Get ongoing anime list
-     */
     async getOngoingAnime(page: number = 1) {
         try {
             console.log("📺 Fetching ongoing anime, page:", page);
@@ -254,13 +204,11 @@ class SankaAnimeAPI {
             console.log("📦 API Response:", response.data);
 
             if (response.data?.status === "success" && response.data?.data) {
-                // Try new format first (animeList), then old format (ongoingAnimeData)
                 const animeData =
                     response.data.data.animeList ||
                     response.data.data.ongoingAnimeData ||
                     [];
 
-                // Normalize the data to have consistent slug field
                 const normalizedData = animeData.map((item) => ({
                     ...item,
                     slug: item.animeId || item.slug || "",
@@ -286,9 +234,7 @@ class SankaAnimeAPI {
         }
     }
 
-    /**
-     * Get completed anime list
-     */
+
     async getCompletedAnime(page: number = 1) {
         try {
             console.log("📺 Fetching completed anime, page:", page);
@@ -297,13 +243,11 @@ class SankaAnimeAPI {
             );
 
             if (response.data?.status === "success" && response.data?.data) {
-                // Try new format first (animeList), then old format (completeAnimeData)
                 const animeData =
                     response.data.data.animeList ||
                     response.data.data.completeAnimeData ||
                     [];
 
-                // Normalize the data
                 const normalizedData = animeData.map((item) => ({
                     ...item,
                     slug: item.animeId || item.slug || "",
@@ -333,11 +277,7 @@ class SankaAnimeAPI {
         }
     }
 
-    /**
-     * Get all anime (unlimited) - returns all anime data
-     * Endpoint: GET /anime/unlimited
-     * Response format: { status, data: { list: [{ startWith, animeList: [...] }] } }
-     */
+
     async getAllAnime() {
         try {
             console.log("📺 Fetching all anime (unlimited)");
@@ -352,18 +292,15 @@ class SankaAnimeAPI {
             );
 
             if (response.data?.status === "success" && response.data?.data) {
-                // Handle the nested list format: data.list[].animeList[]
                 const dataObj = response.data.data;
                 let allAnime: SankaAnimeItem[] = [];
 
-                // Check if data has 'list' array (grouped by startWith letter)
                 if (dataObj.list && Array.isArray(dataObj.list)) {
                     console.log(
                         "📦 Found list format with",
                         dataObj.list.length,
                         "groups"
                     );
-                    // Flatten all animeList arrays from each group
                     dataObj.list.forEach(
                         (group: {
                             startWith: string;
@@ -378,17 +315,13 @@ class SankaAnimeAPI {
                         }
                     );
                 } else if (Array.isArray(dataObj)) {
-                    // Direct array format
                     allAnime = dataObj;
                 } else if (
                     dataObj.animeList &&
                     Array.isArray(dataObj.animeList)
                 ) {
-                    // Single animeList format
                     allAnime = dataObj.animeList;
                 }
-
-                // Normalize the data
                 const normalizedData = allAnime.map((item) => ({
                     ...item,
                     slug: item.animeId || item.slug || "",
@@ -407,16 +340,10 @@ class SankaAnimeAPI {
         }
     }
 
-    // Cache for anime posters to avoid repeated API calls
     private posterCache: Map<string, string> = new Map();
-
-    /**
-     * Fetch poster for a single anime from detail endpoint
-     */
     private async fetchPosterFromDetail(
         animeId: string
     ): Promise<string | null> {
-        // Check cache first
         if (this.posterCache.has(animeId)) {
             console.log(
                 `🖼️ Cache hit for ${animeId}:`,
@@ -444,9 +371,6 @@ class SankaAnimeAPI {
         }
     }
 
-    /**
-     * Fetch posters for multiple anime in parallel (with concurrency limit)
-     */
     private async fetchPostersInBatch(
         animeList: SankaAnimeItem[],
         concurrency: number = 6
@@ -456,7 +380,6 @@ class SankaAnimeAPI {
         );
         const results: SankaAnimeItem[] = [];
 
-        // Process in batches to avoid overwhelming the API
         for (let i = 0; i < animeList.length; i += concurrency) {
             const batch = animeList.slice(i, i + concurrency);
             console.log(
@@ -472,7 +395,6 @@ class SankaAnimeAPI {
                     return anime;
                 }
 
-                // Check cache first
                 if (this.posterCache.has(animeId)) {
                     const cachedPoster = this.posterCache.get(animeId) || "";
                     console.log(
@@ -485,7 +407,6 @@ class SankaAnimeAPI {
                     };
                 }
 
-                // Fetch from detail
                 const poster = await this.fetchPosterFromDetail(animeId);
                 console.log(
                     `📥 Fetched poster for ${animeId}:`,
@@ -501,7 +422,6 @@ class SankaAnimeAPI {
             results.push(...batchResults);
             console.log(`✅ Batch complete, total results: ${results.length}`);
 
-            // Small delay between batches to be nice to the API
             if (i + concurrency < animeList.length) {
                 await new Promise((r) => setTimeout(r, 50));
             }
@@ -513,11 +433,6 @@ class SankaAnimeAPI {
         return results;
     }
 
-    /**
-     * Get all anime with client-side pagination
-     * Uses /anime/unlimited endpoint and paginates on client
-     * Fetches posters from detail endpoint for each anime
-     */
     async getAllAnimePaginated(page: number = 1, perPage: number = 24) {
         try {
             console.log(
@@ -546,13 +461,11 @@ class SankaAnimeAPI {
                 `📺 Fetching posters for ${paginatedData.length} anime...`
             );
 
-            // Fetch posters from detail endpoint for current page items
             const dataWithPosters = await this.fetchPostersInBatch(
                 paginatedData,
                 6
             );
 
-            // Log sample data to verify posters
             if (dataWithPosters.length > 0) {
                 console.log(`🖼️ Sample data with poster:`, {
                     title: dataWithPosters[0].title,
@@ -589,16 +502,10 @@ class SankaAnimeAPI {
         }
     }
 
-    /**
-     * Get poster for a single anime (public method for lazy loading)
-     */
     async getAnimePoster(animeId: string): Promise<string | null> {
         return this.fetchPosterFromDetail(animeId);
     }
 
-    /**
-     * Get anime detail by slug
-     */
     async getAnimeDetail(slug: string) {
         try {
             console.log("📺 Fetching anime detail:", slug);
@@ -617,7 +524,6 @@ class SankaAnimeAPI {
                         : "NO POSTER"
                 );
 
-                // Normalize synopsis
                 let synopsis = "";
                 if (
                     typeof data.synopsis === "object" &&
@@ -628,7 +534,6 @@ class SankaAnimeAPI {
                     synopsis = data.synopsis;
                 }
 
-                // Normalize episode list
                 const episodeLists =
                     data.episodeList?.map((ep) => ({
                         episode: `Episode ${ep.title}`,
@@ -642,7 +547,6 @@ class SankaAnimeAPI {
                     data.episode_lists ||
                     [];
 
-                // Normalize genres
                 const genres =
                     data.genreList?.map((g) => ({
                         name: g.title,
@@ -668,9 +572,6 @@ class SankaAnimeAPI {
         }
     }
 
-    /**
-     * Get episode streaming data
-     */
     async getEpisodeStream(episodeSlug: string) {
         try {
             console.log("📺 Fetching episode stream:", episodeSlug);
@@ -684,7 +585,6 @@ class SankaAnimeAPI {
                     data.defaultStreamingUrl || data.stream_url || "";
                 console.log("✅ Found stream URL:", streamUrl ? "Yes" : "No");
 
-                // Normalize to old format for compatibility
                 return {
                     episode: data.title || data.episode || "",
                     anime: {
@@ -718,9 +618,6 @@ class SankaAnimeAPI {
         }
     }
 
-    /**
-     * Search anime by keyword
-     */
     async searchAnime(keyword: string) {
         try {
             console.log("🔍 Searching anime:", keyword);
@@ -739,9 +636,6 @@ class SankaAnimeAPI {
         }
     }
 
-    /**
-     * Get all genres
-     */
     async getGenres() {
         try {
             const response = await this.api.get<
@@ -758,9 +652,6 @@ class SankaAnimeAPI {
         }
     }
 
-    /**
-     * Get anime by genre
-     */
     async getAnimeByGenre(genreSlug: string, page: number = 1) {
         try {
             const response = await this.api.get<
@@ -781,7 +672,6 @@ class SankaAnimeAPI {
                     response.data.data.pagination ||
                     response.data.data.paginationData;
 
-                // Normalize data
                 const normalizedData = animeData.map((item) => ({
                     ...item,
                     slug: (item as any).animeId || item.slug || "",
@@ -799,9 +689,6 @@ class SankaAnimeAPI {
         }
     }
 
-    /**
-     * Get server embed URL
-     */
     async getServerUrl(serverId: string) {
         try {
             const response = await this.api.get<ApiResponse<{ url: string }>>(
@@ -822,8 +709,6 @@ class SankaAnimeAPI {
     }
 }
 
-// ==================== SANKA NEKOPOI SERVICE ====================
-
 class SankaNekopoiAPI {
     private api: AxiosInstance;
 
@@ -831,9 +716,6 @@ class SankaNekopoiAPI {
         this.api = createAxiosInstance(NEKOPOI_API);
     }
 
-    /**
-     * Get latest hentai
-     */
     async getLatest() {
         try {
             console.log("🔞 Fetching latest hentai");
@@ -854,9 +736,6 @@ class SankaNekopoiAPI {
         }
     }
 
-    /**
-     * Get release list with pagination
-     */
     async getReleaseList(page: number = 1) {
         try {
             console.log("🔞 Fetching hentai release list, page:", page);
@@ -871,7 +750,7 @@ class SankaNekopoiAPI {
             return {
                 data: items,
                 page,
-                totalPages: 10, // API doesn't provide total
+                totalPages: 10,
             };
         } catch (error) {
             console.error("❌ Failed to fetch hentai release list:", error);
@@ -879,9 +758,6 @@ class SankaNekopoiAPI {
         }
     }
 
-    /**
-     * Search hentai
-     */
     async search(query: string) {
         try {
             console.log("🔍 Searching hentai:", query);
@@ -900,12 +776,8 @@ class SankaNekopoiAPI {
         }
     }
 
-    /**
-     * Get hentai detail by URL
-     */
     async getDetail(nekopoiUrl: string) {
         try {
-            // Ensure URL is properly formatted
             let url = nekopoiUrl;
             if (!url.startsWith("http")) {
                 url = `https://nekopoi.care/${nekopoiUrl}/`;
@@ -932,9 +804,6 @@ class SankaNekopoiAPI {
         }
     }
 
-    /**
-     * Get random hentai
-     */
     async getRandom() {
         try {
             console.log("🎲 Fetching random hentai");
@@ -955,16 +824,9 @@ class SankaNekopoiAPI {
     }
 }
 
-// ==================== EXPORT SINGLETON INSTANCES ====================
-
 export const sankaAnimeAPI = new SankaAnimeAPI();
 export const sankaNekopoiAPI = new SankaNekopoiAPI();
 
-// ==================== UTILITY FUNCTIONS ====================
-
-/**
- * Check if Sanka API is available
- */
 export async function checkSankaAPIStatus() {
     try {
         const [animeResult, nekopoiResult] = await Promise.all([

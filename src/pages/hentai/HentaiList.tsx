@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { Input } from "@/components/ui/input";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 // Helper to extract base title (remove episode number)
 const extractBaseTitle = (title: string): string => {
@@ -68,6 +69,7 @@ export default function HentaiList() {
     const [apiStatus, setApiStatus] = useState<boolean | null>(null);
     const [isLoadingRandom, setIsLoadingRandom] = useState(false);
     const [randomHentai, setRandomHentai] = useState<RandomHentai | null>(null);
+    const { t } = useLanguage();
 
     // Handle random hentai
     const handleRandom = async () => {
@@ -226,16 +228,16 @@ export default function HentaiList() {
                                     {apiStatus ? (
                                         <Wifi className="h-3 w-3 text-green-500" />
                                     ) : (
-                                        <WifiOff className="h-3 w-3 text-red-500" />
+                                        <WifiOff className="h-3 w-3 text-primary" />
                                     )}
                                     <span
                                         className={`text-xs ${
                                             apiStatus
                                                 ? "text-green-500"
-                                                : "text-red-500"
+                                                : "text-primary"
                                         }`}
                                     >
-                                        {apiStatus ? "Online" : "Offline"}
+                                        {apiStatus ? t('online') : t('offline')}
                                     </span>
                                 </div>
                             )}
@@ -247,14 +249,14 @@ export default function HentaiList() {
                             size="sm"
                             onClick={handleRandom}
                             disabled={isLoadingRandom}
-                            className="border-red-600 text-red-500 hover:bg-red-600 hover:text-white"
+                            className="border-primary text-primary hover:bg-primary hover:text-white"
                         >
                             <Shuffle
                                 className={`mr-2 h-4 w-4 ${
                                     isLoadingRandom ? "animate-spin" : ""
                                 }`}
                             />
-                            {isLoadingRandom ? "Loading..." : "Random"}
+                            {isLoadingRandom ? t('loading') : t('random')}
                         </Button>
                         <Button
                             variant="outline"
@@ -262,16 +264,16 @@ export default function HentaiList() {
                             onClick={() => refetchRelease()}
                         >
                             <RefreshCw className="mr-2 h-4 w-4" />
-                            Refresh
+                            {t('refresh')}
                         </Button>
                     </div>
                 </div>
 
                 {/* Random Hentai Card */}
                 {randomHentai && (
-                    <div className="mb-8 p-4 rounded-xl bg-card border-2 border-red-600">
+                    <div className="mb-8 p-4 rounded-xl bg-card border-2 border-primary">
                         <div className="flex items-center gap-2 mb-4">
-                            <Shuffle className="h-5 w-5 text-red-500" />
+                            <Shuffle className="h-5 w-5 text-primary" />
                             <h2 className="text-lg font-bold text-foreground">
                                 🎲 Random Pick untuk Kamu!
                             </h2>
@@ -311,7 +313,7 @@ export default function HentaiList() {
                                                 .map((g, i) => (
                                                     <Badge
                                                         key={i}
-                                                        className="bg-red-600 text-white text-xs"
+                                                        className="bg-primary text-white text-xs"
                                                     >
                                                         {g}
                                                     </Badge>
@@ -329,10 +331,10 @@ export default function HentaiList() {
                                                 `/hentai/watch/${randomHentai.id}`
                                             )
                                         }
-                                        className="bg-red-600 hover:bg-red-500 text-white"
+                                        className="bg-primary hover:bg-primary text-white"
                                     >
                                         <Play className="mr-2 h-4 w-4" />
-                                        Tonton Sekarang
+                                        {t('watchNow')}
                                     </Button>
                                     <Button
                                         variant="outline"
@@ -340,7 +342,7 @@ export default function HentaiList() {
                                         disabled={isLoadingRandom}
                                     >
                                         <Shuffle className="mr-2 h-4 w-4" />
-                                        Coba Lagi
+                                        {t('retry')}
                                     </Button>
                                 </div>
                             </div>
@@ -350,9 +352,9 @@ export default function HentaiList() {
 
                 {/* Source Badge */}
                 <div className="flex gap-2 mb-6">
-                    <div className="inline-flex items-center px-4 py-2 rounded-lg bg-red-600">
+                    <div className="inline-flex items-center px-4 py-2 rounded-lg bg-primary">
                         <span className="text-white font-medium">Nekopoi</span>
-                        <Badge className="ml-2 bg-white text-red-600 hover:bg-gray-100">
+                        <Badge className="ml-2 bg-white text-primary hover:bg-gray-100">
                             {totalItems}
                         </Badge>
                     </div>
@@ -364,15 +366,15 @@ export default function HentaiList() {
                         <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                         <Input
                             type="text"
-                            placeholder="Cari hentai... (min 3 karakter)"
+                            placeholder={t('searchHentai')}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pl-12 py-6 text-base rounded-xl border-border bg-secondary text-foreground placeholder:text-muted-foreground focus:border-red-500 focus:ring-red-500"
+                            className="pl-12 py-6 text-base rounded-xl border-border bg-secondary text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary"
                         />
                     </div>
                     {searchQuery.length > 0 && searchQuery.length < 3 && (
                         <p className="text-xs text-muted-foreground mt-2 ml-1">
-                            Ketik minimal 3 karakter untuk mencari
+                            {t('minCharSearch')}
                         </p>
                     )}
                 </form>
@@ -380,31 +382,31 @@ export default function HentaiList() {
                 {/* Loading State */}
                 {isLoading && (
                     <div className="flex flex-col items-center justify-center py-16">
-                        <div className="animate-spin rounded-full h-12 w-12 border-4 border-red-500 border-t-transparent mb-4"></div>
+                        <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent mb-4"></div>
                         <p className="text-muted-foreground">
-                            Memuat konten dan thumbnail...
+                            {t('loadingContent')}
                         </p>
                     </div>
                 )}
 
                 {/* Error State */}
                 {releaseError && (
-                    <div className="rounded-xl p-6 mb-6 bg-card border border-red-600">
+                    <div className="rounded-xl p-6 mb-6 bg-card border border-primary">
                         <div className="flex items-start gap-4">
-                            <AlertCircle className="h-6 w-6 text-red-500 flex-shrink-0 mt-0.5" />
+                            <AlertCircle className="h-6 w-6 text-primary flex-shrink-0 mt-0.5" />
                             <div className="space-y-3">
                                 <p className="font-semibold text-foreground">
-                                    Gagal memuat konten
+                                    {t('failedToLoadContent')}
                                 </p>
                                 <p className="text-sm text-muted-foreground">
                                     {(releaseError as Error).message}
                                 </p>
                                 <Button
                                     onClick={() => refetchRelease()}
-                                    className="bg-red-600 hover:bg-red-700 text-white"
+                                    className="bg-primary hover:bg-primary text-white"
                                 >
                                     <RefreshCw className="mr-2 h-4 w-4" />
-                                    Coba Lagi
+                                    {t('retry')}
                                 </Button>
                             </div>
                         </div>
@@ -428,7 +430,7 @@ export default function HentaiList() {
                                     <p className="text-muted-foreground text-sm mb-6">
                                         {searchQuery.length > 2
                                             ? "Coba kata kunci lain atau periksa ejaan"
-                                            : "Coba lagi nanti atau cari judul spesifik"}
+                                            : t('tryAgainLater')}
                                     </p>
                                 </div>
                             </div>
@@ -465,17 +467,17 @@ export default function HentaiList() {
                                                     />
                                                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                                     <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                                        <div className="w-12 h-12 rounded-full bg-red-600 flex items-center justify-center">
+                                                        <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center">
                                                             <Play className="w-5 h-5 text-white fill-white" />
                                                         </div>
                                                     </div>
                                                     <div className="absolute top-2 right-2">
-                                                        <Badge className="text-xs backdrop-blur-sm bg-red-600 text-white border-none">
+                                                        <Badge className="text-xs backdrop-blur-sm bg-primary text-white border-none">
                                                             Hentai
                                                         </Badge>
                                                     </div>
                                                     <div className="absolute top-2 left-2">
-                                                        <Badge className="text-xs backdrop-blur-sm bg-red-600 text-white border-none">
+                                                        <Badge className="text-xs backdrop-blur-sm bg-primary text-white border-none">
                                                             {
                                                                 group.episodes
                                                                     .length
@@ -484,7 +486,7 @@ export default function HentaiList() {
                                                         </Badge>
                                                     </div>
                                                     <div className="absolute bottom-2 left-2">
-                                                        <Badge className="text-xs backdrop-blur-sm bg-red-600/80 text-white border-none">
+                                                        <Badge className="text-xs backdrop-blur-sm bg-primary/80 text-white border-none">
                                                             Ep{" "}
                                                             {
                                                                 group.latestEpisode
@@ -493,7 +495,7 @@ export default function HentaiList() {
                                                     </div>
                                                 </div>
                                                 <CardContent className="p-3">
-                                                    <h3 className="font-semibold text-sm line-clamp-2 text-foreground group-hover:text-red-500 transition-colors">
+                                                    <h3 className="font-semibold text-sm line-clamp-2 text-foreground group-hover:text-primary transition-colors">
                                                         {group.baseTitle}
                                                     </h3>
                                                 </CardContent>
@@ -561,7 +563,7 @@ export default function HentaiList() {
                                                 onClick={() => setPage(pageNum)}
                                                 className={`w-10 h-10 ${
                                                     page === pageNum
-                                                        ? "bg-red-600 hover:bg-red-500 text-white"
+                                                        ? "bg-primary hover:bg-primary text-white"
                                                         : ""
                                                 }`}
                                             >
