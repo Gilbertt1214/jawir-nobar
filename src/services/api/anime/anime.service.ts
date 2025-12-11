@@ -70,7 +70,7 @@ export class AnimeService {
                 slug: anime.slug || anime.animeId || "",
                 latestEpisode:
                     anime.current_episode ||
-                    (anime.episodes ? `${anime.episodes} Eps` : ""),
+                    (anime.episodes ? String(anime.episodes) : ""),
                 synopsis: "",
             }));
         } catch (error) {
@@ -132,7 +132,7 @@ export class AnimeService {
                     type: "anime" as const,
                     slug: anime.slug || anime.animeId || "",
                     latestEpisode: anime.episodes
-                        ? `${anime.episodes} Eps`
+                        ? String(anime.episodes)
                         : "",
                     synopsis: "",
                 })),

@@ -8,7 +8,6 @@ import { SkeletonGrid } from "@/components/features/movie/SkeletonCard";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
     AlertCircle,
-    ArrowLeft,
     Film,
     Sparkles,
     TrendingUp,
@@ -156,14 +155,6 @@ export default function BrowseCategory() {
                             Please try again.
                         </AlertDescription>
                     </Alert>
-                    <div className="text-center mt-6">
-                        <Link to="/">
-                            <Button variant="outline" className="gap-2">
-                                <ArrowLeft className="w-4 h-4" />
-                                Back to Home
-                            </Button>
-                        </Link>
-                    </div>
                 </div>
             </div>
         );
@@ -186,17 +177,6 @@ export default function BrowseCategory() {
 
                 <div className="relative container mx-auto px-4 h-full flex items-end pb-8">
                     <div className="space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-500 w-full">
-                        <Link to="/">
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                className="gap-2 hover:gap-3 transition-all -ml-2 mb-2 hover:bg-primary/10"
-                            >
-                                <ArrowLeft className="w-4 h-4" />
-                                Back to Home
-                            </Button>
-                        </Link>
-
                         <div className="flex items-center gap-4 flex-wrap">
                             <div className="p-3 rounded-2xl bg-primary/20 backdrop-blur-sm border border-primary/30 shadow-lg">
                                 <IconComponent className="w-8 h-8 text-primary" />

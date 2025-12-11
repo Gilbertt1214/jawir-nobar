@@ -1,10 +1,9 @@
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { movieAPI } from "@/services/api";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-    ArrowLeft,
     AlertCircle,
     RefreshCw,
     ExternalLink,
@@ -46,7 +45,6 @@ const extractEpisodeNumber = (title: string): number => {
 
 export default function HentaiWatch() {
     const { id } = useParams<{ id: string }>();
-    const navigate = useNavigate();
     const [selectedProvider, setSelectedProvider] = useState(0);
     const [providerError, setProviderError] = useState(false);
     const [activeTab, setActiveTab] = useState<"stream" | "download">("stream");
@@ -196,24 +194,21 @@ export default function HentaiWatch() {
         "dood.to",
         "dood.so",
         "dood.la",
-        "dood.ws"
+        "dood.ws",
     ];
 
     const isUnembeddable = (url: string) => {
-        return UNEMBEDDABLE_DOMAINS.some(domain => url.includes(domain));
+        return UNEMBEDDABLE_DOMAINS.some((domain) => url.includes(domain));
     };
 
     const currentProvider = streamingProviders[selectedProvider];
-    const isBlocked = currentProvider?.url && isUnembeddable(currentProvider.url);
+    const isBlocked =
+        currentProvider?.url && isUnembeddable(currentProvider.url);
 
     if (isLoading) {
         return (
             <div className="min-h-screen bg-background">
                 <div className="container mx-auto px-4 py-6">
-                    <Button variant="ghost" disabled className="mb-6">
-                        <ArrowLeft className="h-4 w-4 mr-2" />
-                        Kembali
-                    </Button>
                     <div className="max-w-4xl mx-auto">
                         <div className="h-8 w-3/4 bg-muted animate-pulse rounded mb-4" />
                         <div className="aspect-video bg-muted animate-pulse rounded-lg" />
@@ -227,14 +222,6 @@ export default function HentaiWatch() {
         return (
             <div className="min-h-screen bg-background">
                 <div className="container mx-auto px-4 py-6">
-                    <Button
-                        variant="ghost"
-                        onClick={() => navigate(-1)}
-                        className="mb-4"
-                    >
-                        <ArrowLeft className="h-4 w-4 mr-2" />
-                        Kembali
-                    </Button>
                     <Alert variant="destructive">
                         <AlertCircle className="h-4 w-4" />
                         <AlertDescription>
@@ -249,18 +236,6 @@ export default function HentaiWatch() {
     return (
         <div className="min-h-screen bg-background">
             <div className="container mx-auto px-4 py-6">
-                {/* Navigation */}
-                <div className="flex items-center gap-3 mb-6">
-                    <Button
-                        variant="ghost"
-                        onClick={() => navigate(-1)}
-                        className="gap-2"
-                    >
-                        <ArrowLeft className="h-4 w-4" />
-                        Kembali
-                    </Button>
-                </div>
-
                 <div className="max-w-4xl mx-auto space-y-6">
                     {/* Title */}
                     <div>
@@ -377,15 +352,17 @@ export default function HentaiWatch() {
                                         </div>
                                         <div className="space-y-2">
                                             <h3 className="font-semibold text-lg">
-                                                {isBlocked ? "Player Eksternal Diperlukan" : "Player Gagal Dimuat"}
+                                                {isBlocked
+                                                    ? "Player Eksternal Diperlukan"
+                                                    : "Player Gagal Dimuat"}
                                             </h3>
                                             <p className="text-sm text-muted-foreground">
-                                                {isBlocked 
-                                                    ? "Server ini tidak mengizinkan pemutaran langsung di dalam website (diblokir oleh penyedia video)." 
-                                                    : "Terjadi kesalahan saat memuat player atau diblokir oleh browser."
-                                                }
-                                                <br/>
-                                                Silakan tonton langsung di tab baru.
+                                                {isBlocked
+                                                    ? "Server ini tidak mengizinkan pemutaran langsung di dalam website (diblokir oleh penyedia video)."
+                                                    : "Terjadi kesalahan saat memuat player atau diblokir oleh browser."}
+                                                <br />
+                                                Silakan tonton langsung di tab
+                                                baru.
                                             </p>
                                         </div>
                                         <Button

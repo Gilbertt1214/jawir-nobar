@@ -1,14 +1,8 @@
-import {
-    useParams,
-    useSearchParams,
-    Link,
-    useNavigate,
-} from "react-router-dom";
+import { useParams, useSearchParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { movieAPI, type StreamingProvider, type Episode } from "@/services/api";
 import { Button } from "@/components/ui/button";
 import {
-    ArrowLeft,
     AlertCircle,
     ChevronDown,
     MonitorPlay,
@@ -29,7 +23,6 @@ import { useState, useEffect, useMemo } from "react";
 export default function EpisodeDetail() {
     const { seriesId } = useParams();
     const [searchParams] = useSearchParams();
-    const navigate = useNavigate();
     const seasonFromUrl = searchParams.get("season");
     const episodeFromUrl = searchParams.get("episode");
 
@@ -176,13 +169,6 @@ export default function EpisodeDetail() {
     if (isLoading) {
         return (
             <div className="w-full max-w-full px-3 py-4">
-                <Link to={`/series/${seriesId}`}>
-                    <Button variant="ghost" className="mb-4 w-full sm:w-auto">
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        Back to Series
-                    </Button>
-                </Link>
-
                 <Skeleton className="h-8 w-48 mb-6" />
 
                 {/* Provider Skeleton */}
@@ -204,13 +190,6 @@ export default function EpisodeDetail() {
 
         return (
             <div className="w-full max-w-full px-3 py-4">
-                <Link to={`/series/${seriesId}`}>
-                    <Button variant="ghost" className="mb-4 w-full sm:w-auto">
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        Back to Series
-                    </Button>
-                </Link>
-
                 <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>{errorMessage}</AlertDescription>
@@ -237,19 +216,6 @@ export default function EpisodeDetail() {
 
     return (
         <div className="w-full max-w-full px-3 py-4">
-            {/* Navigation */}
-            <div className="max-w-6xl mx-auto mb-6">
-                <Link to={`/series/${seriesId}`}>
-                    <Button
-                        variant="ghost"
-                        className="pl-0 hover:pl-2 transition-all gap-2 text-muted-foreground hover:text-foreground"
-                    >
-                        <ArrowLeft className="h-4 w-4" />
-                        Back to Series
-                    </Button>
-                </Link>
-            </div>
-
             <div className="max-w-6xl mx-auto space-y-8">
                 {/* Header & Provider Selection */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">

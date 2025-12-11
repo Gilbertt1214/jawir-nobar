@@ -9,7 +9,11 @@ interface MovieCardProps {
     index?: number;
 }
 
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translateCountry } from "@/lib/translate";
+
 export function MovieCard({ movie, index = 0 }: MovieCardProps) {
+    const { t, language } = useLanguage();
     return (
         <div className="block group/card">
             <Link to={`/${movie.type}/${movie.slug || movie.id}`}>
@@ -43,12 +47,12 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
                         {/* Type badge */}
                         {movie.type === "series" && (
                             <Badge className="absolute top-2 right-2 bg-black/60 backdrop-blur-md border border-white/10 text-white px-2 py-0.5 text-xs font-medium uppercase tracking-wider">
-                                Series
+                                {t("typeSeries")}
                             </Badge>
                         )}
                         {movie.type === "anime" && (
                             <Badge className="absolute top-2 right-2 bg-black/60 backdrop-blur-md border border-white/10 text-white px-2 py-0.5 text-xs font-medium uppercase tracking-wider">
-                                Anime
+                                {t("typeAnime")}
                             </Badge>
                         )}
 
@@ -79,7 +83,14 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
                         {/* Year and Country */}
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
                             {movie.latestEpisode && movie.type === "anime" && (
-                                <span>{movie.latestEpisode}</span>
+                                <span>
+                                    {/^\d+$/.test(movie.latestEpisode)
+                                        ? t("cleanEpisodes").replace(
+                                              "{count}",
+                                              movie.latestEpisode
+                                          )
+                                        : movie.latestEpisode}
+                                </span>
                             )}
                             {movie.latestEpisode && movie.year && (
                                 <span className="text-muted-foreground/50">
@@ -95,7 +106,7 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
                                 )}
                             {movie.country && (
                                 <span className="line-clamp-1">
-                                    {movie.country}
+                                    {translateCountry(movie.country, language)}
                                 </span>
                             )}
                         </div>

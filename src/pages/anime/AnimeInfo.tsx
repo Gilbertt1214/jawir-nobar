@@ -1,4 +1,4 @@
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { movieAPI } from "@/services/api";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
-    ArrowLeft,
     AlertCircle,
     Play,
     Check,
@@ -25,6 +24,7 @@ import { FadeIn } from "@/components/animations/FadeIn";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTranslatedMovie } from "@/hooks/useTranslatedData";
 
 interface Comment {
     name: string;
@@ -37,7 +37,6 @@ const getWatchedKey = (animeSlug: string) => `watched_${animeSlug}`;
 
 export default function AnimeInfo() {
     const { slug } = useParams<{ slug: string }>();
-    const navigate = useNavigate();
     const [watchedEpisodes, setWatchedEpisodes] = useState<Set<string>>(
         new Set()
     );
@@ -109,8 +108,8 @@ export default function AnimeInfo() {
             setName("");
             setMessage("");
             toast({
-                title: "{t('comments')} Terkirim!",
-                description: "Terima kasih sudah berkomentar.",
+                title: t("commentSent"),
+                description: t("commentThanks"),
             });
         } catch (error) {
             console.error("Error adding comment:", error);
@@ -132,7 +131,7 @@ export default function AnimeInfo() {
     const { t } = useLanguage();
 
     const {
-        data: anime,
+        data: animeData,
         isLoading,
         error,
     } = useQuery({
@@ -145,6 +144,9 @@ export default function AnimeInfo() {
         },
         enabled: !!slug,
     });
+
+    // Auto-translate anime data when language is Indonesian
+    const anime = useTranslatedMovie(animeData);
 
     const sortedEpisodes = useMemo(() => {
         if (!anime?.episodes) return [];
@@ -197,26 +199,18 @@ export default function AnimeInfo() {
     if (error || !anime) {
         return (
             <div className="container mx-auto px-4 py-8">
-                <Button
-                    variant="ghost"
-                    onClick={() => navigate(-1)}
-                    className="mb-4"
-                >
-                    <ArrowLeft className="h-4 w-4 mr-2" />
-                    Kembali
-                </Button>
                 <Alert variant="destructive" className="mb-4">
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
                         {isNumericId
-                            ? "This anime is from TMDB/MAL and not available for streaming."
-                            : t('failedToLoadAnimeDetails')}
+                            ? t("tmdbAnimeError")
+                            : t("failedToLoadAnimeDetails")}
                     </AlertDescription>
                 </Alert>
                 <Button asChild className="bg-primary hover:bg-primary">
                     <Link to="/anime">
                         <Tv className="h-4 w-4 mr-2" />
-                        Lihat Daftar Anime
+                        {t("viewAnimeList")}
                     </Link>
                 </Button>
             </div>
@@ -243,18 +237,6 @@ export default function AnimeInfo() {
             </div>
 
             <div className="container mx-auto px-4 -mt-24 sm:-mt-32 md:-mt-40 relative z-10">
-                {/* Back Button */}
-                <FadeIn direction="left" delay={0.2}>
-                    <Button
-                        variant="ghost"
-                        onClick={() => navigate(-1)}
-                        className="mb-4 hover:bg-white/10"
-                    >
-                        <ArrowLeft className="h-4 w-4 mr-2" />
-                        Kembali
-                    </Button>
-                </FadeIn>
-
                 <div className="grid grid-cols-1 md:grid-cols-[250px_1fr] lg:grid-cols-[300px_1fr] gap-6 lg:gap-8">
                     {/* Poster */}
                     <div className="space-y-4">
@@ -374,7 +356,7 @@ export default function AnimeInfo() {
                                 <div className="space-y-2">
                                     <h2 className="text-lg font-semibold flex items-center gap-2">
                                         <span className="w-1 h-6 bg-primary rounded-full" />
-                                        {t('synopsis')}
+                                        {t("synopsis")}
                                     </h2>
                                     <p className="text-muted-foreground leading-relaxed">
                                         {anime.synopsis}
@@ -389,10 +371,11 @@ export default function AnimeInfo() {
                                 <div className="flex items-center justify-between">
                                     <h2 className="text-lg font-semibold flex items-center gap-2">
                                         <span className="w-1 h-6 bg-primary rounded-full" />
-                                        Daftar Episode
+                                        {t("episodeList")}
                                     </h2>
                                     <span className="text-muted-foreground text-sm">
-                                        {sortedEpisodes.length} Episode
+                                        {sortedEpisodes.length}{" "}
+                                        {t("episodesCount")}
                                     </span>
                                 </div>
                             </FadeIn>
@@ -410,7 +393,9 @@ export default function AnimeInfo() {
                                     return (
                                         <FadeIn
                                             key={ep.slug}
-                                            delay={0.1 * (i % 5)} /* Stagger first few */
+                                            delay={
+                                                0.1 * (i % 5)
+                                            } /* Stagger first few */
                                             direction="up"
                                             className="h-full"
                                         >
@@ -479,7 +464,10 @@ export default function AnimeInfo() {
                                                         </div>
                                                         {isWatched && (
                                                             <span className="text-[10px] sm:text-xs text-primary mt-1">
-                                                                ✓ Sudah
+                                                                ✓{" "}
+                                                                {t(
+                                                                    "alreadyWatched"
+                                                                )}
                                                             </span>
                                                         )}
                                                     </div>
@@ -517,13 +505,13 @@ export default function AnimeInfo() {
                             <div className="space-y-4 pt-6">
                                 <h2 className="text-lg font-semibold flex items-center gap-2">
                                     <MessageSquare className="h-5 w-5 text-primary" />
-                                    {t('comments')}
+                                    {t("comments")}
                                 </h2>
                                 <Card className="bg-card/50 backdrop-blur-sm border-white/5">
                                     <CardContent className="p-4 sm:p-6 space-y-6">
                                         <div className="space-y-4">
                                             <Input
-                                                placeholder={t('yourName')}
+                                                placeholder={t("yourName")}
                                                 value={name}
                                                 onChange={(e) =>
                                                     setName(e.target.value)
@@ -532,7 +520,7 @@ export default function AnimeInfo() {
                                                 className="bg-background/50 border-white/10 focus:border-primary/50"
                                             />
                                             <Textarea
-                                                placeholder={t('writeComment')}
+                                                placeholder={t("writeComment")}
                                                 value={message}
                                                 onChange={(e) =>
                                                     setMessage(e.target.value)
@@ -557,10 +545,10 @@ export default function AnimeInfo() {
                                                     {isLoadingComments ? (
                                                         <>
                                                             <RefreshCw className="h-4 w-4 animate-spin" />
-                                                            Posting...
+                                                            {t("posting")}
                                                         </>
                                                     ) : (
-                                                        "Kirim {t('comments')}"
+                                                        t("sendComment")
                                                     )}
                                                 </Button>
                                             </div>
@@ -572,16 +560,13 @@ export default function AnimeInfo() {
                                                 <div className="text-center py-8">
                                                     <RefreshCw className="h-6 w-6 mx-auto animate-spin text-primary" />
                                                     <p className="text-sm text-muted-foreground mt-2">
-                                                        Memuat komentar...
+                                                        {t("loadingComments")}
                                                     </p>
                                                 </div>
                                             ) : comments.length === 0 ? (
                                                 <div className="text-center py-8 text-muted-foreground bg-muted/30 rounded-lg border border-dashed border-white/10">
                                                     <MessageSquare className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                                                    <p>
-                                                        Belum ada komentar.
-                                                        Jadilah yang pertama!
-                                                    </p>
+                                                    <p>{t("noCommentsYet")}</p>
                                                 </div>
                                             ) : (
                                                 comments.map((c, idx) => (

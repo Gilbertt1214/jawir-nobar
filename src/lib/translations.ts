@@ -13,6 +13,7 @@ export const translations = {
     home: "Home",
     online: "Online",
     offline: "Offline",
+    back: "Back",
     
     // Navbar
     anime: "Anime",
@@ -21,11 +22,14 @@ export const translations = {
     countries: "Countries",
     years: "Years",
     menu: "Menu",
+    menuTitle: "Menu",
     
     // Context Menu
     refresh: "Refresh",
     changeTheme: "Change Theme",
     language: "Language",
+    languageEn: "English",
+    languageId: "Indonesia",
     shareLink: "Share Link",
     switchedToLight: "Switched to Light Mode",
     switchedToDark: "Switched to Dark Mode",
@@ -41,6 +45,10 @@ export const translations = {
     failedToLoadGenres: "Failed to load genres.",
     failedToLoadCountries: "Failed to load countries.",
     failedToLoadYears: "Failed to load years.",
+    failedToLoadAnimeDetails: "Failed to load anime details.",
+    selectCountryHint: "Select a country to find movies and series from that region.",
+    selectGenreHint: "Select your favorite genre to find matching movies and series.",
+    selectYearHint: "Select a year to find movies and series released in that year.",
     
     // Player
     watchNow: "Watch Now",
@@ -57,7 +65,18 @@ export const translations = {
     writeComment: "Write your comment...",
     submitComment: "Submit Comment",
     noCommentsYet: "No comments yet. Be the first!",
+    sendComment: "Send Comment",
+    posting: "Posting...",
+    commentSent: "Comment Sent!",
+    commentThanks: "Thank you for commenting.",
     episodeNotAvailable: "This episode is not available. Try searching for this anime on the Anime page.",
+    tmdbAnimeError: "This anime is from TMDB/MAL and not available for streaming.",
+    viewAnimeList: "View Anime List",
+    episodeList: "Episode List",
+    episodesCount: "Episodes",
+    watched: "Watched",
+    alreadyWatched: "Watched",
+    markAsWatched: "Mark as Watched",
     
     // Search
     searchAnime: "Search anime... (min 3 characters)",
@@ -80,6 +99,60 @@ export const translations = {
     indonesianMovies: "Indonesian Movies",
     koreanDrama: "Korean Drama",
     romance: "Romance",
+    
+    // Footer
+    copyright: "jawiracademy © {year}",
+    terms: "Terms",
+    version: "v1.0",
+    
+    // Movie Card
+    typeSeries: "Series",
+    typeAnime: "Anime",
+    
+    // Home Page
+    heroDescription: "Discover the latest movies and series to watch. Immerse yourself in the world of cinema.",
+    errorLoadMovies: "Failed to load movies. Please check your internet connection and try again.",
+    moreInfo: "More Info",
+    
+    // Movie Detail
+    errorMovieNotFound: "Movie or series not found or failed to load.",
+    returnHome: "Return to Home",
+    trailer: "Trailer",
+    share: "Share",
+    season: "Season {season}",
+    overview: "Overview",
+    seeMoreEpisodes: "See More Episodes",
+    showLess: "Show Less",
+    watchMovie: "Watch Movie",
+    searchingStreams: "Searching for streams...",
+    streamUnavailable: "Stream Unavailable",
+    providerIssue: "This provider is currently experiencing issues. Please try another one.",
+    tryNextProvider: "Try Next Provider",
+    
+    // 404
+    error404: "404",
+    pageNotFound: "Oops! Page not found",
+    
+    // Pagination & Search
+    poweredBy: "Powered by Otakudesu (Sanka API)",
+    noResultsFor: "No results found for",
+    noAnimeAvailable: "No anime available yet",
+    tryDifferentKeywords: "Try different keywords or check spelling",
+    showingAnime: "Showing {count} of {total} anime",
+    first: "First",
+    previous: "Previous",
+    next: "Next",
+    last: "Last",
+    pageInfo: "Page {current} of {total}",
+    searchResultsFor: "Search Results for",
+    resultsFound: "{count} results found",
+    movies: "Movies",
+    series: "Series",
+    all: "All",
+    viewAllCategories: "View All Categories",
+    noResultsFound: "No Results Found",
+    noCategoryFound: "No {category} found for",
+    cleanEpisodes: "{count} Eps",
   },
   id: {
     // Common
@@ -95,6 +168,7 @@ export const translations = {
     home: "Beranda",
     online: "Online",
     offline: "Offline",
+    back: "Kembali",
     
     // Navbar
     anime: "Anime",
@@ -108,6 +182,8 @@ export const translations = {
     refresh: "Refresh",
     changeTheme: "Ganti Tema",
     language: "Bahasa",
+    languageEn: "Inggris",
+    languageId: "Indonesia",
     shareLink: "Bagikan Link",
     switchedToLight: "Beralih ke Mode Terang",
     switchedToDark: "Beralih ke Mode Gelap",
@@ -123,6 +199,10 @@ export const translations = {
     failedToLoadGenres: "Gagal memuat daftar genre.",
     failedToLoadCountries: "Gagal memuat daftar negara.",
     failedToLoadYears: "Gagal memuat daftar tahun.",
+    failedToLoadAnimeDetails: "Gagal memuat detail anime.",
+    selectCountryHint: "Pilih negara untuk menemukan film dan series dari wilayah tersebut.",
+    selectGenreHint: "Pilih genre favorit kamu untuk menemukan film dan series yang sesuai.",
+    selectYearHint: "Pilih tahun untuk menemukan film dan series yang dirilis pada tahun tersebut.",
     
     // Player
     watchNow: "Tonton Sekarang",
@@ -139,7 +219,18 @@ export const translations = {
     writeComment: "Tulis komentar...",
     submitComment: "Kirim Komentar",
     noCommentsYet: "Belum ada komentar. Jadilah yang pertama!",
+    sendComment: "Kirim Komentar",
+    posting: "Memposting...",
+    commentSent: "Komentar Terkirim!",
+    commentThanks: "Terima kasih sudah berkomentar.",
     episodeNotAvailable: "Episode ini tidak tersedia. Coba cari anime ini langsung di halaman Anime.",
+    tmdbAnimeError: "Anime ini dari TMDB/MAL dan tidak tersedia untuk streaming.",
+    viewAnimeList: "Lihat Daftar Anime",
+    episodeList: "Daftar Episode",
+    episodesCount: "Episode",
+    watched: "Sudah Ditonton",
+    alreadyWatched: "Sudah",
+    markAsWatched: "Tandai Sudah Ditonton",
     
     // Search
     searchAnime: "Cari anime... (min 3 karakter)",
@@ -162,6 +253,60 @@ export const translations = {
     indonesianMovies: "Film Indonesia",
     koreanDrama: "Drama Korea",
     romance: "Romantis",
+    
+    // Footer
+    copyright: "jawiracademy © {year}",
+    terms: "Syarat & Ketentuan",
+    version: "v1.0",
+    
+    // Movie Card
+    typeSeries: "Series",
+    typeAnime: "Anime",
+    
+    // Home Page
+    heroDescription: "Temukan film dan serial terbaru untuk ditonton. Benamkan diri Anda dalam dunia sinema.",
+    errorLoadMovies: "Gagal memuat film. Silakan periksa koneksi internet Anda dan coba lagi.",
+    moreInfo: "Info Selengkapnya",
+    
+    // Movie Detail
+    errorMovieNotFound: "Film atau serial tidak ditemukan atau gagal dimuat.",
+    returnHome: "Kembali ke Beranda",
+    trailer: "Trailer",
+    share: "Bagikan",
+    season: "Season {season}",
+    overview: "Ringkasan",
+    seeMoreEpisodes: "Lihat Episode Lainnya",
+    showLess: "Sembunyikan",
+    watchMovie: "Tonton Film",
+    searchingStreams: "Mencari link streaming...",
+    streamUnavailable: "Stream Tidak Tersedia",
+    providerIssue: "Penyedia ini sedang bermasalah. Silakan coba yang lain.",
+    tryNextProvider: "Coba Penyedia Lain",
+    
+    // 404
+    error404: "404",
+    pageNotFound: "Ups! Halaman tidak ditemukan",
+    
+    // Pagination & Search
+    poweredBy: "Powered by Otakudesu (Sanka API)",
+    noResultsFor: "Tidak ditemukan hasil untuk",
+    noAnimeAvailable: "Belum ada anime tersedia",
+    tryDifferentKeywords: "Coba kata kunci lain atau periksa ejaan",
+    showingAnime: "Menampilkan {count} dari {total} anime",
+    first: "Pertama",
+    previous: "Sebelumnya",
+    next: "Selanjutnya",
+    last: "Terakhir",
+    pageInfo: "Halaman {current} dari {total}",
+    searchResultsFor: "Hasil Pencarian untuk",
+    resultsFound: "{count} hasil ditemukan",
+    movies: "Film",
+    series: "Series",
+    all: "Semua",
+    viewAllCategories: "Lihat Semua Kategori",
+    noResultsFound: "Tidak Ada Hasil",
+    noCategoryFound: "Tidak ada {category} ditemukan untuk",
+    cleanEpisodes: "{count} Eps",
   },
 } as const;
 

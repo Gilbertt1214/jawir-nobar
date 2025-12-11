@@ -168,8 +168,7 @@ export default function Home() {
                 <Alert variant="destructive" className="max-w-2xl mx-auto">
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
-                        Failed to load movies. Please check your internet
-                        connection and try again.
+                        {t('errorLoadMovies')}
                     </AlertDescription>
                 </Alert>
             </div>

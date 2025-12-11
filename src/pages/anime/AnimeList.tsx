@@ -209,13 +209,13 @@ export default function AnimeList() {
                                     </div>
                                     <h3 className="text-lg font-semibold text-foreground mb-2">
                                         {searchQuery.length > 2
-                                            ? `Tidak ditemukan hasil untuk "${searchQuery}"`
-                                            : "Belum ada anime tersedia"}
+                                            ? `${t('noResultsFor')} "${searchQuery}"`
+                                            : t('noAnimeAvailable')}
                                     </h3>
                                     <p className="text-muted-foreground text-sm mb-6">
                                         {searchQuery.length > 2
-                                            ? "Coba kata kunci lain atau periksa ejaan"
-                                            : "Coba lagi nanti atau cari judul spesifik"}
+                                            ? t('tryDifferentKeywords')
+                                            : t('tryAgainLater')}
                                     </p>
                                 </div>
                             </div>
@@ -270,9 +270,16 @@ export default function AnimeList() {
                                                     {item.latestEpisode && (
                                                         <div className="absolute top-2 right-2">
                                                             <Badge className="text-xs backdrop-blur-sm bg-primary text-white border-none">
-                                                                {
+                                                                {/^\d+$/.test(
                                                                     item.latestEpisode
-                                                                }
+                                                                )
+                                                                    ? t(
+                                                                          'cleanEpisodes'
+                                                                      ).replace(
+                                                                          '{count}',
+                                                                          item.latestEpisode
+                                                                      )
+                                                                    : item.latestEpisode}
                                                             </Badge>
                                                         </div>
                                                     )}
@@ -299,8 +306,9 @@ export default function AnimeList() {
                         <div className="flex flex-col items-center gap-4 mt-8">
                             {/* Page info */}
                             <div className="text-sm text-muted-foreground">
-                                Menampilkan {completeAnime.data.length} dari{" "}
-                                {completeAnime.totalItems} anime
+                                {t('showingAnime')
+                                    .replace('{count}', String(completeAnime.data.length))
+                                    .replace('{total}', String(completeAnime.totalItems))}
                             </div>
 
                             {/* Pagination buttons */}
@@ -310,7 +318,7 @@ export default function AnimeList() {
                                     onClick={() => setPage(1)}
                                     disabled={page <= 1}
                                 >
-                                    First
+                                    {t('first')}
                                 </Button>
                                 <Button
                                     variant="outline"
@@ -319,7 +327,7 @@ export default function AnimeList() {
                                     }
                                     disabled={!completeAnime.hasPrevPage}
                                 >
-                                    Previous
+                                    {t('previous')}
                                 </Button>
 
                                 {/* Page numbers */}
@@ -377,7 +385,7 @@ export default function AnimeList() {
                                     onClick={() => setPage((p) => p + 1)}
                                     disabled={!completeAnime.hasNextPage}
                                 >
-                                    Next
+                                    {t('next')}
                                 </Button>
                                 <Button
                                     variant="outline"
@@ -386,13 +394,15 @@ export default function AnimeList() {
                                     }
                                     disabled={page >= completeAnime.totalPages}
                                 >
-                                    Last
+                                    {t('last')}
                                 </Button>
                             </div>
 
                             {/* Current page info */}
                             <span className="text-muted-foreground">
-                                Page {page} of {completeAnime.totalPages}
+                                {t('pageInfo')
+                                    .replace('{current}', String(page))
+                                    .replace('{total}', String(completeAnime.totalPages))}
                             </span>
                         </div>
                     )}

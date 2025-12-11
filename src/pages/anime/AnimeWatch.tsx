@@ -1,9 +1,8 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { movieAPI } from "@/services/api";
 import { Button } from "@/components/ui/button";
 import {
-    ArrowLeft,
     AlertCircle,
     ExternalLink,
     RefreshCw,
@@ -18,7 +17,6 @@ import type { StreamingProvider } from "@/services/api";
 
 export default function AnimeWatch() {
     const { slug } = useParams<{ slug: string }>();
-    const navigate = useNavigate();
     const [iframeKey, setIframeKey] = useState(0);
     const [providerError, setProviderError] = useState(false);
 
@@ -80,11 +78,11 @@ export default function AnimeWatch() {
         "dood.to",
         "dood.so",
         "dood.la",
-        "dood.ws"
+        "dood.ws",
     ];
 
     const isUnembeddable = (url: string) => {
-        return UNEMBEDDABLE_DOMAINS.some(domain => url.includes(domain));
+        return UNEMBEDDABLE_DOMAINS.some((domain) => url.includes(domain));
     };
 
     const isBlocked = currentStream?.url && isUnembeddable(currentStream.url);
@@ -99,9 +97,6 @@ export default function AnimeWatch() {
         return (
             <div className="min-h-screen bg-background">
                 <div className="container mx-auto px-4 py-8">
-                    <Button variant="ghost" disabled className="mb-4">
-                        <ArrowLeft className="h-4 w-4 mr-2" /> Kembali
-                    </Button>
                     <div className="max-w-6xl mx-auto">
                         <div className="aspect-video bg-muted animate-pulse rounded-lg" />
                         <div className="mt-4 h-12 bg-muted animate-pulse rounded-lg w-48" />
@@ -115,13 +110,6 @@ export default function AnimeWatch() {
         return (
             <div className="min-h-screen bg-background">
                 <div className="container mx-auto px-4 py-8">
-                    <Button
-                        variant="ghost"
-                        onClick={() => navigate(-1)}
-                        className="mb-4"
-                    >
-                        <ArrowLeft className="h-4 w-4 mr-2" /> Kembali
-                    </Button>
                     <Alert variant="destructive">
                         <AlertCircle className="h-4 w-4" />
                         <AlertDescription>
@@ -138,13 +126,6 @@ export default function AnimeWatch() {
         return (
             <div className="min-h-screen bg-background">
                 <div className="container mx-auto px-4 py-8">
-                    <Button
-                        variant="ghost"
-                        onClick={() => navigate(-1)}
-                        className="mb-4"
-                    >
-                        <ArrowLeft className="h-4 w-4 mr-2" /> Kembali
-                    </Button>
                     <Alert variant="destructive">
                         <AlertCircle className="h-4 w-4" />
                         <AlertDescription>
@@ -171,18 +152,14 @@ export default function AnimeWatch() {
         <div className="min-h-screen bg-background">
             <div className="container mx-auto px-4 py-6">
                 {/* Header */}
-                <div className="mb-6 flex items-center gap-4">
-                    <Button variant="ghost" onClick={() => navigate(-1)}>
-                        <ArrowLeft className="h-4 w-4 mr-2" /> Kembali
-                    </Button>
-                    <div className="flex-1 min-w-0">
-                        <h1 className="text-xl md:text-2xl font-bold text-foreground truncate">
-                            {displayTitle}
-                        </h1>
-                        <p className="text-muted-foreground text-sm">
-                            Episode {episodeNumber}
-                        </p>
-                    </div>
+                <div className="mb-6">
+                    <h1 className="text-xl md:text-2xl font-bold text-foreground truncate">
+                        {displayTitle}
+                    </h1>
+                    <p className="text-muted-foreground text-sm">
+                        Episode {episodeNumber}
+                    </p>
+                </div>
                 </div>
 
                 <div className="max-w-6xl mx-auto space-y-4">
@@ -196,14 +173,15 @@ export default function AnimeWatch() {
                                     </div>
                                     <div className="space-y-2">
                                         <h3 className="font-semibold text-lg">
-                                            {isBlocked ? "Player Eksternal Diperlukan" : "Player Gagal Dimuat"}
+                                            {isBlocked
+                                                ? "Player Eksternal Diperlukan"
+                                                : "Player Gagal Dimuat"}
                                         </h3>
                                         <p className="text-sm text-muted-foreground">
-                                            {isBlocked 
-                                                ? "Server ini tidak mengizinkan pemutaran langsung di dalam website." 
-                                                : "Terjadi kesalahan saat memuat player atau diblokir oleh browser."
-                                            }
-                                            <br/>
+                                            {isBlocked
+                                                ? "Server ini tidak mengizinkan pemutaran langsung di dalam website."
+                                                : "Terjadi kesalahan saat memuat player atau diblokir oleh browser."}
+                                            <br />
                                             Silakan tonton langsung di tab baru.
                                         </p>
                                     </div>

@@ -9,10 +9,12 @@ import { AlertCircle, Search as SearchIcon, Film, Tv } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 type SearchCategory = "all" | "movies" | "series";
 
 export default function Search() {
+    const { t } = useLanguage();
     const [searchParams] = useSearchParams();
     const query = searchParams.get("q") || "";
     const [currentPage, setCurrentPage] = useState(1);
@@ -128,14 +130,13 @@ export default function Search() {
                 {/* Title */}
                 <div>
                     <h1 className="text-3xl md:text-4xl font-bold mb-2">
-                        Search Results for "{query}"
+                        {t('searchResultsFor')} "{query}"
                     </h1>
                     <p className="text-muted-foreground">
-                        {displayData.total} result
-                        {displayData.total !== 1 ? "s" : ""} found
+                        {t('resultsFound').replace('{count}', String(displayData.total))}
                         {activeCategory === "all" && totalAll > 0 && (
                             <span className="ml-2 text-sm">
-                                ({totalMovies} movies • {totalSeries} series)
+                                ({totalMovies} {t('movies').toLowerCase()} • {totalSeries} {t('series').toLowerCase()})
                             </span>
                         )}
                     </p>
@@ -152,7 +153,7 @@ export default function Search() {
                         className="gap-2 transition-all"
                     >
                         <SearchIcon className="h-4 w-4" />
-                        All
+                        {t('all')}
                         <Badge
                             variant={
                                 activeCategory === "all"
@@ -174,7 +175,7 @@ export default function Search() {
                         className="gap-2 transition-all"
                     >
                         <Film className="h-4 w-4" />
-                        Movies
+                        {t('movies')}
                         <Badge
                             variant={
                                 activeCategory === "movies"
@@ -196,7 +197,7 @@ export default function Search() {
                         className="gap-2 transition-all"
                     >
                         <Tv className="h-4 w-4" />
-                        Series
+                        {t('series')}
                         <Badge
                             variant={
                                 activeCategory === "series"
@@ -269,12 +270,14 @@ export default function Search() {
                 <div className="flex flex-col items-center justify-center min-h-[300px] text-center">
                     <SearchIcon className="h-12 w-12 text-muted-foreground mb-4" />
                     <h2 className="text-xl font-semibold mb-2">
-                        No Results Found
+                        {t('noResultsFound')}
                     </h2>
                     <p className="text-muted-foreground">
                         {activeCategory === "all"
-                            ? `No results found for "${query}"`
-                            : `No ${activeCategory} found for "${query}"`}
+                            ? `${t('noResultsFor')} "${query}"`
+                            : t('noCategoryFound')
+                                  .replace('{category}', activeCategory)
+                                  .replace('{query}', query) + ` "${query}"`}
                     </p>
                     {activeCategory !== "all" && (
                         <Button
@@ -282,7 +285,7 @@ export default function Search() {
                             className="mt-4"
                             onClick={() => handleCategoryChange("all")}
                         >
-                            View All Categories
+                            {t('viewAllCategories')}
                         </Button>
                     )}
                 </div>

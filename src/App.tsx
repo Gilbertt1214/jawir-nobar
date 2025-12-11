@@ -9,6 +9,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { ScrollToTop } from "@/components/layout/ScrollToTop";
 import { ContextMenu } from "@/components/layout/ContextMenu";
+import { Breadcrumb } from "@/components/common/Breadcrumb";
 import Home from "./pages/home/Home";
 import MovieDetail from "./pages/movie/MovieDetail";
 import SeriesEpisodes from "./pages/series/SeriesEpisodes";
@@ -72,119 +73,123 @@ const App = () => {
             <ThemeProvider>
                 <LanguageProvider>
                     <TooltipProvider>
-                    <Toaster />
-                    <Sonner />
-                    <BrowserRouter
-                        future={{
-                            v7_startTransition: true,
-                            v7_relativeSplatPath: true,
-                        }}
-                    >
-                        <ScrollToTop />
-                        <ContextMenu />
-                        <div className="flex min-h-screen flex-col bg-background font-sans antialiased">
-                            <Navbar />
-                            <main className="flex-1">
-                                <Routes>
-                                    {/* Home */}
-                                    <Route path="/" element={<Home />} />
+                        <Toaster />
+                        <Sonner />
+                        <BrowserRouter
+                            future={{
+                                v7_startTransition: true,
+                                v7_relativeSplatPath: true,
+                            }}
+                        >
+                            <ScrollToTop />
+                            <ContextMenu />
+                            <div className="flex min-h-screen flex-col bg-background font-sans antialiased">
+                                <Navbar />
+                                <main className="flex-1">
+                                    <Breadcrumb />
+                                    <Routes>
+                                        {/* Home */}
+                                        <Route path="/" element={<Home />} />
 
-                                    {/* TMDB Movie & Series */}
-                                    <Route
-                                        path="/movie/:id"
-                                        element={<MovieDetail />}
-                                    />
-                                    <Route
-                                        path="/series/:id"
-                                        element={<MovieDetail />}
-                                    />
-                                    <Route
-                                        path="/series/:id/episodes"
-                                        element={<SeriesEpisodes />}
-                                    />
-                                    <Route
-                                        path="/series/:seriesId/watch"
-                                        element={<EpisodeDetail />}
-                                    />
+                                        {/* TMDB Movie & Series */}
+                                        <Route
+                                            path="/movie/:id"
+                                            element={<MovieDetail />}
+                                        />
+                                        <Route
+                                            path="/series/:id"
+                                            element={<MovieDetail />}
+                                        />
+                                        <Route
+                                            path="/series/:id/episodes"
+                                            element={<SeriesEpisodes />}
+                                        />
+                                        <Route
+                                            path="/series/:seriesId/watch"
+                                            element={<EpisodeDetail />}
+                                        />
 
-                                    {/* Hentai - Nekopoi */}
-                                    <Route
-                                        path="/hentai"
-                                        element={<HentaiList />}
-                                    />
-                                    <Route
-                                        path="/hentai/nekopoi/:slug"
-                                        element={<HentaiInfo />}
-                                    />
-                                    <Route
-                                        path="/hentai/watch/:id"
-                                        element={<HentaiWatch />}
-                                    />
+                                        {/* Hentai - Nekopoi */}
+                                        <Route
+                                            path="/hentai"
+                                            element={<HentaiList />}
+                                        />
+                                        <Route
+                                            path="/hentai/nekopoi/:slug"
+                                            element={<HentaiInfo />}
+                                        />
+                                        <Route
+                                            path="/hentai/watch/:id"
+                                            element={<HentaiWatch />}
+                                        />
 
-                                    {/* Anime Routes (Otakudesu/Sanka API) */}
-                                    <Route
-                                        path="/anime"
-                                        element={<AnimeList />}
-                                    />
-                                    <Route
-                                        path="/anime/:slug"
-                                        element={<AnimeInfo />}
-                                    />
-                                    <Route
-                                        path="/anime/watch/:slug"
-                                        element={<AnimeWatch />}
-                                    />
+                                        {/* Anime Routes (Otakudesu/Sanka API) */}
+                                        <Route
+                                            path="/anime"
+                                            element={<AnimeList />}
+                                        />
+                                        <Route
+                                            path="/anime/:slug"
+                                            element={<AnimeInfo />}
+                                        />
+                                        <Route
+                                            path="/anime/watch/:slug"
+                                            element={<AnimeWatch />}
+                                        />
 
-                                    {/* Browse (Kategori Khusus) */}
-                                    <Route
-                                        path="/browse/:category"
-                                        element={<BrowseCategory />}
-                                    />
+                                        {/* Browse (Kategori Khusus) */}
+                                        <Route
+                                            path="/browse/:category"
+                                            element={<BrowseCategory />}
+                                        />
 
-                                    {/* Pencarian */}
-                                    <Route
-                                        path="/search"
-                                        element={<Search />}
-                                    />
+                                        {/* Pencarian */}
+                                        <Route
+                                            path="/search"
+                                            element={<Search />}
+                                        />
 
-                                    {/* Genre */}
-                                    <Route
-                                        path="/genres"
-                                        element={<GenreList />}
-                                    />
-                                    <Route
-                                        path="/genre/:genre"
-                                        element={<GenreMovies />}
-                                    />
+                                        {/* Genre */}
+                                        <Route
+                                            path="/genres"
+                                            element={<GenreList />}
+                                        />
+                                        <Route
+                                            path="/genre/:genre"
+                                            element={<GenreMovies />}
+                                        />
 
-                                    {/* Negara */}
-                                    <Route
-                                        path="/countries"
-                                        element={<CountryList />}
-                                    />
-                                    <Route
-                                        path="/country/:country"
-                                        element={<CountryMovies />}
-                                    />
+                                        {/* Negara */}
+                                        <Route
+                                            path="/countries"
+                                            element={<CountryList />}
+                                        />
+                                        <Route
+                                            path="/country/:country"
+                                            element={<CountryMovies />}
+                                        />
 
-                                    {/* Tahun */}
-                                    <Route
-                                        path="/years"
-                                        element={<YearList />}
-                                    />
-                                    <Route
-                                        path="/year/:year"
-                                        element={<YearMovies />}
-                                    />
+                                        {/* Tahun */}
+                                        <Route
+                                            path="/years"
+                                            element={<YearList />}
+                                        />
+                                        <Route
+                                            path="/year/:year"
+                                            element={<YearMovies />}
+                                        />
 
-                                    {/* 404 */}
-                                    <Route path="*" element={<NotFound />} />
-                                </Routes>
-                            </main>
-                            <Footer />
-                        </div>
-                    </BrowserRouter>
-                </TooltipProvider>
+                                        {/* 404 */}
+                                        <Route
+                                            path="*"
+                                            element={<NotFound />}
+                                        />
+                                    </Routes>
+                                </main>
+                                <Footer />
+                            </div>
+                        </BrowserRouter>
+                    </TooltipProvider>
                 </LanguageProvider>
             </ThemeProvider>
         </QueryClientProvider>

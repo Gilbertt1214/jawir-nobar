@@ -9,7 +9,7 @@
         "types": ["vite/client"],
         "esModuleInterop": true,
         "resolveJsonModule": true,
-        "ignoreDeprecations": "6.0",
+
 
         /* Bundler mode */
         "moduleResolution": "bundler",

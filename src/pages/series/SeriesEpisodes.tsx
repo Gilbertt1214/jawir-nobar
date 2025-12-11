@@ -13,15 +13,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import {
-    Play,
-    ArrowLeft,
-    Grid,
-    List,
-    Search,
-    Calendar,
-    Star,
-} from "lucide-react";
+import { Play, Grid, List, Search, Calendar, Star } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
@@ -249,12 +241,6 @@ export default function SeriesEpisodes() {
     if (error) {
         return (
             <div className="container mx-auto px-4 py-8">
-                <Link to={`/series/${id}`}>
-                    <Button variant="ghost" className="mb-4">
-                        <ArrowLeft className="h-4 w-4 mr-2" />
-                        Back to Series
-                    </Button>
-                </Link>
                 <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
@@ -283,12 +269,6 @@ export default function SeriesEpisodes() {
     if (episodes.length === 0) {
         return (
             <div className="container mx-auto px-4 py-8">
-                <Link to={`/series/${id}`}>
-                    <Button variant="ghost" className="mb-4">
-                        <ArrowLeft className="h-4 w-4 mr-2" />
-                        Back to Series
-                    </Button>
-                </Link>
                 <Alert>
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
@@ -311,13 +291,6 @@ export default function SeriesEpisodes() {
         <div className="container mx-auto px-4 py-6">
             {/* Header */}
             <div className="mb-6">
-                <Link to={`/series/${id}`}>
-                    <Button variant="ghost" className="mb-4 -ml-4">
-                        <ArrowLeft className="h-4 w-4 mr-2" />
-                        Back to Series
-                    </Button>
-                </Link>
-
                 {/* Series Info Card */}
                 {series && (
                     <Card className="mb-6 bg-black/40 border-white/10">

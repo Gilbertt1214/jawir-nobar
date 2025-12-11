@@ -1,4 +1,4 @@
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { movieAPI } from "@/services/api";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
-    ArrowLeft,
     AlertCircle,
     Play,
     Check,
@@ -22,6 +21,8 @@ import { commentsService } from "@/services/firebase/comments.service";
 import { FadeIn } from "@/components/animations/FadeIn";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useTranslatedMovie } from "@/hooks/useTranslatedData";
 
 interface Comment {
     name: string;
@@ -52,7 +53,6 @@ const extractEpisodeNumber = (title: string): number => {
 
 export default function HentaiInfo() {
     const { slug } = useParams<{ slug: string }>();
-    const navigate = useNavigate();
     const [watchedEpisodes, setWatchedEpisodes] = useState<Set<string>>(
         new Set()
     );
@@ -145,8 +145,10 @@ export default function HentaiInfo() {
         }
     };
 
+    const { t } = useLanguage();
+
     const {
-        data: hentaiDetail,
+        data: hentaiData,
         isLoading,
         error,
     } = useQuery({
@@ -157,6 +159,9 @@ export default function HentaiInfo() {
         },
         enabled: !!slug,
     });
+
+    // Auto-translate hentai data when language is Indonesian
+    const hentaiDetail = useTranslatedMovie(hentaiData);
 
     const { data: allHentai } = useQuery({
         queryKey: ["allHentaiForEpisodes"],
@@ -226,14 +231,6 @@ export default function HentaiInfo() {
     if (error || !hentaiDetail) {
         return (
             <div className="container mx-auto px-4 py-8">
-                <Button
-                    variant="ghost"
-                    onClick={() => navigate(-1)}
-                    className="mb-4"
-                >
-                    <ArrowLeft className="h-4 w-4 mr-2" />
-                    Kembali
-                </Button>
                 <Alert variant="destructive" className="mb-4">
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
@@ -273,18 +270,6 @@ export default function HentaiInfo() {
             </div>
 
             <div className="container mx-auto px-4 -mt-24 sm:-mt-32 md:-mt-40 relative z-10">
-                {/* Back Button */}
-                <FadeIn direction="left" delay={0.2}>
-                    <Button
-                        variant="ghost"
-                        onClick={() => navigate(-1)}
-                        className="mb-4 hover:bg-white/10"
-                    >
-                        <ArrowLeft className="h-4 w-4 mr-2" />
-                        Kembali
-                    </Button>
-                </FadeIn>
-
                 <div className="grid grid-cols-1 md:grid-cols-[250px_1fr] lg:grid-cols-[300px_1fr] gap-6 lg:gap-8">
                     {/* Poster */}
                     <div className="space-y-4">
@@ -296,7 +281,8 @@ export default function HentaiInfo() {
                                     className="w-full h-full object-cover"
                                     referrerPolicy="no-referrer"
                                     onError={(e) => {
-                                        e.currentTarget.src = "/placeholder.svg";
+                                        e.currentTarget.src =
+                                            "/placeholder.svg";
                                     }}
                                 />
                                 <Badge className="absolute top-3 right-3 bg-primary text-white text-xs">
@@ -306,7 +292,10 @@ export default function HentaiInfo() {
                         </FadeIn>
 
                         {/* Quick Info - Mobile */}
-                        <FadeIn delay={0.4} className="md:hidden bg-card/80 backdrop-blur rounded-lg border border-white/10 p-4">
+                        <FadeIn
+                            delay={0.4}
+                            className="md:hidden bg-card/80 backdrop-blur rounded-lg border border-white/10 p-4"
+                        >
                             <div className="grid grid-cols-2 gap-4 text-center">
                                 <div>
                                     <Tv className="h-4 w-4 mx-auto mb-1 text-primary" />
@@ -414,7 +403,12 @@ export default function HentaiInfo() {
                                         );
 
                                         return (
-                                            <FadeIn key={ep.id} delay={0.1 * (i % 5)} direction="up" className="h-full">
+                                            <FadeIn
+                                                key={ep.id}
+                                                delay={0.1 * (i % 5)}
+                                                direction="up"
+                                                className="h-full"
+                                            >
                                                 <Link
                                                     to={`/hentai/watch/${ep.id}`}
                                                     className="block h-full"
@@ -435,7 +429,9 @@ export default function HentaiInfo() {
                                                                 alt={`Episode ${episodeNum}`}
                                                                 className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
                                                                 referrerPolicy="no-referrer"
-                                                                onError={(e) => {
+                                                                onError={(
+                                                                    e
+                                                                ) => {
                                                                     e.currentTarget.src =
                                                                         "/placeholder.svg";
                                                                 }}
@@ -471,7 +467,8 @@ export default function HentaiInfo() {
                                                                         : "group-hover:text-primary"
                                                                 }`}
                                                             >
-                                                                Episode {episodeNum}
+                                                                Episode{" "}
+                                                                {episodeNum}
                                                             </h3>
                                                             <div className="flex items-center gap-2 mt-1">
                                                                 <span className="text-xs text-muted-foreground line-clamp-1">
@@ -480,7 +477,8 @@ export default function HentaiInfo() {
                                                             </div>
                                                             {isWatched && (
                                                                 <span className="text-[10px] sm:text-xs text-primary mt-1">
-                                                                    ✓ Sudah ditonton
+                                                                    ✓ Sudah
+                                                                    ditonton
                                                                 </span>
                                                             )}
                                                         </div>
@@ -489,7 +487,9 @@ export default function HentaiInfo() {
                                                             <Button
                                                                 variant="ghost"
                                                                 size="sm"
-                                                                onClick={(e) => {
+                                                                onClick={(
+                                                                    e
+                                                                ) => {
                                                                     e.preventDefault();
                                                                     e.stopPropagation();
                                                                     markAsWatched(
@@ -511,8 +511,15 @@ export default function HentaiInfo() {
                                         );
                                     })
                                 ) : (
-                                    <FadeIn delay={0.9} direction="up" className="h-full">
-                                        <Link to={`/hentai/watch/${slug}`} className="block h-full">
+                                    <FadeIn
+                                        delay={0.9}
+                                        direction="up"
+                                        className="h-full"
+                                    >
+                                        <Link
+                                            to={`/hentai/watch/${slug}`}
+                                            className="block h-full"
+                                        >
                                             <div className="group flex flex-row overflow-hidden rounded-lg border border-white/5 bg-black/20 hover:bg-white/5 transition-all hover:scale-[1.01] hover:shadow-xl h-24 sm:h-28">
                                                 {/* Thumbnail */}
                                                 <div className="relative w-32 sm:w-44 flex-shrink-0 overflow-hidden bg-gray-800">
@@ -596,7 +603,8 @@ export default function HentaiInfo() {
                                             />
                                             <div className="flex justify-between items-center">
                                                 <span className="text-xs text-muted-foreground">
-                                                    {message.length}/500 karakter
+                                                    {message.length}/500
+                                                    karakter
                                                 </span>
                                                 <Button
                                                     onClick={addComment}
@@ -632,16 +640,18 @@ export default function HentaiInfo() {
                                                 <div className="text-center py-8 text-muted-foreground bg-muted/30 rounded-lg border border-dashed border-white/10">
                                                     <MessageSquare className="h-8 w-8 mx-auto mb-2 opacity-50" />
                                                     <p>
-                                                        Belum ada komentar. Jadilah
-                                                        yang pertama!
+                                                        Belum ada komentar.
+                                                        Jadilah yang pertama!
                                                     </p>
                                                 </div>
                                             ) : (
                                                 comments.map((c, idx) => (
-                                                    <FadeIn key={`${c.time}-${idx}`} delay={0.1} direction="up">
-                                                        <div
-                                                            className="p-4 rounded-xl bg-muted/30 border border-white/5 space-y-2"
-                                                        >
+                                                    <FadeIn
+                                                        key={`${c.time}-${idx}`}
+                                                        delay={0.1}
+                                                        direction="up"
+                                                    >
+                                                        <div className="p-4 rounded-xl bg-muted/30 border border-white/5 space-y-2">
                                                             <div className="flex items-center justify-between">
                                                                 <span className="font-semibold text-sm text-primary">
                                                                     {c.name}

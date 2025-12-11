@@ -195,7 +195,7 @@ export function Navbar() {
                         >
                             <SheetHeader>
                                 <SheetTitle className="text-left text-lg sm:text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-400">
-                                    Menu
+                                    {t('menuTitle')}
                                 </SheetTitle>
                             </SheetHeader>
                             <div className="flex flex-col gap-1 sm:gap-2 mt-6 sm:mt-8">
@@ -249,7 +249,7 @@ export function Navbar() {
                                     className="w-full justify-start gap-3 sm:gap-4 h-11 sm:h-12 text-sm sm:text-base font-medium rounded-xl hover:bg-primary/10 hover:text-primary transition-all"
                                 >
                                     <Languages className="h-4 w-4 sm:h-5 sm:w-5" />
-                                    {language === 'en' ? 'English' : 'Indonesia'}
+                                    {language === 'en' ? t('languageEn') : t('languageId')}
                                 </Button>
 
                                 {/* Theme Toggle - Mobile */}

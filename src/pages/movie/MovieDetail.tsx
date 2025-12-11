@@ -43,6 +43,7 @@ import { FadeIn } from "@/components/animations/FadeIn";
 import { ScaleIn } from "@/components/animations/ScaleIn";
 import { toast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTranslatedMovie } from "@/hooks/useTranslatedData";
 
 // Animations moved to components/animations
 
@@ -78,6 +79,9 @@ export default function MovieDetail() {
     });
 
     const { t } = useLanguage();
+
+    // Auto-translate movie data when language is Indonesian
+    const translatedMovie = useTranslatedMovie(movie);
 
     const [name, setName] = useState("");
     const [message, setMessage] = useState("");
@@ -225,8 +229,8 @@ export default function MovieDetail() {
             setName("");
             setMessage("");
             toast({
-                title: "Komentar Terkirim!",
-                description: "Terima kasih sudah berkomentar.",
+                title: t("commentSent"),
+                description: t("commentThanks"),
             });
         } catch (error) {
             console.error("Error adding comment:", error);
@@ -288,12 +292,12 @@ export default function MovieDetail() {
                 <Alert variant="destructive" className="max-w-md">
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
-                        Movie or series not found or failed to load.
+                        {t("errorMovieNotFound")}
                         <Link
                             to="/"
                             className="ml-2 underline block mt-2 font-medium"
                         >
-                            Return to Home
+                            {t("returnHome")}
                         </Link>
                     </AlertDescription>
                 </Alert>
@@ -323,11 +327,7 @@ export default function MovieDetail() {
             <div className="container mx-auto px-4 sm:px-6 -mt-32 sm:-mt-48 md:-mt-64 relative z-10">
                 <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] lg:grid-cols-[350px_1fr] gap-8">
                     {/* Poster & Actions */}
-                    <FadeIn
-                        className="space-y-6"
-                        direction="right"
-                        delay={0.1}
-                    >
+                    <FadeIn className="space-y-6" direction="right" delay={0.1}>
                         <div className="relative aspect-[2/3] rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/10 group">
                             <img
                                 src={movie.cover || "/placeholder.svg"}
@@ -355,7 +355,7 @@ export default function MovieDetail() {
                                     }
                                 >
                                     <Play className="h-4 w-4 fill-current" />
-                                    Trailer
+                                    {t("trailer")}
                                 </Button>
                             )}
                             <Button
@@ -364,17 +364,13 @@ export default function MovieDetail() {
                                 size="lg"
                             >
                                 <Share2 className="h-4 w-4" />
-                                Share
+                                {t("share")}
                             </Button>
                         </div>
                     </FadeIn>
 
                     {/* Details */}
-                    <FadeIn
-                        className="space-y-8"
-                        direction="left"
-                        delay={0.2}
-                    >
+                    <FadeIn className="space-y-8" direction="left" delay={0.2}>
                         <div className="space-y-4">
                             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-gradient leading-tight">
                                 {movie.title}
@@ -393,10 +389,10 @@ export default function MovieDetail() {
                                         <span>{movie.year}</span>
                                     </div>
                                 )}
-                                {movie.country && (
+                                {translatedMovie?.country && (
                                     <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-muted-foreground">
                                         <Globe className="h-3.5 w-3.5" />
-                                        <span>{movie.country}</span>
+                                        <span>{translatedMovie.country}</span>
                                     </div>
                                 )}
                                 <Badge
@@ -407,35 +403,36 @@ export default function MovieDetail() {
                                 </Badge>
                             </div>
 
-                            {movie.genre && movie.genre.length > 0 && (
-                                <div className="flex flex-wrap gap-2">
-                                    {movie.genre.map((g) => (
-                                        <Link
-                                            key={g}
-                                            to={`/genre/${encodeURIComponent(
-                                                g
-                                            )}`}
-                                        >
-                                            <Badge
-                                                variant="outline"
-                                                className="hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all cursor-pointer px-3 py-1"
+                            {translatedMovie?.genre &&
+                                translatedMovie.genre.length > 0 && (
+                                    <div className="flex flex-wrap gap-2">
+                                        {translatedMovie.genre.map((g, idx) => (
+                                            <Link
+                                                key={idx}
+                                                to={`/genre/${encodeURIComponent(
+                                                    movie?.genre?.[idx] || g
+                                                )}`}
                                             >
-                                                {g}
-                                            </Badge>
-                                        </Link>
-                                    ))}
-                                </div>
-                            )}
+                                                <Badge
+                                                    variant="outline"
+                                                    className="hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all cursor-pointer px-3 py-1"
+                                                >
+                                                    {g}
+                                                </Badge>
+                                            </Link>
+                                        ))}
+                                    </div>
+                                )}
                         </div>
 
-                        {movie.synopsis && (
+                        {translatedMovie?.synopsis && (
                             <div className="space-y-2">
                                 <h2 className="text-lg font-semibold flex items-center gap-2">
                                     <span className="w-1 h-6 bg-primary rounded-full" />
-                                    {t('synopsis')}
+                                    {t("synopsis")}
                                 </h2>
                                 <p className="text-muted-foreground leading-relaxed text-base sm:text-lg">
-                                    {movie.synopsis}
+                                    {translatedMovie.synopsis}
                                 </p>
                             </div>
                         )}
@@ -445,7 +442,7 @@ export default function MovieDetail() {
                             <div className="space-y-3">
                                 <h2 className="text-lg font-semibold flex items-center gap-2">
                                     <span className="w-1 h-6 bg-primary rounded-full" />
-                                    {t('cast')}
+                                    {t("cast")}
                                 </h2>
                                 <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide mask-linear-fade">
                                     {movie.cast.map((actor) => (
@@ -489,7 +486,7 @@ export default function MovieDetail() {
                                 <div className="flex items-center justify-between">
                                     <h2 className="text-xl font-bold flex items-center gap-2">
                                         <Tv className="h-5 w-5 text-primary" />
-                                        Episodes
+                                        {t("episodes")}
                                     </h2>
                                 </div>
 
@@ -704,8 +701,10 @@ export default function MovieDetail() {
                                                                         )
                                                                     }
                                                                 >
-                                                                    See More
-                                                                    Episodes (
+                                                                    {t(
+                                                                        "seeMoreEpisodes"
+                                                                    )}{" "}
+                                                                    (
                                                                     {seasonGroups[
                                                                         season
                                                                     ].length -
@@ -728,7 +727,9 @@ export default function MovieDetail() {
                                                                         )
                                                                     }
                                                                 >
-                                                                    Show Less
+                                                                    {t(
+                                                                        "showLess"
+                                                                    )}
                                                                 </Button>
                                                             </div>
                                                         )}
@@ -740,7 +741,7 @@ export default function MovieDetail() {
                                     <Alert>
                                         <AlertCircle className="h-4 w-4" />
                                         <AlertDescription>
-                                            No episodes found for this series.
+                                            {t("noEpisodes")}
                                         </AlertDescription>
                                     </Alert>
                                 )}
@@ -753,7 +754,7 @@ export default function MovieDetail() {
                                 <CardHeader className="border-b border-white/5 bg-white/5">
                                     <CardTitle className="text-lg flex items-center gap-2">
                                         <Play className="h-5 w-5 text-primary fill-current" />
-                                        Watch Movie
+                                        {t("watchMovie")}
                                         {isLoadingProviders && (
                                             <RefreshCw className="h-4 w-4 animate-spin ml-auto text-muted-foreground" />
                                         )}
@@ -767,7 +768,7 @@ export default function MovieDetail() {
                                                 <div className="text-center text-white/50 space-y-4">
                                                     <RefreshCw className="h-10 w-10 mx-auto animate-spin" />
                                                     <p className="text-sm font-medium">
-                                                        Searching for streams...
+                                                        {t("searchingStreams")}
                                                     </p>
                                                 </div>
                                             ) : providerError ? (
@@ -777,14 +778,12 @@ export default function MovieDetail() {
                                                     </div>
                                                     <div className="space-y-2">
                                                         <h3 className="font-semibold text-lg">
-                                                            Stream Unavailable
+                                                            {t(
+                                                                "streamUnavailable"
+                                                            )}
                                                         </h3>
                                                         <p className="text-sm text-white/60">
-                                                            This provider is
-                                                            currently
-                                                            experiencing issues.
-                                                            Please try another
-                                                            one.
+                                                            {t("providerIssue")}
                                                         </p>
                                                     </div>
                                                     <Button
@@ -795,7 +794,7 @@ export default function MovieDetail() {
                                                         className="gap-2"
                                                     >
                                                         <RefreshCw className="h-4 w-4" />
-                                                        Try Next Provider
+                                                        {t("tryNextProvider")}
                                                     </Button>
                                                 </div>
                                             ) : streamingProviders[
@@ -945,10 +944,7 @@ export default function MovieDetail() {
                         )}
 
                         {/* Comments Section */}
-                        <FadeIn
-                            className="space-y-4 pt-4"
-                            direction="up"
-                        >
+                        <FadeIn className="space-y-4 pt-4" direction="up">
                             <h2 className="text-xl font-bold flex items-center gap-2">
                                 <MessageSquare className="h-5 w-5 text-primary" />
                                 Comments

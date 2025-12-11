@@ -7,10 +7,13 @@ import { SkeletonGrid } from "@/components/features/movie/SkeletonCard";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { useState } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translateGenre } from "@/lib/translate";
 
 export default function GenreMovies() {
     const { genre } = useParams<{ genre: string }>();
     const [currentPage, setCurrentPage] = useState(1);
+    const { language } = useLanguage();
 
     // Redirect to JAV page if genre is JAV
     if (genre?.toLowerCase() === "jav" || genre?.toLowerCase() === "hentai") {
@@ -54,7 +57,7 @@ export default function GenreMovies() {
         <div className="container mx-auto px-4 py-8">
             <div className="mb-8">
                 <h1 className="text-3xl md:text-4xl font-bold mb-2 capitalize">
-                    {genre?.replace(/-/g, " ")}
+                    {translateGenre(genre?.replace(/-/g, " ") || "", language)}
                 </h1>
                 <p className="text-muted-foreground">
                     {data?.totalItems || 0} movie

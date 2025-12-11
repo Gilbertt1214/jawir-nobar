@@ -1,7 +1,10 @@
 import { Film } from "lucide-react";
 import { Link } from "react-router-dom";
 
+import { useLanguage } from "@/contexts/LanguageContext";
+
 export function Footer() {
+    const { t } = useLanguage();
     const currentYear = new Date().getFullYear();
 
     return (
@@ -11,7 +14,7 @@ export function Footer() {
                     {/* Left Side - Brand */}
                     <div className="flex items-center gap-1.5 sm:gap-2">
                         <Film className="h-3 w-3 text-primary" />
-                        <span>jawiracademy &copy; {currentYear}</span>
+                        <span>{t('copyright')?.replace('{year}', String(currentYear))}</span>
                     </div>
 
                     {/* Right Side - Legal */}
@@ -20,10 +23,10 @@ export function Footer() {
                             href="#"
                             className="hover:text-primary transition-colors"
                         >
-                            Terms
+                            {t('terms')}
                         </a>
                         <span>•</span>
-                        <span>v1.0</span>
+                        <span>{t('version')}</span>
                     </div>
                 </div>
             </div>

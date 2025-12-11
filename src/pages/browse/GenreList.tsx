@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { translateGenre } from "@/lib/translate";
 
 export default function GenreList() {
     const {
@@ -17,7 +18,7 @@ export default function GenreList() {
         queryFn: () => movieAPI.getAllGenres(),
     });
 
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
 
     if (isLoading) {
         return (
@@ -44,7 +45,7 @@ export default function GenreList() {
                     <Alert variant="destructive">
                         <AlertCircle className="h-4 w-4" />
                         <AlertDescription>
-                            {t('failedToLoadGenres')}
+                            {t("failedToLoadGenres")}
                         </AlertDescription>
                     </Alert>
                 </div>
@@ -57,7 +58,7 @@ export default function GenreList() {
             <div className="container mx-auto px-4 py-10 md:py-12">
                 {/* Title */}
                 <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-10 md:mb-12">
-                    {t('browseByGenre')}
+                    {t("browseByGenre")}
                 </h1>
 
                 {/* Genre Grid */}
@@ -82,7 +83,7 @@ export default function GenreList() {
                             <div className="flex items-center gap-3 px-5 py-4 bg-card border border-border rounded-lg transition-all duration-300 hover:border-foreground hover:shadow-[4px_4px_0px_#000] dark:hover:shadow-[4px_4px_0px_#fff] group">
                                 <Film className="w-5 h-5 text-primary flex-shrink-0 group-hover:scale-110 transition-transform duration-300" />
                                 <span className="font-semibold text-foreground group-hover:text-primary transition-colors duration-300">
-                                    {genre}
+                                    {translateGenre(genre, language)}
                                 </span>
                             </div>
                         </Link>
@@ -92,7 +93,7 @@ export default function GenreList() {
                 {/* Footer Info */}
                 <div className="mt-12 text-center">
                     <p className="text-muted-foreground text-sm">
-                        {t('selectGenreHint')}
+                        {t("selectGenreHint")}
                     </p>
                 </div>
             </div>
