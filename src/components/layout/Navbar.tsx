@@ -164,7 +164,7 @@ export function Navbar() {
                             variant="ghost"
                             size="icon"
                             onClick={toggleLanguage}
-                            className="h-9 w-9 rounded-full hover:bg-secondary text-foreground/80"
+                            className="h-9 w-9 rounded-full hover:bg-primary/20 hover:text-primary transition-all text-foreground/80"
                             title={language === 'en' ? 'Switch to Indonesian' : 'Switch to English'}
                         >
                             <Globe className="h-4 w-4" />

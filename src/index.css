@@ -124,7 +124,7 @@ All colors MUST be HSL.
         -webkit-text-size-adjust: 100%;
         -ms-text-size-adjust: 100%;
 
-        scroll-padding-top: 80px; /* Account for fixed navbar */
+        scroll-padding-top: 80px; 
     }
 
     html.lenis, html.lenis body {
