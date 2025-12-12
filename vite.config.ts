@@ -1,7 +1,7 @@
 import { defineConfig, type ConfigEnv } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import * as path from "path";
-import { componentTagger } from "lovable-tagger";
+
 
 // Helper untuk menambahkan TMDB API key ke path
 const appendTmdbApiKey = (urlPath: string): string => {
@@ -94,14 +94,9 @@ export default defineConfig((env: ConfigEnv) => ({
                 "/anime",
                 "Sanka Anime"
             ),
-            "/tv": createTmdbProxy(),
-            "/movie": createTmdbProxy(),
-            "/search": createTmdbProxy(),
         },
     },
-    plugins: [react(), env.mode === "development" && componentTagger()].filter(
-        Boolean
-    ),
+    plugins: [react()],
     resolve: {
         alias: {
             "@": path.resolve(__dirname, "./src"),
