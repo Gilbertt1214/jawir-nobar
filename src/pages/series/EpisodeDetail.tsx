@@ -1,4 +1,9 @@
-import { useParams, useSearchParams, Link } from "react-router-dom";
+import {
+    useParams,
+    useSearchParams,
+    Link,
+    useNavigate,
+} from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { movieAPI, type StreamingProvider, type Episode } from "@/services/api";
 import { Button } from "@/components/ui/button";
@@ -21,8 +26,9 @@ import {
 import { useState, useEffect, useMemo } from "react";
 
 export default function EpisodeDetail() {
-    const { seriesId } = useParams();
+    const { id: seriesId } = useParams();
     const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
     const seasonFromUrl = searchParams.get("season");
     const episodeFromUrl = searchParams.get("episode");
 

@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { movieAPI } from "@/services/api";
 import { Button } from "@/components/ui/button";
@@ -22,11 +22,52 @@ import { useLanguage } from "@/contexts/LanguageContext";
 type TabType = "ongoing" | "complete";
 
 export default function AnimeList() {
-    const [searchQuery, setSearchQuery] = useState("");
-    const [page, setPage] = useState(1);
-    const [activeTab, setActiveTab] = useState<TabType>("ongoing");
+    const [searchParams, setSearchParams] = useSearchParams();
+    
+    // Derived state from URL params
+    const searchQuery = searchParams.get("q") || "";
+    const activeTab = (searchParams.get("tab") as TabType) || "ongoing";
+    const page = parseInt(searchParams.get("page") || "1");
+
     const [apiStatus, setApiStatus] = useState<boolean | null>(null);
     const { t } = useLanguage();
+
+    const setPage = (newPage: number | ((prev: number) => number)) => {
+        setSearchParams(prev => {
+            const current = parseInt(prev.get("page") || "1");
+            const val = typeof newPage === 'function' ? newPage(current) : newPage;
+            const next = new URLSearchParams(prev);
+            next.set("page", String(val));
+            if (activeTab) next.set("tab", activeTab);
+            if (searchQuery) next.set("q", searchQuery);
+            return next;
+        });
+    };
+
+    const handleSearchChange = (val: string) => {
+        setSearchParams(prev => {
+            const next = new URLSearchParams(prev);
+            if (val) {
+                next.set("q", val);
+            } else {
+                next.delete("q");
+            }
+            // Reset page on search
+            next.delete("page");
+            if (activeTab) next.set("tab", activeTab);
+            return next;
+        });
+    };
+
+    const handleTabChange = (val: string) => {
+        setSearchParams(prev => {
+            const next = new URLSearchParams(prev);
+            next.set("tab", val);
+            next.set("page", "1"); // Reset page when tab changes
+            if (searchQuery) next.set("q", searchQuery);
+            return next;
+        });
+    };
 
     // Check API status on mount
     useEffect(() => {
@@ -143,10 +184,7 @@ export default function AnimeList() {
                 {/* Tabs */}
                 <Tabs
                     value={activeTab}
-                    onValueChange={(v) => {
-                        setActiveTab(v as TabType);
-                        setPage(1); // Reset page when tab changes
-                    }}
+                    onValueChange={handleTabChange}
                     className="mb-6"
                 >
                     <TabsList className="bg-secondary border border-border">
@@ -175,7 +213,7 @@ export default function AnimeList() {
                             type="text"
                             placeholder={t('searchAnime')}
                             value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onChange={(e) => handleSearchChange(e.target.value)}
                             className="pl-12 py-6 text-base rounded-xl border-border bg-secondary text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary"
                         />
                     </div>
@@ -239,6 +277,7 @@ export default function AnimeList() {
                                             key={`${
                                                 item.slug || item.id
                                             }-${index}`}
+                                            // Handle various Item types (some map to .id, some to .slug)
                                             to={`/anime/${
                                                 item.slug || item.id
                                             }`}

@@ -6,7 +6,6 @@ import { Pagination } from "@/components/common/Pagination";
 import { SkeletonGrid } from "@/components/features/movie/SkeletonCard";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Search as SearchIcon, Film, Tv } from "lucide-react";
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -15,10 +14,12 @@ type SearchCategory = "all" | "movies" | "series";
 
 export default function Search() {
     const { t } = useLanguage();
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
+    
+    // Get state from URL params
     const query = searchParams.get("q") || "";
-    const [currentPage, setCurrentPage] = useState(1);
-    const [activeCategory, setActiveCategory] = useState<SearchCategory>("all");
+    const currentPage = parseInt(searchParams.get("page") || "1");
+    const activeCategory = (searchParams.get("category") as SearchCategory) || "all";
 
     // Search Movies & Series (TMDB only - anime removed from general search)
     const {
@@ -69,12 +70,23 @@ export default function Search() {
     const displayData = getDisplayData();
 
     const handleCategoryChange = (category: SearchCategory) => {
-        setActiveCategory(category);
-        setCurrentPage(1);
+        setSearchParams(prev => {
+            const newParams = new URLSearchParams(prev);
+            newParams.set("category", category);
+            newParams.set("page", "1"); // Reset to page 1 on category change
+            if (query) newParams.set("q", query); // Preserve query
+            return newParams;
+        });
     };
 
     const handlePageChange = (page: number) => {
-        setCurrentPage(page);
+        setSearchParams(prev => {
+            const newParams = new URLSearchParams(prev);
+            newParams.set("page", String(page));
+            if (activeCategory) newParams.set("category", activeCategory); // Preserve category
+            if (query) newParams.set("q", query); // Preserve query
+            return newParams;
+        });
         window.scrollTo({ top: 0, behavior: "smooth" });
     };
 

@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Star, Play } from "lucide-react";
 import { Movie } from "@/services/api";
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,9 +14,14 @@ import { translateCountry } from "@/lib/translate";
 
 export function MovieCard({ movie, index = 0 }: MovieCardProps) {
     const { t, language } = useLanguage();
+    const location = useLocation();
+
     return (
         <div className="block group/card">
-            <Link to={`/${movie.type}/${movie.slug || movie.id}`}>
+            <Link 
+                to={`/${movie.type}/${movie.slug || movie.id}`}
+                state={{ from: location }}
+            >
                 <Card className="overflow-hidden border-0 bg-transparent shadow-none group/card">
                     <div className="relative aspect-[2/3] overflow-hidden rounded-xl bg-muted shadow-card transition-all duration-300 ease-out group-hover/card:scale-105 group-hover/card:shadow-lg">
                         {/* Image with fallback */}
