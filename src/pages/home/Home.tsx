@@ -181,7 +181,7 @@ export default function Home() {
         <div className="min-h-screen bg-background pb-20">
             {/* Hero Section */}
             <section
-                className="relative min-h-[500px] h-[80vh] md:h-[85vh] w-full overflow-hidden"
+                className="relative min-h-[500px] h-[80vh] md:h-[85vh] w-full overflow-hidden -mt-[72px] sm:-mt-24 lg:-mt-28"
                 style={{ isolation: "isolate", contain: "layout paint" }}
             >
                 {/* Background Images - No Parallax */}
@@ -201,13 +201,13 @@ export default function Home() {
                                     <>
                                         <img
                                             src={item.cover}
-                                            className="w-full h-full object-cover"
+                                            className="w-full h-full object-cover object-top"
                                             alt={item.title}
                                             loading={
                                                 idx === 0 ? "eager" : "lazy"
                                             }
                                         />
-                                        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent" />
+                                        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/40 to-transparent" />
                                         <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
                                     </>
                                 ) : (

@@ -308,14 +308,14 @@ export default function MovieDetail() {
     return (
         <div className="min-h-screen bg-background pb-20">
             {/* Backdrop */}
-            <div className="relative h-[40vh] sm:h-[50vh] md:h-[60vh] -mt-16 sm:-mt-20 overflow-hidden">
+            <div className="relative h-[40vh] sm:h-[50vh] md:h-[60vh] -mt-[72px] sm:-mt-24 lg:-mt-28 overflow-hidden">
                 <ScaleIn className="absolute inset-0 h-full w-full">
                     <div
                         className="w-full h-full bg-cover bg-center"
                         style={{
-                            backgroundImage: movie.cover
-                                ? `url(${movie.cover})`
-                                : "none",
+                            backgroundImage: `url(${
+                                movie.backdrops?.[0] || movie.cover
+                            })`,
                         }}
                     >
                         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/20" />

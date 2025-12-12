@@ -1,8 +1,9 @@
 import { Link, useLocation, useParams } from "react-router-dom";
-import { ChevronRight, Home } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translateGenre, translateCountry } from "@/lib/translate";
 import { getCountryName } from "@/lib/countries";
+import { cn } from "@/lib/utils";
 
 interface BreadcrumbItem {
     label: string;
@@ -164,13 +165,21 @@ export function Breadcrumb() {
     // Pages with backdrop that need absolute positioning overlay
     const backdropPages = ["movie", "series", "anime", "hentai"];
     const firstSegment = pathSegments[0]?.toLowerCase();
+
+    // Check for watch/playback routes which typically use standard container layout
+    // These pages do NOT have a hero backdrop, so they need relative positioning
+    const isPlaybackRoute =
+        pathSegments.includes("watch") || pathSegments.includes("episodes");
+
     const hasBackdrop =
-        backdropPages.includes(firstSegment) && pathSegments.length >= 2;
+        backdropPages.includes(firstSegment) &&
+        pathSegments.length >= 2 &&
+        !isPlaybackRoute;
 
     // Use absolute positioning for backdrop pages to overlay cleanly
     // Use relative for others to avoid overlap
     const navClassName = hasBackdrop
-        ? "absolute top-20 left-0 w-full z-40 px-4 pointer-events-none" // pointer-events-none allows clicking through empty space
+        ? "absolute top-20 sm:top-28 lg:top-32 left-0 w-full z-40 px-4 pointer-events-none" // pointer-events-none allows clicking through empty space
         : "relative w-full z-30 px-4 py-4 md:py-6";
 
     return (
@@ -179,7 +188,7 @@ export function Breadcrumb() {
             className={navClassName}
         >
             <div className={`container mx-auto ${hasBackdrop ? "pointer-events-auto" : ""}`}>
-                <ol className="flex items-center flex-wrap gap-2 text-sm md:text-base font-medium shadow-sm">
+                <ol className="flex items-center flex-wrap gap-2 text-sm md:text-base font-medium transition-all duration-300">
                     {breadcrumbs.map((item, index) => (
                         <li
                             key={`${item.path}-${index}`}
@@ -189,16 +198,16 @@ export function Breadcrumb() {
                                 <ChevronRight className="h-4 w-4 mx-2 text-muted-foreground/60 flex-shrink-0 stroke-[1.5]" />
                             )}
                             {item.isActive ? (
-                                <span className={`truncate max-w-[200px] md:max-w-[400px] ${hasBackdrop ? "text-white/90 drop-shadow-md" : "text-foreground"}`}>
+                                <span className={`truncate max-w-[200px] md:max-w-[400px] text-foreground ${hasBackdrop ? "drop-shadow-md" : ""}`}>
                                     {item.label}
                                 </span>
                             ) : (
                                 <Link
                                     to={item.path}
-                                    className={`transition-colors flex items-center gap-1.5 hover:underline decoration-2 underline-offset-4 ${
+                                    className={`transition-colors flex items-center gap-1.5 hover:underline decoration-2 underline-offset-4 text-foreground/80 hover:text-primary ${
                                         hasBackdrop 
-                                            ? "text-white/70 hover:text-white drop-shadow-md" 
-                                            : "text-muted-foreground hover:text-primary"
+                                            ? "drop-shadow-md" 
+                                            : ""
                                     }`}
                                 >
                                     {item.label}

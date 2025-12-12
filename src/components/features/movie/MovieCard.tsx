@@ -22,7 +22,7 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
                 to={`/${movie.type}/${movie.slug || movie.id}`}
                 state={{ from: location }}
             >
-                <Card className="overflow-hidden border-0 bg-transparent shadow-none group/card">
+                <Card className="overflow-hidden rounded-xl border border-black/10 bg-black/5 shadow-sm dark:border-0 dark:bg-transparent dark:shadow-none group/card">
                     <div className="relative aspect-[2/3] overflow-hidden rounded-xl bg-muted shadow-card transition-all duration-300 ease-out group-hover/card:scale-105 group-hover/card:shadow-lg">
                         {/* Image with fallback */}
                         <img
