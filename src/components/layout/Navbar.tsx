@@ -20,7 +20,7 @@ import {
     SheetTrigger,
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-import { ModeToggle } from "@/components/mode-toggle";
+import { ModeToggle } from "@/components/ModeToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "sonner";
 
