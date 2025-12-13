@@ -137,7 +137,7 @@ export async function translateBatch(
         }
     }
 
-    // Translate uncached texts
+   
     if (toTranslate.length > 0) {
         // Translate in parallel with rate limiting
         const batchSize = 5;
@@ -155,7 +155,7 @@ export async function translateBatch(
     return results;
 }
 
-// Pre-defined translations for common terms (faster than API)
+
 const GENRE_TRANSLATIONS: Record<string, string> = {
     Action: "Aksi",
     Adventure: "Petualangan",
