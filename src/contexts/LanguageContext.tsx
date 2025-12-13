@@ -19,7 +19,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
         return stored;
       }
     }
-    return 'en'; // Default to English
+    return 'en'; 
   });
 
   useEffect(() => {

@@ -1,9 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 
-// Firebase configuration
-// For development/testing without real credentials, this might throw errors
-// The user needs to provide these values in .env
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -17,6 +14,5 @@ if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
   console.warn('Firebase configuration is missing or incomplete. Check your .env file.');
 }
 
-// Initialize Firebase
 export const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);

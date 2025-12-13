@@ -3,7 +3,7 @@ import { ReactNode } from "react";
 
 interface ParallaxWrapperProps {
     children: ReactNode;
-    speed?: number; // Multiplier for parallax effect (0.5 = half speed, 2 = double speed)
+    speed?: number; 
     className?: string;
 }
 

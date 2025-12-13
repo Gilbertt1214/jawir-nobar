@@ -3,8 +3,8 @@ import { motion } from "framer-motion";
 interface StaggeredTextProps {
     text: string;
     className?: string;
-    delay?: number; // Delay before animation starts
-    staggerDelay?: number; // Delay between each word
+    delay?: number; 
+    staggerDelay?: number; 
 }
 
 export function StaggeredText({ 

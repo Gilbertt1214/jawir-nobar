@@ -109,9 +109,6 @@ export async function translateText(
     }
 }
 
-/**
- * Translate multiple texts in batch (more efficient)
- */
 export async function translateBatch(
     texts: string[],
     targetLang: string = "id"
@@ -121,7 +118,6 @@ export async function translateBatch(
     const results: string[] = [];
     const toTranslate: { index: number; text: string }[] = [];
 
-    // Check cache first
     for (let i = 0; i < texts.length; i++) {
         const text = texts[i];
         if (!text || text.trim() === "") {
@@ -139,7 +135,6 @@ export async function translateBatch(
 
    
     if (toTranslate.length > 0) {
-        // Translate in parallel with rate limiting
         const batchSize = 5;
         for (let i = 0; i < toTranslate.length; i += batchSize) {
             const batch = toTranslate.slice(i, i + batchSize);
@@ -261,9 +256,6 @@ const COUNTRY_TRANSLATIONS: Record<string, string> = {
     Mongolia: "Mongolia",
 };
 
-/**
- * Translate genre name (uses pre-defined translations for speed)
- */
 export function translateGenre(
     genre: string,
     targetLang: string = "id"
@@ -272,9 +264,6 @@ export function translateGenre(
     return GENRE_TRANSLATIONS[genre] || genre;
 }
 
-/**
- * Translate country name (uses pre-defined translations for speed)
- */
 export function translateCountry(
     country: string,
     targetLang: string = "id"
@@ -283,9 +272,7 @@ export function translateCountry(
     return COUNTRY_TRANSLATIONS[country] || country;
 }
 
-/**
- * Translate array of genres
- */
+
 export function translateGenres(
     genres: string[],
     targetLang: string = "id"
@@ -294,9 +281,7 @@ export function translateGenres(
     return genres.map((g) => translateGenre(g, targetLang));
 }
 
-/**
- * Clear translation cache
- */
+
 export function clearTranslationCache(): void {
     memoryCache = {};
     localStorage.removeItem(TRANSLATE_CACHE_KEY);
