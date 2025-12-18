@@ -30,7 +30,7 @@ export default function Home() {
     // Anime filters
     const [animeType, setAnimeType] = useState<"all" | "tv" | "movie">("all");
     const [animeAudio, setAnimeAudio] = useState<"all" | "sub" | "dub">("all");
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
 
     // Data queries
     const {
@@ -38,7 +38,7 @@ export default function Home() {
         isLoading: loadingLatest,
         error: errorLatest,
     } = useQuery({
-        queryKey: ["latest-movies", 1],
+        queryKey: ["latest-movies", 1, language],
         queryFn: () => movieAPI.getLatestMovies(1),
     });
 
@@ -47,7 +47,7 @@ export default function Home() {
         isLoading: loadingPopular,
         error: errorPopular,
     } = useQuery({
-        queryKey: ["popular-movies", 1],
+        queryKey: ["popular-movies", 1, language],
         queryFn: () => movieAPI.getPopularMovies(1),
     });
 
@@ -56,7 +56,7 @@ export default function Home() {
         isLoading: loadingSeries,
         error: errorSeries,
     } = useQuery({
-        queryKey: ["latest-series", 1],
+        queryKey: ["latest-series", 1, language],
         queryFn: () => movieAPI.getLatestSeries(1),
     });
 
@@ -65,7 +65,7 @@ export default function Home() {
         isLoading: loadingAnime,
         error: errorAnime,
     } = useQuery({
-        queryKey: ["anime", 1, animeType, animeAudio],
+        queryKey: ["anime", 1, animeType, animeAudio, language],
         queryFn: () =>
             movieAPI.getAnime(1, {
                 type: animeType,
@@ -78,7 +78,7 @@ export default function Home() {
         isLoading: loadingIndo,
         error: errorIndo,
     } = useQuery({
-        queryKey: ["indo-movies", 1],
+        queryKey: ["indo-movies", 1, language],
         queryFn: () => movieAPI.getIndonesianMovies(1),
     });
 
@@ -87,7 +87,7 @@ export default function Home() {
         isLoading: loadingKDrama,
         error: errorKDrama,
     } = useQuery({
-        queryKey: ["korean-drama", 1],
+        queryKey: ["korean-drama", 1, language],
         queryFn: () => movieAPI.getKoreanDrama(1),
     });
 
@@ -96,13 +96,13 @@ export default function Home() {
         isLoading: loadingAdult,
         error: errorAdult,
     } = useQuery({
-        queryKey: ["adult-movies", 1],
+        queryKey: ["adult-movies", 1, language],
         queryFn: () => movieAPI.getAdultMovies(1),
     });
 
     // Ongoing Anime Query (Scraper)
     const { data: ongoingAnime, isLoading: loadingOngoing } = useQuery({
-        queryKey: ["ongoing-anime"],
+        queryKey: ["ongoing-anime", language],
         queryFn: () => movieAPI.getOngoingAnimeList(),
     });
 

@@ -1,6 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { movieAPI } from "@/services/api";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -48,6 +49,7 @@ export default function HentaiWatch() {
     const [selectedProvider, setSelectedProvider] = useState(0);
     const [providerError, setProviderError] = useState(false);
     const [activeTab, setActiveTab] = useState<"stream" | "download">("stream");
+    const { t, language } = useLanguage();
 
     // Fetch hentai detail
     const {
@@ -55,7 +57,7 @@ export default function HentaiWatch() {
         isLoading,
         error,
     } = useQuery({
-        queryKey: ["hentaiWatch", id],
+        queryKey: ["hentaiWatch", id, language],
         queryFn: async () => {
             if (!id) return null;
             return await movieAPI.getNekopoiDetail(id);
@@ -65,7 +67,7 @@ export default function HentaiWatch() {
 
     // Fetch all hentai to find related episodes for navigation
     const { data: allHentai } = useQuery({
-        queryKey: ["allHentaiForNav"],
+        queryKey: ["allHentaiForNav", language],
         queryFn: async () => {
             const pages = [1, 2, 3, 4, 5];
             const results = await Promise.all(
@@ -136,14 +138,14 @@ export default function HentaiWatch() {
     const streamingProviders = useMemo(() => {
         const providers =
             hentaiDetail?.streamLinks?.map((link) => ({
-                name: `${link.provider || "Stream"} (${link.quality || "HD"})`,
+                name: `${link.provider || t('stream')} (${link.quality || "HD"})`,
                 url: link.url,
                 available: true,
             })) || [];
 
         if (providers.length === 0) {
             providers.push({
-                name: "No stream available",
+                name: t('streamUnavailable'),
                 url: "#",
                 available: false,
             });
@@ -155,14 +157,14 @@ export default function HentaiWatch() {
     const downloadProviders = useMemo(() => {
         const providers =
             hentaiDetail?.downloadLinks?.map((link) => ({
-                name: `${link.type || "Download"} (${link.quality || "HD"})`,
+                name: `${link.type || t('download')} (${link.quality || "HD"})`,
                 url: link.url,
                 available: true,
             })) || [];
 
         if (providers.length === 0) {
             providers.push({
-                name: "No download available",
+                name: t('noDownloadAvailable'),
                 url: "#",
                 available: false,
             });
@@ -244,7 +246,7 @@ export default function HentaiWatch() {
                         </h1>
                         <div className="flex items-center gap-2">
                             <Badge className="bg-primary text-white">
-                                Episode {currentEpisodeNum}
+                                {t('episode')} {currentEpisodeNum}
                             </Badge>
                             {hentaiDetail.genre?.slice(0, 3).map((g, i) => (
                                 <Badge
@@ -271,7 +273,7 @@ export default function HentaiWatch() {
                                     : ""
                             }
                         >
-                            Stream
+                            {t('stream')}
                         </Button>
                         <Button
                             variant={
@@ -285,7 +287,7 @@ export default function HentaiWatch() {
                             }
                         >
                             <Download className="h-4 w-4 mr-2" />
-                            Download
+                            {t('download')}
                         </Button>
                     </div>
 
@@ -298,7 +300,7 @@ export default function HentaiWatch() {
                                     onValueChange={handleProviderChange}
                                 >
                                     <SelectTrigger className="w-full sm:w-[300px]">
-                                        <SelectValue placeholder="Pilih server" />
+                                        <SelectValue placeholder={t('selectServer')} />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {streamingProviders.map(
@@ -321,7 +323,7 @@ export default function HentaiWatch() {
                                         onClick={handleRefresh}
                                     >
                                         <RefreshCw className="h-4 w-4 mr-1" />
-                                        Refresh
+                                        {t('refresh')}
                                     </Button>
                                     <Button
                                         variant="outline"
@@ -338,7 +340,7 @@ export default function HentaiWatch() {
                                         }
                                     >
                                         <ExternalLink className="h-4 w-4 mr-1" />
-                                        Tab Baru
+                                        {t('newTab')}
                                     </Button>
                                 </div>
                             </div>
@@ -353,16 +355,15 @@ export default function HentaiWatch() {
                                         <div className="space-y-2">
                                             <h3 className="font-semibold text-lg">
                                                 {isBlocked
-                                                    ? "Player Eksternal Diperlukan"
-                                                    : "Player Gagal Dimuat"}
+                                                    ? t('externalPlayerRequired')
+                                                    : t('playerFailedToLoad')}
                                             </h3>
                                             <p className="text-sm text-muted-foreground">
                                                 {isBlocked
-                                                    ? "Server ini tidak mengizinkan pemutaran langsung di dalam website (diblokir oleh penyedia video)."
-                                                    : "Terjadi kesalahan saat memuat player atau diblokir oleh browser."}
+                                                    ? t('serverBlockedDirectPlay')
+                                                    : t('playerErrorOrBlocked')}
                                                 <br />
-                                                Silakan tonton langsung di tab
-                                                baru.
+                                                {t('watchInNewTab')}
                                             </p>
                                         </div>
                                         <Button
@@ -375,7 +376,7 @@ export default function HentaiWatch() {
                                             }
                                         >
                                             <Play className="h-4 w-4 mr-2 fill-current" />
-                                            Buka Player
+                                            {t('openPlayer')}
                                         </Button>
                                     </div>
                                 </div>
@@ -395,7 +396,7 @@ export default function HentaiWatch() {
                             ) : (
                                 <div className="relative aspect-video bg-muted flex items-center justify-center rounded-lg">
                                     <p className="text-muted-foreground">
-                                        Stream tidak tersedia
+                                        {t('streamUnavailable')}
                                     </p>
                                 </div>
                             )}
@@ -407,8 +408,7 @@ export default function HentaiWatch() {
                             <Alert>
                                 <AlertCircle className="h-4 w-4" />
                                 <AlertDescription>
-                                    Klik tombol download untuk membuka link di
-                                    tab baru.
+                                    {t('clickDownloadToOpen')}
                                 </AlertDescription>
                             </Alert>
                             <div className="grid gap-2">
@@ -435,7 +435,7 @@ export default function HentaiWatch() {
                                             }
                                         >
                                             <Download className="h-3 w-3 mr-1" />
-                                            Download
+                                            {t('download')}
                                         </Button>
                                     </div>
                                 ))}
@@ -449,7 +449,7 @@ export default function HentaiWatch() {
                             <Button asChild variant="outline" className="gap-2">
                                 <Link to={`/hentai/watch/${prevEpisode.id}`}>
                                     <ChevronLeft className="h-4 w-4" />
-                                    Episode{" "}
+                                    {t('episode')}{" "}
                                     {extractEpisodeNumber(prevEpisode.title)}
                                 </Link>
                             </Button>
@@ -463,7 +463,7 @@ export default function HentaiWatch() {
                                 className="bg-primary hover:bg-primary gap-2"
                             >
                                 <Link to={`/hentai/watch/${nextEpisode.id}`}>
-                                    Episode{" "}
+                                    {t('episode')}{" "}
                                     {extractEpisodeNumber(nextEpisode.title)}
                                     <ChevronRight className="h-4 w-4" />
                                 </Link>

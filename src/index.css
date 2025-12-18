@@ -109,7 +109,7 @@
     html {
         font-size: 100%; /* Ensure standard 16px base */
         -webkit-text-size-adjust: 100%;
-        -ms-text-size-adjust: 100%;
+        text-size-adjust: 100%;
     }
 
     body {
@@ -127,7 +127,6 @@
     video {
         @apply select-none max-w-full h-auto;
         -webkit-user-drag: none;
-        -webkit-touch-callout: none;
     }
 
     html.lenis, html.lenis body {
@@ -189,7 +188,10 @@
     }
 
     .text-gradient {
-        @apply bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/60;
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        @apply text-transparent bg-gradient-to-r from-foreground to-foreground/60;
     }
 
     .text-gradient-primary {

@@ -7,13 +7,15 @@ import { SkeletonGrid } from '@/components/features/movie/SkeletonCard';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { useState } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function YearMovies() {
   const { year } = useParams<{ year: string }>();
   const [currentPage, setCurrentPage] = useState(1);
+  const { language } = useLanguage();
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['year-movies', year, currentPage],
+    queryKey: ['year-movies', year, currentPage, language],
     queryFn: () => movieAPI.getMoviesByYear(year!, currentPage),
     enabled: !!year,
   });

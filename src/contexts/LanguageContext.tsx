@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { translations, TranslationKey, Language } from '@/lib/translations';
+import { movieAPI } from '@/services/api';
 
 interface LanguageContextType {
   language: Language;
@@ -16,7 +17,9 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored === 'en' || stored === 'id') {
-        return stored;
+        const lang = stored as Language;
+        movieAPI.setLanguage(lang); // Sync initial language
+        return lang;
       }
     }
     return 'en'; 
@@ -24,6 +27,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, language);
+    movieAPI.setLanguage(language);
   }, [language]);
 
   const setLanguage = (lang: Language) => {

@@ -21,7 +21,7 @@ export default function GenreMovies() {
     }
 
     const { data, isLoading, error } = useQuery({
-        queryKey: ["genre-movies", genre, currentPage],
+        queryKey: ["genre-movies", genre, currentPage, language],
         queryFn: () => movieAPI.getMoviesByGenre(genre!, currentPage),
         enabled: !!genre,
     });

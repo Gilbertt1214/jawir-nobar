@@ -30,7 +30,7 @@ export default function AnimeList() {
     const page = parseInt(searchParams.get("page") || "1");
 
     const [apiStatus, setApiStatus] = useState<boolean | null>(null);
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
 
     const setPage = (newPage: number | ((prev: number) => number)) => {
         setSearchParams(prev => {
@@ -88,7 +88,7 @@ export default function AnimeList() {
         isLoading: loadingOngoing,
         refetch: refetchOngoing,
     } = useQuery({
-        queryKey: ["ongoingAnime"],
+        queryKey: ["ongoingAnime", language],
         queryFn: () => movieAPI.getOngoingAnimeList(),
         enabled: activeTab === "ongoing" && !searchQuery,
     });
@@ -99,14 +99,14 @@ export default function AnimeList() {
         isLoading: loadingComplete,
         refetch: refetchComplete,
     } = useQuery({
-        queryKey: ["allAnimePaginated", page],
+        queryKey: ["allAnimePaginated", page, language],
         queryFn: () => movieAPI.getAllAnimePaginated(page, 24), // 24 items per page
         enabled: activeTab === "complete" && !searchQuery,
     });
 
     // Search anime
     const { data: searchResults, isLoading: loadingSearch } = useQuery({
-        queryKey: ["searchAnimeOtakudesu", searchQuery],
+        queryKey: ["searchAnimeOtakudesu", searchQuery, language],
         queryFn: () => movieAPI.searchAnimeOtakudesu(searchQuery),
         enabled: searchQuery.length > 2,
     });

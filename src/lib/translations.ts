@@ -8,7 +8,6 @@ export const translations = {
     loadingAnimeThumbnails: "Loading anime and thumbnails... (may take a moment)",
     error: "Error",
     retry: "Retry",
-    viewAll: "View All",
     search: "Search...",
     home: "Home",
     online: "Online",
@@ -51,8 +50,9 @@ export const translations = {
     selectYearHint: "Select a year to find movies and series released in that year.",
     
     // Player
-    watchNow: "Watch Now",
     selectServer: "Select server",
+    stream: "Stream",
+    download: "Download",
     
     // Anime/Hentai
     episodes: "Episodes",
@@ -98,7 +98,6 @@ export const translations = {
     ongoingAnime: "Ongoing Anime",
     indonesianMovies: "Indonesian Movies",
     koreanDrama: "Korean Drama",
-    romance: "Romance",
     
     // Footer
     copyright: "jawiracademy © {year}",
@@ -128,6 +127,14 @@ export const translations = {
     streamUnavailable: "Stream Unavailable",
     providerIssue: "This provider is currently experiencing issues. Please try another one.",
     tryNextProvider: "Try Next Provider",
+    episodeProgress: "Episode Progress",
+    of: "of",
+    goToSeries: "Go to Series",
+    previousEpisode: "Previous Episode",
+    nextEpisode: "Next Episode",
+    animeStreamDisclaimer: "If the video cannot be played, try refreshing the player or opening it in a new tab. Stream provided by Otakudesu.",
+    noStreamAvailableEpisode: "No streaming available for this episode. Make sure the episode slug is valid.",
+    failedToLoadEpisode: "Failed to load episode. Episode might not be available on Otakudesu.",
     
     // 404
     error404: "404",
@@ -174,10 +181,23 @@ export const translations = {
     // Breadcrumbs
     breadcrumbHome: "Home",
     breadcrumbDetail: "Detail",
-    breadcrumbPencarian: "Search",
-
-    // Extras
     remaining: "remaining",
+
+    // Hentai specific
+    randomPick: "Random Pick for You!",
+    noContentAvailable: "No content available yet",
+    thirdPartySource: "Content provided by third parties. This site does not store any files.",
+    showingTitles: "Showing {count} titles from page {page}",
+    noDownloadAvailable: "No download available",
+    failedToLoadVideo: "Failed to load video. Content might be unavailable.",
+    newTab: "New Tab",
+    externalPlayerRequired: "External Player Required",
+    playerFailedToLoad: "Player Failed to Load",
+    serverBlockedDirectPlay: "This server does not allow direct play within the website (blocked by video provider).",
+    playerErrorOrBlocked: "An error occurred while loading the player or it was blocked by the browser.",
+    watchInNewTab: "Please watch directly in a new tab.",
+    openPlayer: "Open Player",
+    clickDownloadToOpen: "Click the download button to open the link in a new tab.",
   },
   id: {
     // Common
@@ -188,7 +208,6 @@ export const translations = {
     loadingAnimeThumbnails: "Memuat anime dan thumbnail... (mungkin butuh waktu)",
     error: "Error",
     retry: "Coba Lagi",
-    viewAll: "Lihat Semua",
     search: "Cari...",
     home: "Beranda",
     online: "Online",
@@ -231,8 +250,9 @@ export const translations = {
     selectYearHint: "Pilih tahun untuk menemukan film dan series yang dirilis pada tahun tersebut.",
     
     // Player
-    watchNow: "Tonton Sekarang",
     selectServer: "Pilih server",
+    stream: "Streaming",
+    download: "Unduh",
     
     // Anime/Hentai
     episodes: "Episode",
@@ -278,7 +298,6 @@ export const translations = {
     ongoingAnime: "Anime Ongoing",
     indonesianMovies: "Film Indonesia",
     koreanDrama: "Drama Korea",
-    romance: "Romantis",
     
     // Footer
     copyright: "jawiracademy © {year}",
@@ -301,14 +320,21 @@ export const translations = {
     share: "Bagikan",
     season: "Season {season}",
     overview: "Ringkasan",
-    seeMoreEpisodes: "Ringkasan", // This was ringkasan in overview too, but okay
-    seeMoreEpisodes_actual: "Lihat Episode Lainnya", // Renaming to avoid conflict if I misread
+    seeMoreEpisodes: "Lihat Episode Lainnya",
     showLess: "Sembunyikan",
     watchMovie: "Tonton Film",
     searchingStreams: "Mencari link streaming...",
     streamUnavailable: "Stream Tidak Tersedia",
     providerIssue: "Penyedia ini sedang bermasalah. Silakan coba yang lain.",
     tryNextProvider: "Coba Penyedia Lain",
+    episodeProgress: "Progres Episode",
+    of: "dari",
+    goToSeries: "Ke Halaman Series",
+    previousEpisode: "Episode Sebelumnya",
+    nextEpisode: "Episode Selanjutnya",
+    animeStreamDisclaimer: "Jika video tidak bisa diputar, coba refresh player atau buka di tab baru. Stream disediakan oleh Otakudesu.",
+    noStreamAvailableEpisode: "Tidak ada streaming tersedia untuk episode ini. Pastikan slug episode valid.",
+    failedToLoadEpisode: "Gagal memuat episode. Episode mungkin tidak tersedia di Otakudesu.",
     
     // 404
     error404: "404",
@@ -355,10 +381,23 @@ export const translations = {
     // Breadcrumbs
     breadcrumbHome: "Beranda",
     breadcrumbDetail: "Detail",
-    breadcrumbPencarian: "Pencarian",
-
-    // Extras
     remaining: "tersisa",
+
+    // Hentai specific
+    randomPick: "Pilihan Acak untuk Kamu!",
+    noContentAvailable: "Belum ada konten tersedia",
+    thirdPartySource: "Konten disediakan oleh pihak ketiga. Situs ini tidak menyimpan file apapun.",
+    showingTitles: "Menampilkan {count} judul dari halaman {page}",
+    noDownloadAvailable: "Download tidak tersedia",
+    failedToLoadVideo: "Gagal memuat video. Konten mungkin tidak tersedia.",
+    newTab: "Tab Baru",
+    externalPlayerRequired: "Player Eksternal Diperlukan",
+    playerFailedToLoad: "Player Gagal Dimuat",
+    serverBlockedDirectPlay: "Server ini tidak mengizinkan pemutaran langsung di dalam website (diblokir oleh penyedia video).",
+    playerErrorOrBlocked: "Terjadi kesalahan saat memuat player atau diblokir oleh browser.",
+    watchInNewTab: "Silakan tonton langsung di tab baru.",
+    openPlayer: "Buka Player",
+    clickDownloadToOpen: "Klik tombol download untuk membuka link di tab baru.",
   },
 } as const;
 

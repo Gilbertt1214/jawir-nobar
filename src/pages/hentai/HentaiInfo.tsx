@@ -127,8 +127,8 @@ export default function HentaiInfo() {
             setName("");
             setMessage("");
             toast({
-                title: "Komentar Terkirim!",
-                description: "Terima kasih sudah berkomentar.",
+                title: t("commentSent"),
+                description: t("commentThanks"),
             });
         } catch (error) {
             console.error("Error adding comment:", error);
@@ -146,14 +146,16 @@ export default function HentaiInfo() {
         }
     };
 
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
+
+    const isNumericId = !isNaN(Number(slug));
 
     const {
         data: hentaiData,
         isLoading,
         error,
     } = useQuery({
-        queryKey: ["hentaiDetail", slug],
+        queryKey: ["hentaiDetail", slug, language],
         queryFn: async () => {
             if (!slug) return null;
             return await movieAPI.getNekopoiDetail(slug);
@@ -165,7 +167,7 @@ export default function HentaiInfo() {
     const hentaiDetail = useTranslatedMovie(hentaiData);
 
     const { data: allHentai } = useQuery({
-        queryKey: ["allHentaiForEpisodes"],
+        queryKey: ["allHentaiForEpisodes", language],
         queryFn: async () => {
             const pages = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
             const results = await Promise.all(
@@ -235,13 +237,15 @@ export default function HentaiInfo() {
                 <Alert variant="destructive" className="mb-4">
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
-                        Gagal memuat detail. Konten mungkin tidak tersedia.
+                        {isNumericId
+                            ? t("tmdbAnimeError")
+                            : t("failedToLoadAnimeDetails")}
                     </AlertDescription>
                 </Alert>
                 <Button asChild className="bg-primary hover:bg-primary">
                     <Link to="/hentai">
                         <Tv className="h-4 w-4 mr-2" />
-                        Kembali ke Daftar
+                        {t('returnHome')}
                     </Link>
                 </Button>
             </div>
@@ -332,7 +336,7 @@ export default function HentaiInfo() {
                             <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-sm">
                                 <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary">
                                     <Tv className="h-3.5 w-3.5" />
-                                    <span>{totalEpisodes} Episode</span>
+                                    <span>{totalEpisodes} {t('episodesCount')}</span>
                                 </div>
                                 {hentaiDetail.duration && (
                                     <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary border border-border/50 text-muted-foreground">
@@ -372,13 +376,13 @@ export default function HentaiInfo() {
                             <div className="space-y-2">
                                 <h2 className="text-lg font-semibold flex items-center gap-2 px-1">
                                     <span className="w-1 h-6 bg-primary rounded-full" />
-                                    Sinopsis
+                                    {t('synopsis')}
                                 </h2>
                                 <div className="relative group/synopsis">
                                     <div className="absolute inset-0 bg-primary/5 blur-2xl rounded-3xl opacity-0 group-hover/synopsis:opacity-100 transition-opacity duration-500" />
                                     <p className="relative p-5 rounded-2xl bg-card/40 backdrop-blur-md border border-white/5 text-muted-foreground leading-relaxed text-base sm:text-lg shadow-inner">
                                         {hentaiDetail.synopsis ||
-                                            "Sinopsis tidak tersedia."}
+                                            t('noCategoryFound').replace('{category}', 'Hentai')}
                                     </p>
                                 </div>
                             </div>
@@ -390,10 +394,10 @@ export default function HentaiInfo() {
                                 <div className="flex items-center justify-between">
                                     <h2 className="text-lg font-semibold flex items-center gap-2">
                                         <span className="w-1 h-6 bg-primary rounded-full" />
-                                        Daftar Episode
+                                        {t('episodeList')}
                                     </h2>
                                     <span className="text-muted-foreground text-sm">
-                                        {totalEpisodes} Episode
+                                        {totalEpisodes} {t('episodesCount')}
                                     </span>
                                 </div>
                             </FadeIn>
@@ -473,8 +477,8 @@ export default function HentaiInfo() {
                                                                         : "group-hover:text-primary"
                                                                 }`}
                                                             >
-                                                                Episode{" "}
-                                                                {episodeNum}
+                                                                    {t('episode')}{" "}
+                                                                    {episodeNum}
                                                             </h3>
                                                             <div className="flex items-center gap-2 mt-1">
                                                                 <span className="text-xs text-muted-foreground line-clamp-1">
@@ -483,8 +487,7 @@ export default function HentaiInfo() {
                                                             </div>
                                                             {isWatched && (
                                                                 <span className="text-[10px] sm:text-xs text-primary mt-1">
-                                                                    ✓ Sudah
-                                                                    ditonton
+                                                                    ✓ {t('alreadyWatched')}
                                                                 </span>
                                                             )}
                                                         </div>
@@ -584,14 +587,14 @@ export default function HentaiInfo() {
                             <div className="space-y-4 pt-10">
                                 <h2 className="text-xl font-bold flex items-center gap-2 mb-4">
                                     <MessageSquare className="h-5 w-5 text-primary" />
-                                    Komentar
+                                    {t('comments')}
                                 </h2>
                                 <Card className="bg-card/50 backdrop-blur-sm border-white/5 overflow-hidden shadow-xl">
                                     <CardContent className="p-6 space-y-8">
                                         <div className="space-y-4">
                                             <div className="grid grid-cols-1 gap-4">
                                                 <Input
-                                                    placeholder="Nama kamu"
+                                                    placeholder={t('yourName')}
                                                     value={name}
                                                     onChange={(e) =>
                                                         setName(e.target.value)
@@ -600,7 +603,7 @@ export default function HentaiInfo() {
                                                     className="bg-background/50 border-white/10 focus:border-primary/50 h-11"
                                                 />
                                                 <Textarea
-                                                    placeholder="Tulis komentar..."
+                                                    placeholder={t('writeComment')}
                                                     value={message}
                                                     onChange={(e) =>
                                                         setMessage(e.target.value)
@@ -626,12 +629,12 @@ export default function HentaiInfo() {
                                                     {isLoadingComments ? (
                                                         <>
                                                             <RefreshCw className="h-4 w-4 animate-spin" />
-                                                            Posting...
+                                                            {t('posting')}
                                                         </>
                                                     ) : (
                                                         <>
                                                             <Play className="h-3.5 w-3.5 fill-current" />
-                                                            Kirim Komentar
+                                                            {t('sendComment')}
                                                         </>
                                                     )}
                                                 </Button>
@@ -644,7 +647,7 @@ export default function HentaiInfo() {
                                                 <div className="text-center py-12">
                                                     <RefreshCw className="h-8 w-8 mx-auto animate-spin text-primary opacity-50" />
                                                     <p className="text-sm text-muted-foreground mt-4">
-                                                        Memuat komentar...
+                                                        {t('loadingComments')}
                                                     </p>
                                                 </div>
                                             ) : comments.length === 0 ? (

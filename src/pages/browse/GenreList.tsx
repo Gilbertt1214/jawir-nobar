@@ -9,16 +9,16 @@ import { useLanguage } from "@/contexts/LanguageContext"
 import { translateGenre } from "@/lib/translate"
 
 export default function GenreList() {
+  const { t, language } = useLanguage()
+
   const {
     data: genres,
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["genres"],
+    queryKey: ["genres", language],
     queryFn: () => movieAPI.getAllGenres(),
   })
-
-  const { t, language } = useLanguage()
 
   if (isLoading) {
     return (

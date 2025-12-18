@@ -10,16 +10,16 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { translateCountry } from "@/lib/translate";
 
 export default function CountryList() {
+    const { t, language } = useLanguage();
+
     const {
         data: countries,
         isLoading,
         error,
     } = useQuery({
-        queryKey: ["countries"],
+        queryKey: ["countries", language],
         queryFn: () => movieAPI.getAllCountries(),
     });
-
-    const { t, language } = useLanguage();
 
     if (isLoading) {
         return (

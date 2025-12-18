@@ -191,9 +191,12 @@ const GENRE_TRANSLATIONS: Record<string, string> = {
 
 const COUNTRY_TRANSLATIONS: Record<string, string> = {
     "United States": "Amerika Serikat",
+    "United States of America": "Amerika Serikat",
     "United Kingdom": "Inggris",
+    "Great Britain": "Britania Raya",
     Japan: "Jepang",
     "South Korea": "Korea Selatan",
+    "Republic of Korea": "Korea Selatan",
     "North Korea": "Korea Utara",
     China: "Tiongkok",
     France: "Prancis",
@@ -269,7 +272,18 @@ export function translateCountry(
     targetLang: string = "id"
 ): string {
     if (targetLang === "en") return country;
-    return COUNTRY_TRANSLATIONS[country] || country;
+    
+    // Handle multiple countries separated by comma
+    if (country.includes(',')) {
+        return country
+            .split(',')
+            .map(c => c.trim())
+            .map(c => COUNTRY_TRANSLATIONS[c] || c)
+            .join(', ');
+    }
+    
+    const cleanCountry = country.trim();
+    return COUNTRY_TRANSLATIONS[cleanCountry] || cleanCountry;
 }
 
 

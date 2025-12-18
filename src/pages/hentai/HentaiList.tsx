@@ -69,7 +69,7 @@ export default function HentaiList() {
     const [apiStatus, setApiStatus] = useState<boolean | null>(null);
     const [isLoadingRandom, setIsLoadingRandom] = useState(false);
     const [randomHentai, setRandomHentai] = useState<RandomHentai | null>(null);
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
 
     // Handle random hentai
     const handleRandom = async () => {
@@ -114,7 +114,7 @@ export default function HentaiList() {
         error: releaseError,
         refetch: refetchRelease,
     } = useQuery({
-        queryKey: ["hentaiRelease", page],
+        queryKey: ["hentaiRelease", page, language],
         queryFn: async () => {
             const startPage = (page - 1) * 5 + 1;
             const pagesToLoad = [
@@ -147,7 +147,7 @@ export default function HentaiList() {
 
     // Search hentai
     const { data: searchResults, isLoading: searchLoading } = useQuery({
-        queryKey: ["hentaiSearch", searchQuery],
+        queryKey: ["hentaiSearch", searchQuery, language],
         queryFn: () => movieAPI.searchAllHentai(searchQuery),
         enabled: searchQuery.length > 2,
     });
@@ -275,7 +275,7 @@ export default function HentaiList() {
                         <div className="flex items-center gap-2 mb-4">
                             <Shuffle className="h-5 w-5 text-primary" />
                             <h2 className="text-lg font-bold text-foreground">
-                                🎲 Random Pick untuk Kamu!
+                                🎲 {t('randomPick')}
                             </h2>
                             <Button
                                 variant="ghost"
@@ -322,7 +322,7 @@ export default function HentaiList() {
                                     )}
                                 <p className="text-muted-foreground text-sm line-clamp-3 mb-4">
                                     {randomHentai.synopsis ||
-                                        "Sinopsis tidak tersedia."}
+                                        t('noCategoryFound').replace('{category}', 'Hentai')}
                                 </p>
                                 <div className="flex flex-wrap gap-2">
                                     <Button
@@ -424,12 +424,12 @@ export default function HentaiList() {
                                     </div>
                                     <h3 className="text-lg font-semibold text-foreground mb-2">
                                         {searchQuery.length > 2
-                                            ? `Tidak ditemukan hasil untuk "${searchQuery}"`
-                                            : "Belum ada konten tersedia"}
+                                            ? `${t('noResultsFor')} "${searchQuery}"`
+                                            : t('noContentAvailable')}
                                     </h3>
                                     <p className="text-muted-foreground text-sm mb-6">
                                         {searchQuery.length > 2
-                                            ? "Coba kata kunci lain atau periksa ejaan"
+                                            ? t('tryDifferentKeywords')
                                             : t('tryAgainLater')}
                                     </p>
                                 </div>
@@ -512,8 +512,9 @@ export default function HentaiList() {
                 {releaseData && !searchQuery && releaseData.totalPages > 1 && (
                     <div className="flex flex-col items-center gap-4 mt-8">
                         <div className="text-sm text-muted-foreground">
-                            Menampilkan {groupedData.length} judul dari halaman{" "}
-                            {page}
+                            {t('showingTitles')
+                                .replace('{count}', String(groupedData.length))
+                                .replace('{page}', String(page))}
                         </div>
                         <div className="flex items-center gap-2">
                             <Button
@@ -521,7 +522,7 @@ export default function HentaiList() {
                                 onClick={() => setPage(1)}
                                 disabled={page <= 1}
                             >
-                                First
+                                {t('first')}
                             </Button>
                             <Button
                                 variant="outline"
@@ -530,7 +531,7 @@ export default function HentaiList() {
                                 }
                                 disabled={page <= 1}
                             >
-                                Previous
+                                {t('previous')}
                             </Button>
                             <div className="flex items-center gap-1">
                                 {Array.from(
@@ -578,18 +579,20 @@ export default function HentaiList() {
                                 onClick={() => setPage((p) => p + 1)}
                                 disabled={page >= releaseData.totalPages}
                             >
-                                Next
+                                {t('next')}
                             </Button>
                             <Button
                                 variant="outline"
                                 onClick={() => setPage(releaseData.totalPages)}
                                 disabled={page >= releaseData.totalPages}
                             >
-                                Last
+                                {t('last')}
                             </Button>
                         </div>
                         <span className="text-muted-foreground">
-                            Page {page} of {releaseData.totalPages}
+                            {t('pageInfo')
+                                .replace('{current}', String(page))
+                                .replace('{total}', String(releaseData.totalPages))}
                         </span>
                     </div>
                 )}
@@ -599,8 +602,7 @@ export default function HentaiList() {
                     <div className="inline-flex items-center gap-3 px-6 py-4 rounded-xl bg-card border border-border">
                         <AlertCircle className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                         <p className="text-xs text-muted-foreground">
-                            Konten disediakan oleh pihak ketiga. Situs ini tidak
-                            menyimpan file apapun.
+                            {t('thirdPartySource')}
                         </p>
                     </div>
                 </div>

@@ -13,7 +13,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 type SearchCategory = "all" | "movies" | "series";
 
 export default function Search() {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const [searchParams, setSearchParams] = useSearchParams();
     
     // Get state from URL params
@@ -27,7 +27,7 @@ export default function Search() {
         isLoading,
         error,
     } = useQuery({
-        queryKey: ["searchMovies", query, currentPage],
+        queryKey: ["searchMovies", query, currentPage, language],
         queryFn: () => movieAPI.searchMovies(query, currentPage),
         enabled: !!query,
     });

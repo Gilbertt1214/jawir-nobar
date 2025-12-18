@@ -66,20 +66,20 @@ export default function MovieDetail() {
     const { id } = useParams<{ id: string }>();
     const isSeriesRoute = !!useMatch("/series/:id");
 
+    const { t, language } = useLanguage();
+
     const {
         data: movie,
         isLoading,
         error,
     } = useQuery({
-        queryKey: [isSeriesRoute ? "series" : "movie", id],
+        queryKey: [isSeriesRoute ? "series" : "movie", id, language],
         queryFn: () =>
             isSeriesRoute
                 ? movieAPI.getSeriesById(id!)
                 : movieAPI.getMovieById(id!),
         enabled: !!id,
     });
-
-    const { t } = useLanguage();
 
     // Auto-translate movie data when language is Indonesian
     const translatedMovie = useTranslatedMovie(movie);
@@ -367,6 +367,7 @@ export default function MovieDetail() {
                                 variant="outline"
                                 className="w-full gap-2 backdrop-blur-sm bg-background/50"
                                 size="lg"
+                                aria-label={t("share")}
                             >
                                 <Share2 className="h-4 w-4" />
                                 {t("share")}
@@ -378,7 +379,9 @@ export default function MovieDetail() {
                     <FadeIn className="space-y-8" direction="left" delay={0.2}>
                         <div className="space-y-4">
                             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-gradient leading-tight">
-                                {movie.title}
+                                {movie.title?.includes(';') && movie.title.split(';')[0].trim() === movie.title.split(';')[1]?.trim() 
+                                    ? movie.title.split(';')[0].trim() 
+                                    : movie.title}
                             </h1>
 
                             <div className="flex flex-wrap items-center gap-3 text-sm">
@@ -701,15 +704,16 @@ export default function MovieDetail() {
                                                         .length > 12 &&
                                                         !showAllEpisodes && (
                                                             <div className="flex justify-center pt-4">
-                                                                <Button
-                                                                    variant="outline"
-                                                                    className="min-w-[200px] border-white/10 hover:bg-primary hover:text-primary-foreground transition-all"
-                                                                    onClick={() =>
-                                                                        setShowAllEpisodes(
-                                                                            true
-                                                                        )
-                                                                    }
-                                                                >
+                                                                    <Button
+                                                                        variant="outline"
+                                                                        className="min-w-[200px] border-white/10 hover:bg-primary hover:text-primary-foreground transition-all"
+                                                                        onClick={() =>
+                                                                            setShowAllEpisodes(
+                                                                                true
+                                                                            )
+                                                                        }
+                                                                        aria-label={t("seeMoreEpisodes")}
+                                                                    >
                                                                     {t(
                                                                         "seeMoreEpisodes"
                                                                     )}{" "}
@@ -956,14 +960,14 @@ export default function MovieDetail() {
                         <FadeIn className="space-y-4 pt-10" direction="up">
                             <h2 className="text-xl font-bold flex items-center gap-2 mb-4">
                                 <MessageSquare className="h-5 w-5 text-primary" />
-                                Comments
+                                {t("comments")}
                             </h2>
                             <Card className="bg-card/50 backdrop-blur-sm border-white/5 overflow-hidden shadow-xl">
                                 <CardContent className="p-6 space-y-8">
                                         <div className="space-y-4">
                                             <div className="grid grid-cols-1 gap-4">
                                                 <Input
-                                                    placeholder="Your name"
+                                                    placeholder={t("yourName")}
                                                     value={name}
                                                     onChange={(e) =>
                                                         setName(e.target.value)
@@ -972,7 +976,7 @@ export default function MovieDetail() {
                                                     className="bg-background/50 border-white/10 focus:border-primary/50 h-11"
                                                 />
                                                 <Textarea
-                                                    placeholder="Share your thoughts..."
+                                                    placeholder={t("writeComment")}
                                                     value={message}
                                                     onChange={(e) =>
                                                         setMessage(e.target.value)
@@ -983,7 +987,7 @@ export default function MovieDetail() {
                                             </div>
                                             <div className="flex justify-between items-center bg-background/30 p-2 pl-4 rounded-lg border border-white/5">
                                                 <span className="text-xs text-muted-foreground font-medium">
-                                                    {message.length}/500 characters
+                                                    {message.length}/500 {t("characters")}
                                                 </span>
                                                 <Button
                                                     onClick={addComment}
@@ -997,12 +1001,12 @@ export default function MovieDetail() {
                                                     {isLoadingComments ? (
                                                         <>
                                                             <RefreshCw className="h-4 w-4 animate-spin" />
-                                                            Posting...
+                                                            {t("posting")}...
                                                         </>
                                                     ) : (
                                                         <>
                                                             <Play className="h-3.5 w-3.5 fill-current" />
-                                                            Post Comment
+                                                            {t("submitComment")}
                                                         </>
                                                     )}
                                                 </Button>
@@ -1015,16 +1019,14 @@ export default function MovieDetail() {
                                                 <div className="text-center py-12">
                                                     <RefreshCw className="h-8 w-8 mx-auto animate-spin text-primary opacity-50" />
                                                     <p className="text-sm text-muted-foreground mt-4">
-                                                        Loading comments...
+                                                        {t("loadingComments")}...
                                                     </p>
                                                 </div>
                                             ) : comments.length === 0 ? (
                                                 <div className="text-center py-12 text-muted-foreground bg-muted/10 rounded-2xl border border-dashed border-white/10 group/empty">
                                                     <MessageSquare className="h-10 w-10 mx-auto mb-3 opacity-20 group-hover:opacity-40 transition-opacity" />
                                                     <p className="text-sm">
-                                                        No comments yet. Be the
-                                                        first to share your
-                                                        thoughts!
+                                                        {t("noCommentsYet")}
                                                     </p>
                                                 </div>
                                             ) : (

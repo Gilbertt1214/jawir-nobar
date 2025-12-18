@@ -368,6 +368,10 @@ class MovieAPI {
         return this.streaming.getAnimeScraperUrl();
     }
 
+    setLanguage(lang: string) {
+        this.tmdb.setLanguage(lang);
+    }
+
     // Build anime stream URL
     buildAnimeStreamUrl(animeSlug: string, episode: number): string {
         const baseUrl = this.streaming.getAnimeScraperUrl();

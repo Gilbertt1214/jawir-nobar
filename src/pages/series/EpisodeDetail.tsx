@@ -4,6 +4,7 @@ import {
   Link,
   useNavigate,
 } from "react-router-dom"
+import { useLanguage } from "@/contexts/LanguageContext"
 import { useQuery } from "@tanstack/react-query"
 import { movieAPI, type StreamingProvider, type Episode } from "@/services/api"
 import { Button } from "@/components/ui/button"
@@ -31,6 +32,7 @@ export default function EpisodeDetail() {
   const navigate = useNavigate()
   const seasonFromUrl = searchParams.get("season")
   const episodeFromUrl = searchParams.get("episode")
+  const { t, language } = useLanguage()
 
   const apiEpisodeId =
     seasonFromUrl && episodeFromUrl
@@ -38,7 +40,7 @@ export default function EpisodeDetail() {
       : undefined
 
   const { data: allEpisodes = [] } = useQuery<Episode[]>({
-    queryKey: ["episodes", seriesId],
+    queryKey: ["episodes", seriesId, language],
     queryFn: async () => {
       if (!seriesId) return []
       const eps = await movieAPI.getEpisodes(seriesId)
@@ -67,7 +69,7 @@ export default function EpisodeDetail() {
     error: episodeError,
     refetch: refetchEpisode,
   } = useQuery({
-    queryKey: ["episode", seriesId, apiEpisodeId],
+    queryKey: ["episode", seriesId, apiEpisodeId, language],
     queryFn: async () => {
       if (!seriesId) throw new Error("Series ID is missing")
       if (!apiEpisodeId)
@@ -192,7 +194,7 @@ export default function EpisodeDetail() {
         <div className="mt-4 flex flex-col sm:flex-row flex-wrap gap-2">
           <Link to={`/series/${seriesId}`}>
             <Button variant="outline" className="w-full sm:w-auto">
-              Go to Series
+              {t('goToSeries')}
             </Button>
           </Link>
 
@@ -214,11 +216,11 @@ export default function EpisodeDetail() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-xl md:text-2xl font-bold leading-tight">
-              Episode {episode.episodeNumber}:{" "}
+              {t('episode')} {episode.episodeNumber}:{" "}
               <span className="text-primary">{episode.title}</span>
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Season {episode.seasonNumber} • Episode {episode.episodeNumber}
+              {t('season').replace('{season}', String(episode.seasonNumber))} • {t('episode')} {episode.episodeNumber}
             </p>
           </div>
 
@@ -226,7 +228,7 @@ export default function EpisodeDetail() {
             <div className="flex items-center gap-2 px-3">
               <MonitorPlay className="h-4 w-4 text-primary" />
               <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                Provider
+                {t('selectServer')}
               </span>
             </div>
             {providers && (
@@ -250,7 +252,7 @@ export default function EpisodeDetail() {
                     disabled={!selectedProvider}
                   >
                     <span className="truncate max-w-[150px] text-xs">
-                      {selectedProvider?.name || "Select Provider"}
+                      {selectedProvider?.name || t('selectServer')}
                     </span>
                     <ChevronDown className="h-3 w-3 opacity-50" />
                   </Button>
@@ -279,7 +281,7 @@ export default function EpisodeDetail() {
               </DropdownMenu>
             ) : (
               <Button variant="outline" size="sm" disabled className="h-8 text-xs">
-                No Providers
+                {t('streamUnavailable')}
               </Button>
             )}
           </div>
@@ -289,7 +291,7 @@ export default function EpisodeDetail() {
           <Alert>
             <RefreshCw className="h-4 w-4 animate-spin" />
             <AlertDescription>
-              Checking available streaming providers...
+              {t('searchingStreams')}
             </AlertDescription>
           </Alert>
         )}
@@ -298,13 +300,13 @@ export default function EpisodeDetail() {
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              Failed to load streaming providers.
+              {t('providerIssue')}
               <Button
                 variant="link"
                 className="p-0 h-auto ml-1"
                 onClick={handleRetryProviders}
               >
-                Try again
+                {t('retry')}
               </Button>
             </AlertDescription>
           </Alert>
@@ -314,7 +316,7 @@ export default function EpisodeDetail() {
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              No streaming providers available for this episode.
+              {t('streamUnavailable')}
             </AlertDescription>
           </Alert>
         )}
@@ -326,7 +328,7 @@ export default function EpisodeDetail() {
               className="absolute inset-0 w-full h-full"
               allowFullScreen
               frameBorder={0}
-              title={`Episode ${episode.episodeNumber} - ${episode.title}`}
+              title={`${t('episode')} ${episode.episodeNumber} - ${episode.title}`}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               referrerPolicy="strict-origin-when-cross-origin"
             />
@@ -344,7 +346,7 @@ export default function EpisodeDetail() {
             {prevEpisode ? (
               <div className="flex flex-col items-start text-left min-w-0 flex-1">
                 <span className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide">
-                  Previous
+                  {t('previous')}
                 </span>
                 <span className="font-semibold text-xs sm:text-sm truncate w-full">
                   S{prevEpisode.seasonNumber}E{prevEpisode.episodeNumber}:{" "}
@@ -367,7 +369,7 @@ export default function EpisodeDetail() {
             {nextEpisode ? (
               <div className="flex flex-col items-end text-right min-w-0 flex-1">
                 <span className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide">
-                  Next
+                  {t('next')}
                 </span>
                 <span className="font-semibold text-xs sm:text-sm truncate w-full">
                   S{nextEpisode.seasonNumber}E{nextEpisode.episodeNumber}:{" "}
@@ -386,9 +388,9 @@ export default function EpisodeDetail() {
         {allEpisodes.length > 0 && currentIndex >= 0 && (
           <div className="pt-4">
             <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
-              <span>Episode Progress</span>
+               <span>{t('episodeProgress')}</span>
               <span>
-                {currentIndex + 1} of {allEpisodes.length}
+                {currentIndex + 1} {t('of')} {allEpisodes.length}
               </span>
             </div>
             <div className="w-full bg-muted rounded-full h-2 overflow-hidden">

@@ -17,7 +17,7 @@ export default function CountryMovies() {
     const { language } = useLanguage();
 
     const { data, isLoading, error } = useQuery({
-        queryKey: ["country-movies", country, currentPage],
+        queryKey: ["country-movies", country, currentPage, language],
         queryFn: () => movieAPI.getMoviesByCountry(country!, currentPage),
         enabled: !!country,
     });

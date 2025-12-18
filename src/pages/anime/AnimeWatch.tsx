@@ -14,12 +14,14 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useState, useEffect, useMemo } from "react";
 import type { StreamingProvider } from "@/services/api";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function AnimeWatch() {
     const { slug } = useParams<{ slug: string }>();
     const navigate = useNavigate();
     const [iframeKey, setIframeKey] = useState(0);
     const [providerError, setProviderError] = useState(false);
+    const { t, language } = useLanguage();
 
     // Check if this is a "not available" placeholder slug
     const isNotAvailable = slug?.startsWith("not-available-");
@@ -30,7 +32,7 @@ export default function AnimeWatch() {
         isLoading: loadingEpisode,
         error: episodeError,
     } = useQuery({
-        queryKey: ["animeEpisodeStream", slug],
+        queryKey: ["animeEpisodeStream", slug, language],
         queryFn: async () => {
             if (!slug || isNotAvailable) return null;
             console.log("Fetching episode from Otakudesu API:", slug);
@@ -113,10 +115,9 @@ export default function AnimeWatch() {
                 <div className="container mx-auto px-4 py-8">
                     <Alert variant="destructive">
                         <AlertCircle className="h-4 w-4" />
-                        <AlertDescription>
-                            Gagal memuat episode. Episode mungkin tidak tersedia
-                            di Otakudesu.
-                        </AlertDescription>
+                    <AlertDescription>
+                        {t("failedToLoadEpisode")}
+                    </AlertDescription>
                     </Alert>
                 </div>
             </div>
@@ -131,8 +132,8 @@ export default function AnimeWatch() {
                         <AlertCircle className="h-4 w-4" />
                         <AlertDescription>
                             {isNotAvailable
-                                ? "Episode ini tidak tersedia di Otakudesu. Coba cari anime ini langsung di halaman Anime."
-                                : "Tidak ada streaming tersedia untuk episode ini. Pastikan slug episode valid."}
+                                ? t("episodeNotAvailable")
+                                : t("noStreamAvailableEpisode")}
                         </AlertDescription>
                     </Alert>
                 </div>
@@ -147,7 +148,7 @@ export default function AnimeWatch() {
             ?.replace(/-/g, " ")
             .replace(/episode \d+$/i, "")
             .trim() ||
-        "Anime Episode";
+        t("typeAnime") + " " + t("episode");
 
     return (
         <div className="min-h-screen bg-background">
@@ -158,7 +159,7 @@ export default function AnimeWatch() {
                         {displayTitle}
                     </h1>
                     <p className="text-muted-foreground text-sm">
-                        Episode {episodeNumber}
+                        {t("episode")} {episodeNumber}
                     </p>
                 </div>
 
@@ -174,15 +175,15 @@ export default function AnimeWatch() {
                                     <div className="space-y-2">
                                         <h3 className="font-semibold text-lg">
                                             {isBlocked
-                                                ? "Player Eksternal Diperlukan"
-                                                : "Player Gagal Dimuat"}
+                                                ? t("externalPlayerRequired")
+                                                : t("playerFailedToLoad")}
                                         </h3>
                                         <p className="text-sm text-muted-foreground">
                                             {isBlocked
-                                                ? "Server ini tidak mengizinkan pemutaran langsung di dalam website."
-                                                : "Terjadi kesalahan saat memuat player atau diblokir oleh browser."}
+                                                ? t("serverBlockedDirectPlay")
+                                                : t("playerErrorOrBlocked")}
                                             <br />
-                                            Silakan tonton langsung di tab baru.
+                                            {t("watchInNewTab")}
                                         </p>
                                     </div>
                                     <Button
@@ -193,10 +194,10 @@ export default function AnimeWatch() {
                                                 "_blank"
                                             )
                                         }
-                                    >
-                                        <Play className="h-4 w-4 mr-2 fill-current" />
-                                        Buka Player
-                                    </Button>
+                                        >
+                                            <Play className="h-4 w-4 mr-2 fill-current" />
+                                            {t("openPlayer")}
+                                        </Button>
                                 </div>
                             </div>
                         ) : (
@@ -219,7 +220,7 @@ export default function AnimeWatch() {
                         <div className="flex items-center gap-2 px-4 py-2 bg-primary text-white font-medium rounded-lg">
                             <Monitor className="w-4 h-4" />
                             <span>
-                                {currentStream.name || "Default"}
+                                {currentStream.name || t("all")}
                                 {currentStream.quality &&
                                     ` (${currentStream.quality})`}
                             </span>
@@ -247,8 +248,8 @@ export default function AnimeWatch() {
                                     window.open(currentStream.url, "_blank")
                                 }
                                 className="h-11 w-11"
-                                title="Buka di Tab Baru"
-                                aria-label="Buka di Tab Baru"
+                                title={t("newTab")}
+                                aria-label={t("newTab")}
                             >
                                 <ExternalLink className="w-4 h-4" />
                             </Button>
@@ -268,8 +269,7 @@ export default function AnimeWatch() {
                             }}
                             disabled={!episodeData?.prevEpisode}
                         >
-                            <ChevronLeft className="w-4 h-4 mr-2" /> Episode
-                            Sebelumnya
+                            <ChevronLeft className="w-4 h-4 mr-2" /> {t("previousEpisode")}
                         </Button>
                         <Button
                             variant="outline"
@@ -282,7 +282,7 @@ export default function AnimeWatch() {
                             }}
                             disabled={!episodeData?.nextEpisode}
                         >
-                            Episode Selanjutnya{" "}
+                            {t("nextEpisode")}{" "}
                             <ChevronRight className="w-4 h-4 ml-2" />
                         </Button>
                     </div>
@@ -291,9 +291,7 @@ export default function AnimeWatch() {
                     <Alert className="bg-primary/10 border-primary/20">
                         <AlertCircle className="h-4 w-4 text-primary" />
                         <AlertDescription className="text-muted-foreground">
-                            Jika video tidak bisa diputar, coba refresh player
-                            atau buka di tab baru. Stream disediakan oleh
-                            Otakudesu.
+                            {t("animeStreamDisclaimer")}
                         </AlertDescription>
                     </Alert>
                 </div>

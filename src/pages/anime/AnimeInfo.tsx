@@ -129,14 +129,14 @@ export default function AnimeInfo() {
     };
 
     const isNumericId = slug && /^\d+$/.test(slug);
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
 
     const {
         data: animeData,
         isLoading,
         error,
     } = useQuery({
-        queryKey: ["animeDetail", slug],
+        queryKey: ["animeDetail", slug, language],
         queryFn: async () => {
             if (!slug) return null;
             if (isNumericId) return null;
@@ -538,8 +538,8 @@ export default function AnimeInfo() {
                                             </div>
                                             <div className="flex justify-between items-center bg-background/30 p-2 pl-4 rounded-lg border border-white/5">
                                                 <span className="text-xs text-muted-foreground font-medium">
-                                                    {message.length}/500
-                                                    karakter
+                                                    {message.length}/500{" "}
+                                                    {t("characters")}
                                                 </span>
                                                 <Button
                                                     onClick={addComment}

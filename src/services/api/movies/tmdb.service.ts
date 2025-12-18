@@ -7,11 +7,18 @@ export class TMDBService {
     private hosts: string[];
     private genreMap?: Record<string, { movie?: number; tv?: number }>;
     private countriesCache?: string[];
+    private language: string = "en-US";
 
     constructor() {
         this.hosts = API_HOSTS.length
             ? API_HOSTS
             : ["https://api.themoviedb.org/3"];
+    }
+
+    setLanguage(lang: string) {
+        this.language = lang === "id" ? "id-ID" : "en-US";
+        // Reset genre map so it can be re-fetched in the new language if needed
+        this.genreMap = undefined;
     }
 
     // Fallback mechanism
@@ -25,7 +32,7 @@ export class TMDBService {
                 ? endpoint
                 : `${TMDB_BASE}${endpoint}${
                       endpoint.includes("?") ? "&" : "?"
-                  }api_key=${TMDB_KEY}`;
+                  }api_key=${TMDB_KEY}&language=${this.language}`;
 
             const res = await fetch(url, {
                 ...options,

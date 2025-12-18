@@ -44,7 +44,13 @@ export function useTranslatedMovie<T extends TranslatedMovie>(
 
         // Translate for Indonesian
         const translateData = async () => {
+            console.log('DEBUG: Translating movie:', data.title);
             const result = { ...data };
+
+            // If title contains a semicolon, log it for investigation
+            if (data.title?.includes(';')) {
+                console.warn('DEBUG: Found title with semicolon:', data.title);
+            }
 
             // Translate synopsis
             if (data.synopsis) {

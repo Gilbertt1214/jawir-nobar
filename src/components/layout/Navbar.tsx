@@ -118,6 +118,7 @@ export function Navbar() {
                             size="icon"
                             variant="ghost"
                             className="absolute right-0.5 sm:right-1 top-0.5 sm:top-1 h-8 w-8 sm:h-8 sm:w-8 lg:h-9 lg:w-9 rounded-full hover:bg-primary/20 hover:text-primary transition-colors"
+                            aria-label={t('search')}
                         >
                             <Search className="h-4 w-4" />
                         </Button>
