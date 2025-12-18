@@ -127,6 +127,8 @@
     video {
         @apply select-none max-w-full h-auto;
         -webkit-user-drag: none;
+        -webkit-user-select: none;
+        user-select: none;
     }
 
     html.lenis, html.lenis body {
@@ -184,7 +186,9 @@
     }
 
     .glass {
-        @apply bg-background/60 backdrop-blur-xl border border-white/5;
+        @apply bg-background/60 border border-white/5;
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
     }
 
     .text-gradient {

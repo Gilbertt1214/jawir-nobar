@@ -1013,13 +1013,8 @@ export class TMDBService {
         page = 1,
         opts?: { type?: "tv" | "movie" | "all"; audio?: "sub" | "dub" | "all" }
     ): Promise<PaginatedResponse<Movie>> {
-        await this.ensureGenreMap();
-        const animation = (this.genreMap || {})["Animation"];
-
-        if (!animation || (!animation.tv && !animation.movie)) {
-            console.error("Animation genre not found in genre map");
-            return { data: [], page: 1, totalPages: 1, totalItems: 0 };
-        }
+        // Use standard TMDB ID for Animation (16) to ensure it works across all languages
+        const animation = { movie: 16, tv: 16 };
 
         const results: Movie[] = [];
         const type = opts?.type || "all";
@@ -1088,13 +1083,8 @@ export class TMDBService {
     }
 
     async getAdultMovies(page = 1): Promise<PaginatedResponse<Movie>> {
-        await this.ensureGenreMap();
-        const romanceId = (this.genreMap || {})["Romance"]?.movie;
-
-        if (!romanceId) {
-            console.error("Romance genre not found");
-            return { data: [], page: 1, totalPages: 1, totalItems: 0 };
-        }
+        // Use standard TMDB ID for Romance (10749)
+        const romanceId = 10749;
 
         try {
             const r = await this.fetchWithFallback(
