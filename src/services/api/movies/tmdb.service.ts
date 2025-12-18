@@ -16,7 +16,9 @@ export class TMDBService {
     }
 
     setLanguage(lang: string) {
-        this.language = lang === "id" ? "id-ID" : "en-US";
+        // Always use English for API to ensure we get data (synopsis etc)
+        // Client-side translation will handle localization
+        this.language = "en-US";
         // Reset genre map so it can be re-fetched in the new language if needed
         this.genreMap = undefined;
     }
@@ -182,7 +184,7 @@ export class TMDBService {
                 ),
                 country: (m.origin_country && m.origin_country[0]) || "USA",
                 year: (m.release_date || "").slice(0, 4),
-                synopsis: m.overview || "No synopsis available",
+                synopsis: m.overview || "",
                 type: "movie" as const,
             }));
 
@@ -215,7 +217,7 @@ export class TMDBService {
                 ),
                 country: (t.origin_country && t.origin_country[0]) || "USA",
                 year: (t.first_air_date || "").slice(0, 4),
-                synopsis: t.overview || "No synopsis available",
+                synopsis: t.overview || "",
                 type: "series" as const,
             }));
 
@@ -248,7 +250,7 @@ export class TMDBService {
                 ),
                 country: (m.origin_country && m.origin_country[0]) || "USA",
                 year: (m.release_date || "").slice(0, 4),
-                synopsis: m.overview || "No synopsis available",
+                synopsis: m.overview || "",
                 type: "movie" as const,
             }));
 
@@ -311,7 +313,7 @@ export class TMDBService {
                 genre: (m.genres || []).map((g: any) => g.name),
                 country: (m.production_countries || [])[0]?.name || "Unknown",
                 year: (m.release_date || "").slice(0, 4),
-                synopsis: m.overview || "No synopsis available",
+                synopsis: m.overview || "",
                 trailer: trailerKey
                     ? `https://www.youtube.com/watch?v=${trailerKey}`
                     : undefined,
@@ -373,7 +375,7 @@ export class TMDBService {
                 genre: (s.genres || []).map((g: any) => g.name),
                 country: (s.origin_country && s.origin_country[0]) || "Unknown",
                 year: (s.first_air_date || "").slice(0, 4),
-                synopsis: s.overview || "No synopsis available",
+                synopsis: s.overview || "",
                 trailer: trailerKey
                     ? `https://www.youtube.com/watch?v=${trailerKey}`
                     : undefined,
@@ -530,7 +532,7 @@ export class TMDBService {
                         item.first_air_date ||
                         ""
                     ).slice(0, 4),
-                    synopsis: item.overview || "No synopsis available",
+                    synopsis: item.overview || "",
                     type:
                         item.media_type === "tv"
                             ? ("series" as const)
@@ -578,7 +580,7 @@ export class TMDBService {
                             (m.origin_country && m.origin_country[0]) ||
                             "Unknown",
                         year: (m.release_date || "").slice(0, 4),
-                        synopsis: m.overview || "No synopsis available",
+                        synopsis: m.overview || "",
                         type: "movie" as const,
                     }))
                 );
@@ -601,7 +603,7 @@ export class TMDBService {
                             (t.origin_country && t.origin_country[0]) ||
                             "Unknown",
                         year: (t.first_air_date || "").slice(0, 4),
-                        synopsis: t.overview || "No synopsis available",
+                        synopsis: t.overview || "",
                         type: "series" as const,
                     }))
                 );
@@ -643,7 +645,7 @@ export class TMDBService {
                     genre: [],
                     country,
                     year: (x.release_date || "").slice(0, 4),
-                    synopsis: x.overview || "No synopsis available",
+                    synopsis: x.overview || "",
                     type: "movie" as const,
                 })),
                 ...(t.results || []).map((x: any) => ({
@@ -656,7 +658,7 @@ export class TMDBService {
                     genre: [],
                     country,
                     year: (x.first_air_date || "").slice(0, 4),
-                    synopsis: x.overview || "No synopsis available",
+                    synopsis: x.overview || "",
                     type: "series" as const,
                 })),
             ];
@@ -703,7 +705,7 @@ export class TMDBService {
                     country:
                         (x.origin_country && x.origin_country[0]) || "Unknown",
                     year: (x.release_date || "").slice(0, 4),
-                    synopsis: x.overview || "No synopsis available",
+                    synopsis: x.overview || "",
                     type: "movie" as const,
                 })),
                 ...(t.results || []).map((x: any) => ({
@@ -717,7 +719,7 @@ export class TMDBService {
                     country:
                         (x.origin_country && x.origin_country[0]) || "Unknown",
                     year: (x.first_air_date || "").slice(0, 4),
-                    synopsis: x.overview || "No synopsis available",
+                    synopsis: x.overview || "",
                     type: "series" as const,
                 })),
             ];
@@ -1045,7 +1047,7 @@ export class TMDBService {
                     genre: ["Animation", "Anime"],
                     country: "Japan",
                     year: (t.first_air_date || "").slice(0, 4),
-                    synopsis: t.overview || "No synopsis available",
+                    synopsis: t.overview || "",
                     type: "series" as const,
                 }));
             }
@@ -1065,7 +1067,7 @@ export class TMDBService {
                     genre: ["Animation", "Anime"],
                     country: "Japan",
                     year: (m.release_date || "").slice(0, 4),
-                    synopsis: m.overview || "No synopsis available",
+                    synopsis: m.overview || "",
                     type: "movie" as const,
                 }));
             }
@@ -1101,7 +1103,7 @@ export class TMDBService {
                 genre: ["Romance"],
                 country: (m.origin_country && m.origin_country[0]) || "Unknown",
                 year: (m.release_date || "").slice(0, 4),
-                synopsis: m.overview || "No synopsis available",
+                synopsis: m.overview || "",
                 type: "movie" as const,
             }));
 
@@ -1132,7 +1134,7 @@ export class TMDBService {
                 genre: [],
                 country: "Indonesia",
                 year: (m.release_date || "").slice(0, 4),
-                synopsis: m.overview || "No synopsis available",
+                synopsis: m.overview || "",
                 type: "movie" as const,
             }));
 
@@ -1149,17 +1151,12 @@ export class TMDBService {
     }
 
     async getKoreanDrama(page = 1): Promise<PaginatedResponse<Movie>> {
-        await this.ensureGenreMap();
-        const drama = (this.genreMap || {})["Drama"];
-
-        if (!drama?.tv) {
-            console.error("Drama genre not found for TV");
-            return { data: [], page: 1, totalPages: 1, totalItems: 0 };
-        }
+        // Use standard TMDB ID for Drama (18)
+        const dramaTvId = 18;
 
         try {
             const r = await this.fetchWithFallback(
-                `/discover/tv?with_genres=${drama.tv}&with_origin_country=KR&sort_by=popularity.desc&page=${page}`
+                `/discover/tv?with_genres=${dramaTvId}&with_origin_country=KR&sort_by=popularity.desc&page=${page}`
             );
 
             const results = (r.results || []).map((t: any) => ({
@@ -1172,7 +1169,7 @@ export class TMDBService {
                 genre: ["Drama", "Korean Drama"],
                 country: "Korea",
                 year: (t.first_air_date || "").slice(0, 4),
-                synopsis: t.overview || "No synopsis available",
+                synopsis: t.overview || "",
                 type: "series" as const,
             }));
 

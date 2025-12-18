@@ -388,7 +388,7 @@ export default function HentaiWatch() {
                                         src={currentProvider.url}
                                         className="absolute inset-0 w-full h-full border-0"
                                         allowFullScreen
-                                        allow="autoplay; encrypted-media; picture-in-picture"
+                                        allow="autoplay; encrypted-media; picture-in-picture; keyboard-map"
                                         referrerPolicy="no-referrer"
                                         onError={() => setProviderError(true)}
                                     />

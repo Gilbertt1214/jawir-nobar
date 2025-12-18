@@ -329,7 +329,7 @@ export default function EpisodeDetail() {
               allowFullScreen
               frameBorder={0}
               title={`${t('episode')} ${episode.episodeNumber} - ${episode.title}`}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; keyboard-map"
               referrerPolicy="strict-origin-when-cross-origin"
             />
           </div>

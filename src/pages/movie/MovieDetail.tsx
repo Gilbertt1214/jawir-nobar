@@ -422,8 +422,8 @@ export default function MovieDetail() {
                                                 )}`}
                                             >
                                                 <Badge
-                                                    variant="outline"
-                                                    className="hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all cursor-pointer px-3 py-1"
+                                                    variant="secondary"
+                                                    className="hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all cursor-pointer px-3 py-1 bg-secondary/80 backdrop-blur-sm border border-white/10"
                                                 >
                                                     {g}
                                                 </Badge>
@@ -433,7 +433,7 @@ export default function MovieDetail() {
                                 )}
                         </div>
 
-                        {translatedMovie?.synopsis && (
+                        {translatedMovie && (
                             <div className="space-y-2">
                                 <h2 className="text-lg font-semibold flex items-center gap-2 px-1">
                                     <span className="w-1 h-6 bg-primary rounded-full" />
@@ -442,7 +442,7 @@ export default function MovieDetail() {
                                 <div className="relative group/synopsis">
                                     <div className="absolute inset-0 bg-primary/5 blur-2xl rounded-3xl opacity-0 group-hover/synopsis:opacity-100 transition-opacity duration-500" />
                                     <p className="relative p-5 rounded-2xl bg-card/40 backdrop-blur-md border border-white/5 text-muted-foreground leading-relaxed text-base sm:text-lg shadow-inner">
-                                        {translatedMovie.synopsis}
+                                        {translatedMovie.synopsis || t("noSynopsisAvailable")}
                                     </p>
                                 </div>
                             </div>
@@ -822,7 +822,7 @@ export default function MovieDetail() {
                                                     }
                                                     className="absolute inset-0 w-full h-full"
                                                     allowFullScreen
-                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; keyboard-map"
                                                     frameBorder={0}
                                                     onError={handleIframeError}
                                                     title={`Streaming from ${streamingProviders[selectedProvider].name}`}

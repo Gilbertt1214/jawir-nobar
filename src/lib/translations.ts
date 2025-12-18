@@ -115,6 +115,7 @@ export const translations = {
     
     // Movie Detail
     errorMovieNotFound: "Movie or series not found or failed to load.",
+    noSynopsisAvailable: "No synopsis available.",
     returnHome: "Return to Home",
     trailer: "Trailer",
     share: "Share",
@@ -315,6 +316,7 @@ export const translations = {
     
     // Movie Detail
     errorMovieNotFound: "Film atau serial tidak ditemukan atau gagal dimuat.",
+    noSynopsisAvailable: "Sinopsis tidak tersedia.",
     returnHome: "Kembali ke Beranda",
     trailer: "Trailer",
     share: "Bagikan",

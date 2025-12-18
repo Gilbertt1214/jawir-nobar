@@ -37,7 +37,7 @@ export class NekopoiService {
                     cover: item.img || "/placeholder.svg",
                     genre: Array.isArray(item.genre) ? item.genre : [],
                     duration: item.duration || "Unknown",
-                    synopsis: item.synopsis || "No synopsis available",
+                    synopsis: item.synopsis || "",
                     type: item.type || "hentai",
                     uploadDate: item.upload_date || "Unknown",
                 })
@@ -109,7 +109,7 @@ export class NekopoiService {
                 cover: detail.img || "/placeholder.svg",
                 genre: Array.isArray(detail.genre) ? detail.genre : [],
                 duration: detail.duration || "Unknown",
-                synopsis: detail.synopsis || "No synopsis available",
+                synopsis: detail.synopsis || "",
                 type: "hentai",
                 uploadDate: "Unknown",
                 downloadLinks,
@@ -147,7 +147,7 @@ export class NekopoiService {
                 cover: item.thumb || "/placeholder.svg",
                 genre: [],
                 duration: "Unknown",
-                synopsis: "No synopsis available",
+                synopsis: "",
                 type: item.type || "hentai",
                 uploadDate: "Unknown",
             }));
@@ -187,7 +187,7 @@ export class NekopoiService {
                     cover: item.img || "/placeholder.svg",
                     genre: Array.isArray(item.genre) ? item.genre : [],
                     duration: item.duration || "Unknown",
-                    synopsis: item.synopsis || "No synopsis available",
+                    synopsis: item.synopsis || "",
                     type: item.type || "hentai",
                     uploadDate: item.upload_date || "Unknown",
                 })
