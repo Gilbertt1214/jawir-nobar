@@ -40,7 +40,7 @@ const CATEGORY_LABELS: Record<string, { en: string; id: string }> = {
     romance: { en: "Romance", id: "Romantis" },
 };
 
-export function Breadcrumb() {
+export function Breadcrumb({ className }: { className?: string }) {
     const location = useLocation();
     const params = useParams();
     const { language } = useLanguage();
@@ -162,53 +162,29 @@ export function Breadcrumb() {
         });
     }
 
-    // Pages with backdrop that need absolute positioning overlay
-    const backdropPages = ["movie", "series", "anime", "hentai"];
-    const firstSegment = pathSegments[0]?.toLowerCase();
-
-    // Check for watch/playback routes which typically use standard container layout
-    // These pages do NOT have a hero backdrop, so they need relative positioning
-    const isPlaybackRoute =
-        pathSegments.includes("watch") || pathSegments.includes("episodes");
-
-    const hasBackdrop =
-        backdropPages.includes(firstSegment) &&
-        pathSegments.length >= 2 &&
-        !isPlaybackRoute;
-
-    // Use absolute positioning for backdrop pages to overlay cleanly
-    // Use relative for others to avoid overlap
-    const navClassName = hasBackdrop
-        ? "hidden md:block absolute top-20 sm:top-28 lg:top-32 left-0 w-full z-40 px-4 pointer-events-none" // pointer-events-none allows clicking through empty space
-        : "hidden md:block relative w-full z-30 px-4 py-4 md:py-6";
-
     return (
         <nav
             aria-label="Breadcrumb"
-            className={navClassName}
+            className={cn("w-full z-30", className)}
         >
-            <div className={`container mx-auto ${hasBackdrop ? "pointer-events-auto" : ""}`}>
-                <ol className="flex items-center flex-nowrap overflow-x-auto scrollbar-hide gap-2 text-xs sm:text-sm md:text-base font-medium transition-all duration-300 pb-1 mask-linear-fade">
+            <div className="container mx-auto">
+                <ol className="flex items-center flex-nowrap overflow-hidden text-xs sm:text-sm text-muted-foreground">
                     {breadcrumbs.map((item, index) => (
                         <li
                             key={`${item.path}-${index}`}
-                            className="flex items-center whitespace-nowrap flex-shrink-0"
+                            className="flex items-center whitespace-nowrap flex-shrink-0 last:flex-shrink"
                         >
                             {index > 0 && (
-                                <ChevronRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 mx-1 sm:mx-2 text-muted-foreground/60 flex-shrink-0 stroke-[1.5]" />
+                                <ChevronRight className="h-3.5 w-3.5 mx-1 sm:mx-2 text-muted-foreground/50 flex-shrink-0" />
                             )}
                             {item.isActive ? (
-                                <span className={`truncate max-w-[150px] sm:max-w-[200px] md:max-w-[400px] text-foreground ${hasBackdrop ? "drop-shadow-md" : ""}`}>
+                                <span className="font-medium text-foreground truncate max-w-[120px] sm:max-w-[200px] md:max-w-[300px]">
                                     {item.label}
                                 </span>
                             ) : (
                                 <Link
                                     to={item.path}
-                                    className={`transition-colors flex items-center gap-1.5 hover:underline decoration-2 underline-offset-4 text-foreground/80 hover:text-primary ${
-                                        hasBackdrop 
-                                            ? "drop-shadow-md" 
-                                            : ""
-                                    }`}
+                                    className="hover:text-foreground transition-colors hover:underline underline-offset-4 decoration-2 truncate max-w-[100px] sm:max-w-[150px]"
                                 >
                                     {item.label}
                                 </Link>

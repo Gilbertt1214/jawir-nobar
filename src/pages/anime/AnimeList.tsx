@@ -190,14 +190,14 @@ export default function AnimeList() {
                     <TabsList className="bg-secondary border border-border">
                         <TabsTrigger
                             value="ongoing"
-                            className="data-[state=active]:bg-primary data-[state=active]:text-white"
+                            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
                         >
                             <Tv className="w-4 h-4 mr-2" />
                             {t('ongoing')}
                         </TabsTrigger>
                         <TabsTrigger
                             value="complete"
-                            className="data-[state=active]:bg-primary data-[state=active]:text-white"
+                            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
                         >
                             <CheckCircle className="w-4 h-4 mr-2" />
                             {t('complete')}
@@ -308,7 +308,7 @@ export default function AnimeList() {
                                                     {/* Episode badge */}
                                                     {item.latestEpisode && (
                                                         <div className="absolute top-2 right-2">
-                                                            <Badge className="text-xs backdrop-blur-sm bg-primary text-white border-none">
+                                                            <Badge className="text-xs backdrop-blur-sm bg-primary text-primary-foreground border-none">
                                                                 {/^\d+$/.test(
                                                                     item.latestEpisode
                                                                 )

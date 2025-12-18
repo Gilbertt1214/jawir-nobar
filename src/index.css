@@ -28,11 +28,11 @@
         --destructive: 0 84.2% 60.2%;
         --destructive-foreground: 0 0% 100%;
 
-        --border: 0 0% 80%; 
-        --input: 0 0% 90%;
+        --border: 0 0% 89.8%;
+        --input: 0 0% 89.8%;
         --ring: 217.2 91.2% 59.8%;
 
-        --radius: 0.5rem; 
+        --radius: 0.75rem;
 
         --gradient-primary: linear-gradient(
             135deg,
@@ -41,11 +41,15 @@
         );
         --gradient-hero: linear-gradient(
             180deg,
-            hsl(0 0% 100% / 0),
-            hsl(0 0% 100%)
+            hsl(0 0% 0% / 0),
+            hsl(0 0% 0% / 0.4),
+            hsl(var(--background))
         );
-        --shadow-card: 4px 4px 0px hsl(0 0% 0%); 
-        --shadow-card-hover: 6px 6px 0px hsl(0 0% 0%);
+        --hero-foreground: 0 0% 100%;
+        --hero-muted: 0 0% 90%;
+        
+        --shadow-card: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        --shadow-card-hover: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
     }
 
     .dark {
@@ -85,16 +89,27 @@
         --gradient-hero: linear-gradient(
             180deg,
             hsl(222.2 84% 4.9% / 0),
-            hsl(222.2 84% 4.9%)
+            hsl(222.2 84% 4.9% / 0.6),
+            hsl(var(--background))
         );
-        --shadow-card: 0 4px 12px hsl(0 0% 0% / 0.3);
-        --shadow-card-hover: 0 8px 24px hsl(0 0% 0% / 0.5);
+        --hero-foreground: 210 40% 98%;
+        --hero-muted: 215 20.2% 65.1%;
+
+        --shadow-card: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        --shadow-card-hover: 0 20px 25px -5px rgb(0 0 0 / 0.6), 0 8px 10px -6px rgb(0 0 0 / 0.1);
     }
 }
 
 @layer base {
     * {
         @apply border-border;
+        box-sizing: border-box;
+    }
+
+    html {
+        font-size: 100%; /* Ensure standard 16px base */
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
     }
 
     body {
@@ -102,6 +117,7 @@
         -webkit-tap-highlight-color: transparent;
         touch-action: manipulation;
     }
+
 
     :focus-visible {
         @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-background;
@@ -112,13 +128,6 @@
         @apply select-none max-w-full h-auto;
         -webkit-user-drag: none;
         -webkit-touch-callout: none;
-    }
-
-    html {
-        -webkit-text-size-adjust: 100%;
-        -ms-text-size-adjust: 100%;
-
-        scroll-padding-top: 80px; 
     }
 
     html.lenis, html.lenis body {

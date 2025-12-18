@@ -69,10 +69,10 @@ export function Navbar() {
     return (
         <header
             className={cn(
-                "sticky top-0 z-50 w-full transition-all duration-500 ease-in-out",
+                "sticky top-0 z-50 w-full",
                 isScrolled
-                    ? "bg-background/80 backdrop-blur-xl border-b border-border shadow-md py-1 sm:py-2"
-                    : "bg-transparent border-transparent py-2 sm:py-4"
+                    ? "bg-background/80 backdrop-blur-xl border-b border-border shadow-md py-2"
+                    : "bg-transparent border-transparent py-2"
             )}
         >
             <nav className="container mx-auto flex h-14 sm:h-16 lg:h-20 items-center justify-between px-3 sm:px-4 lg:px-6 gap-2 sm:gap-4">
@@ -89,7 +89,12 @@ export function Navbar() {
                             className="relative h-7 w-7 sm:h-8 sm:w-8 lg:h-10 lg:w-10 transition-transform group-hover:scale-110 duration-300"
                         />
                     </div>
-                    <span className="hidden xs:inline sm:inline bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/80 group-hover:to-primary transition-all duration-300">
+                    <span className={cn(
+                        "hidden xs:inline sm:inline bg-clip-text text-transparent bg-gradient-to-r transition-all duration-300",
+                        isScrolled 
+                            ? "from-foreground to-foreground/80 group-hover:to-primary" 
+                            : "from-hero-foreground to-hero-foreground/80 group-hover:to-primary"
+                    )}>
                         JawirNobar
                     </span>
                 </Link>
@@ -106,7 +111,7 @@ export function Navbar() {
                             placeholder={t('search')}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="relative pr-8 sm:pr-10 h-9 sm:h-10 lg:h-11 text-sm sm:text-base bg-secondary border-border rounded-full focus:bg-background focus:border-primary/50 transition-all duration-300 placeholder:text-muted-foreground"
+                            className="relative pr-8 sm:pr-10 h-9 sm:h-10 lg:h-11 text-base md:text-base bg-secondary border-border rounded-full focus:bg-background focus:border-primary/50 transition-all duration-300 placeholder:text-muted-foreground"
                         />
                         <Button
                             type="submit"
@@ -126,7 +131,10 @@ export function Navbar() {
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                className="text-sm px-3 xl:px-4 rounded-full text-foreground/80 hover:bg-secondary hover:text-primary transition-all duration-300"
+                                className={cn(
+                                    "text-sm px-3 xl:px-4 rounded-full transition-all duration-300",
+                                    isScrolled ? "text-foreground/80 hover:bg-secondary hover:text-primary" : "text-white/90 hover:bg-white/10 hover:text-white"
+                                )}
                             >
                                 {t('anime')}
                             </Button>
@@ -135,7 +143,10 @@ export function Navbar() {
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                className="text-sm px-3 xl:px-4 rounded-full text-foreground/80 hover:bg-secondary hover:text-primary transition-all duration-300"
+                                className={cn(
+                                    "text-sm px-3 xl:px-4 rounded-full transition-all duration-300",
+                                    isScrolled ? "text-foreground/80 hover:bg-secondary hover:text-primary" : "text-hero-foreground/90 hover:bg-white/10 hover:text-hero-foreground"
+                                )}
                             >
                                 {t('genres')}
                             </Button>
@@ -144,7 +155,10 @@ export function Navbar() {
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                className="text-sm px-3 xl:px-4 rounded-full text-foreground/80 hover:bg-secondary hover:text-primary transition-all duration-300"
+                                className={cn(
+                                    "text-sm px-3 xl:px-4 rounded-full transition-all duration-300",
+                                    isScrolled ? "text-foreground/80 hover:bg-secondary hover:text-primary" : "text-white/90 hover:bg-white/10 hover:text-white"
+                                )}
                             >
                                 {t('countries')}
                             </Button>
@@ -153,7 +167,10 @@ export function Navbar() {
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                className="text-sm px-3 xl:px-4 rounded-full text-foreground/80 hover:bg-secondary hover:text-primary transition-all duration-300"
+                                className={cn(
+                                    "text-sm px-3 xl:px-4 rounded-full transition-all duration-300",
+                                    isScrolled ? "text-foreground/80 hover:bg-secondary hover:text-primary" : "text-white/90 hover:bg-white/10 hover:text-white"
+                                )}
                             >
                                 {t('years')}
                             </Button>
@@ -164,7 +181,10 @@ export function Navbar() {
                             variant="ghost"
                             size="icon"
                             onClick={toggleLanguage}
-                            className="h-9 w-9 rounded-full hover:bg-primary/20 hover:text-primary transition-all text-foreground/80"
+                            className={cn(
+                                "h-9 w-9 rounded-full transition-all",
+                                isScrolled ? "text-foreground/80 hover:bg-secondary hover:text-primary" : "text-hero-foreground/90 hover:bg-white/10 hover:text-hero-foreground"
+                            )}
                             title={language === 'en' ? 'Switch to Indonesian' : 'Switch to English'}
                         >
                             <Globe className="h-4 w-4" />
@@ -186,7 +206,7 @@ export function Navbar() {
                                 className="lg:hidden h-9 w-9 sm:h-10 sm:w-10 rounded-full hover:bg-secondary"
                                 aria-label="Open menu"
                             >
-                                <Menu className="h-5 w-5" />
+                                <Menu className={cn("h-5 w-5", !isScrolled && "text-hero-foreground")} />
                             </Button>
                         </SheetTrigger>
                         <SheetContent

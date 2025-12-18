@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { Toaster as Sonner } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { BrowserRouter, Routes, Route } from "react-router-dom"
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom"
 import { ThemeProvider } from "@/contexts/ThemeContext"
 import { LanguageProvider } from "@/contexts/LanguageContext"
 import { Navbar } from "@/components/layout/Navbar"
@@ -50,6 +50,23 @@ const PageLoader = () => (
   </div>
 )
 
+const ContentLayout = ({ children }: { children: React.ReactNode }) => {
+  const location = useLocation();
+  const isDetailPage = (location.pathname.startsWith("/movie/") || 
+                         location.pathname.startsWith("/series/") || 
+                         location.pathname.startsWith("/anime/") || 
+                         location.pathname.startsWith("/hentai/nekopoi/")) &&
+                        !location.pathname.includes("/watch") &&
+                        !location.pathname.includes("/episodes");
+
+  return (
+    <main className="flex-1 relative">
+      {!isDetailPage && <Breadcrumb />}
+      {children}
+    </main>
+  );
+};
+
 const App = () => {
   useEffect(() => {
     const lenis = new Lenis({
@@ -90,8 +107,7 @@ const App = () => {
               <ContextMenu />
               <div className="flex min-h-screen flex-col bg-background font-sans antialiased">
                 <Navbar />
-                <main className="flex-1 relative">
-                  <Breadcrumb />
+                <ContentLayout>
                   <Suspense fallback={<PageLoader />}>
                     <Routes>
                       <Route path="/" element={<Home />} />
@@ -124,7 +140,7 @@ const App = () => {
                       <Route path="*" element={<NotFound />} />
                     </Routes>
                   </Suspense>
-                </main>
+                </ContentLayout>
                 <Footer />
               </div>
             </BrowserRouter>

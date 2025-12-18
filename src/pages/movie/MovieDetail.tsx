@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { movieAPI } from "@/services/api";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Breadcrumb } from "@/components/common/Breadcrumb";
 import {
     Star,
     Calendar,
@@ -308,23 +309,27 @@ export default function MovieDetail() {
     return (
         <div className="min-h-screen bg-background pb-20">
             {/* Backdrop */}
-            <div className="relative h-[40vh] sm:h-[50vh] md:h-[60vh] -mt-[72px] sm:-mt-24 lg:-mt-28 overflow-hidden">
+            <div className="relative h-[65vh] sm:h-[75vh] md:h-[85vh] -mt-[72px] sm:-mt-24 lg:-mt-28 overflow-hidden bg-background">
                 <ScaleIn className="absolute inset-0 h-full w-full">
-                    <div
-                        className="w-full h-full bg-cover bg-center"
-                        style={{
-                            backgroundImage: `url(${
-                                movie.backdrops?.[0] || movie.cover
-                            })`,
-                        }}
-                    >
-                        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/20" />
-                        <div className="absolute inset-0 bg-gradient-to-r from-background via-transparent to-transparent" />
+                    <div className="relative w-full h-full">
+                        <img
+                            src={movie.backdrops?.[0] || movie.cover || "/placeholder.svg"}
+                            className="w-full h-full object-cover object-center"
+                            alt={movie.title}
+                            onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.src = "/placeholder.svg";
+                            }}
+                        />
+                        {/* Improved Gradients for consistency */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/40 to-transparent opacity-80" />
+                        <div className="absolute inset-0 bg-gradient-hero" />
                     </div>
                 </ScaleIn>
             </div>
 
-            <div className="container mx-auto px-4 sm:px-6 -mt-32 sm:-mt-48 md:-mt-64 relative z-10">
+            <div className="container mx-auto px-4 sm:px-6 relative z-10 -mt-40 sm:-mt-56 md:-mt-64">
+                <Breadcrumb className="mb-4 sm:mb-6 px-0" />
                 <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] lg:grid-cols-[350px_1fr] gap-8">
                     {/* Poster & Actions */}
                     <FadeIn className="space-y-6" direction="right" delay={0.1}>
@@ -384,14 +389,14 @@ export default function MovieDetail() {
                                     </div>
                                 )}
                                 {movie.year && (
-                                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-muted-foreground">
-                                        <Calendar className="h-3.5 w-3.5" />
+                                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/40 border border-white/10 text-hero-foreground shadow-sm">
+                                        <Calendar className="h-3.5 w-3.5 text-primary" />
                                         <span>{movie.year}</span>
                                     </div>
                                 )}
                                 {translatedMovie?.country && (
-                                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-muted-foreground">
-                                        <Globe className="h-3.5 w-3.5" />
+                                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/40 border border-white/10 text-hero-foreground shadow-sm">
+                                        <Globe className="h-3.5 w-3.5 text-primary" />
                                         <span>{translatedMovie.country}</span>
                                     </div>
                                 )}
@@ -427,13 +432,16 @@ export default function MovieDetail() {
 
                         {translatedMovie?.synopsis && (
                             <div className="space-y-2">
-                                <h2 className="text-lg font-semibold flex items-center gap-2">
+                                <h2 className="text-lg font-semibold flex items-center gap-2 px-1">
                                     <span className="w-1 h-6 bg-primary rounded-full" />
                                     {t("synopsis")}
                                 </h2>
-                                <p className="text-muted-foreground leading-relaxed text-base sm:text-lg">
-                                    {translatedMovie.synopsis}
-                                </p>
+                                <div className="relative group/synopsis">
+                                    <div className="absolute inset-0 bg-primary/5 blur-2xl rounded-3xl opacity-0 group-hover/synopsis:opacity-100 transition-opacity duration-500" />
+                                    <p className="relative p-5 rounded-2xl bg-card/40 backdrop-blur-md border border-white/5 text-muted-foreground leading-relaxed text-base sm:text-lg shadow-inner">
+                                        {translatedMovie.synopsis}
+                                    </p>
+                                </div>
                             </div>
                         )}
 
@@ -509,7 +517,7 @@ export default function MovieDetail() {
                                         className="w-full"
                                     >
                                         <ScrollArea className="w-full pb-4">
-                                            <TabsList className="inline-flex w-auto h-auto p-1 bg-muted/50 backdrop-blur-sm border border-white/5 rounded-xl">
+                                            <TabsList className="inline-flex w-auto h-auto p-1 bg-muted/50 backdrop-blur-sm border border-border/50 rounded-xl">
                                                 {seasons.map((season) => (
                                                     <TabsTrigger
                                                         key={season}
@@ -537,7 +545,7 @@ export default function MovieDetail() {
                                                 >
                                                     {/* Season Info */}
                                                     {seasonInfo && (
-                                                        <div className="flex flex-col md:flex-row gap-6 bg-white/5 p-6 rounded-xl border border-white/5">
+                                                        <div className="flex flex-col md:flex-row gap-6 bg-card/50 p-6 rounded-xl border border-border/50">
                                                             {seasonInfo.cover && (
                                                                 <div className="flex-shrink-0 w-32 md:w-40 aspect-[2/3] rounded-lg overflow-hidden shadow-lg">
                                                                     <img
@@ -560,7 +568,7 @@ export default function MovieDetail() {
                                                                     </h3>
                                                                     <div className="flex items-center gap-3 text-muted-foreground mt-2 text-sm">
                                                                         {seasonInfo.year && (
-                                                                            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/5">
+                                                                            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-secondary">
                                                                                 <Calendar className="h-3.5 w-3.5" />
                                                                                 <span>
                                                                                     {
@@ -569,7 +577,7 @@ export default function MovieDetail() {
                                                                                 </span>
                                                                             </div>
                                                                         )}
-                                                                        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/5">
+                                                                        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-secondary">
                                                                             <Tv className="h-3.5 w-3.5" />
                                                                             <span>
                                                                                 {
@@ -610,7 +618,7 @@ export default function MovieDetail() {
                                                                 key={episode.id}
                                                                 to={`/series/${id}/watch?season=${episode.seasonNumber}&episode=${episode.episodeNumber}`}
                                                             >
-                                                                <Card className="group flex flex-row overflow-hidden border-white/5 bg-black/20 hover:bg-white/5 transition-all hover:scale-[1.01] hover:shadow-xl hover:shadow-primary/5 h-24 sm:h-28">
+                                                                <Card className="group flex flex-row overflow-hidden border-border/50 bg-card hover:bg-accent/50 transition-all hover:scale-[1.01] hover:shadow-xl hover:shadow-primary/5 h-24 sm:h-28">
                                                                     <div className="relative w-32 sm:w-44 flex-shrink-0 overflow-hidden">
                                                                         <img
                                                                             src={
@@ -750,8 +758,8 @@ export default function MovieDetail() {
 
                         {/* Watch Section with Multiple Providers */}
                         {movie.type === "movie" && (
-                            <Card className="overflow-hidden border-0 shadow-2xl bg-black/40 backdrop-blur-xl ring-1 ring-white/10">
-                                <CardHeader className="border-b border-white/5 bg-white/5">
+                            <Card className="overflow-hidden border-border/50 shadow-2xl bg-card backdrop-blur-xl ring-1 ring-border/10">
+                                <CardHeader className="border-b border-border/10 bg-muted/20">
                                     <CardTitle className="text-lg flex items-center gap-2">
                                         <Play className="h-5 w-5 text-primary fill-current" />
                                         {t("watchMovie")}
@@ -944,98 +952,110 @@ export default function MovieDetail() {
                         )}
 
                         {/* Comments Section */}
-                        <FadeIn className="space-y-4 pt-4" direction="up">
-                            <h2 className="text-xl font-bold flex items-center gap-2">
+                        <FadeIn className="space-y-4 pt-10" direction="up">
+                            <h2 className="text-xl font-bold flex items-center gap-2 mb-4">
                                 <MessageSquare className="h-5 w-5 text-primary" />
                                 Comments
                             </h2>
-                            <Card className="bg-card/50 backdrop-blur-sm border-white/5">
-                                <CardContent className="p-6 space-y-6">
-                                    <div className="space-y-4">
-                                        <Input
-                                            placeholder="Your name"
-                                            value={name}
-                                            onChange={(e) =>
-                                                setName(e.target.value)
-                                            }
-                                            maxLength={50}
-                                            className="bg-background/50 border-white/10 focus:border-primary/50"
-                                        />
-                                        <Textarea
-                                            placeholder="Share your thoughts..."
-                                            value={message}
-                                            onChange={(e) =>
-                                                setMessage(e.target.value)
-                                            }
-                                            className="min-h-[100px] bg-background/50 border-white/10 focus:border-primary/50 resize-none"
-                                            maxLength={500}
-                                        />
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-xs text-muted-foreground">
-                                                {message.length}/500 characters
-                                            </span>
-                                            <Button
-                                                onClick={addComment}
-                                                disabled={
-                                                    !name.trim() ||
-                                                    !message.trim() ||
-                                                    isLoadingComments
-                                                }
-                                                className="gap-2"
-                                            >
-                                                {isLoadingComments ? (
-                                                    <>
-                                                        <RefreshCw className="h-4 w-4 animate-spin" />
-                                                        Posting...
-                                                    </>
-                                                ) : (
-                                                    "Post Comment"
-                                                )}
-                                            </Button>
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-4">
-                                        {isLoadingComments &&
-                                        comments.length === 0 ? (
-                                            <div className="text-center py-8">
-                                                <RefreshCw className="h-6 w-6 mx-auto animate-spin text-primary" />
-                                                <p className="text-sm text-muted-foreground mt-2">
-                                                    Loading comments...
-                                                </p>
+                            <Card className="bg-card/50 backdrop-blur-sm border-white/5 overflow-hidden shadow-xl">
+                                <CardContent className="p-6 space-y-8">
+                                        <div className="space-y-4">
+                                            <div className="grid grid-cols-1 gap-4">
+                                                <Input
+                                                    placeholder="Your name"
+                                                    value={name}
+                                                    onChange={(e) =>
+                                                        setName(e.target.value)
+                                                    }
+                                                    maxLength={50}
+                                                    className="bg-background/50 border-white/10 focus:border-primary/50 h-11"
+                                                />
+                                                <Textarea
+                                                    placeholder="Share your thoughts..."
+                                                    value={message}
+                                                    onChange={(e) =>
+                                                        setMessage(e.target.value)
+                                                    }
+                                                    className="min-h-[120px] bg-background/50 border-white/10 focus:border-primary/50 resize-none p-4"
+                                                    maxLength={500}
+                                                />
                                             </div>
-                                        ) : comments.length === 0 ? (
-                                            <div className="text-center py-8 text-muted-foreground bg-muted/30 rounded-lg border border-dashed border-white/10">
-                                                <MessageSquare className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                                                <p>
-                                                    No comments yet. Be the
-                                                    first to share your
-                                                    thoughts!
-                                                </p>
-                                            </div>
-                                        ) : (
-                                            comments.map((c, idx) => (
-                                                <div
-                                                    key={`${c.time}-${idx}`}
-                                                    className="p-4 rounded-xl bg-muted/30 border border-white/5 space-y-2"
+                                            <div className="flex justify-between items-center bg-background/30 p-2 pl-4 rounded-lg border border-white/5">
+                                                <span className="text-xs text-muted-foreground font-medium">
+                                                    {message.length}/500 characters
+                                                </span>
+                                                <Button
+                                                    onClick={addComment}
+                                                    disabled={
+                                                        !name.trim() ||
+                                                        !message.trim() ||
+                                                        isLoadingComments
+                                                    }
+                                                    className="gap-2 px-6 shadow-lg shadow-primary/20"
                                                 >
-                                                    <div className="flex items-center justify-between">
-                                                        <span className="font-semibold text-sm text-primary">
-                                                            {c.name}
-                                                        </span>
-                                                        <span className="text-xs text-muted-foreground">
-                                                            {new Date(
-                                                                c.time
-                                                            ).toLocaleString()}
-                                                        </span>
-                                                    </div>
-                                                    <p className="text-sm text-foreground/90 leading-relaxed">
-                                                        {c.message}
+                                                    {isLoadingComments ? (
+                                                        <>
+                                                            <RefreshCw className="h-4 w-4 animate-spin" />
+                                                            Posting...
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <Play className="h-3.5 w-3.5 fill-current" />
+                                                            Post Comment
+                                                        </>
+                                                    )}
+                                                </Button>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-4">
+                                            {isLoadingComments &&
+                                            comments.length === 0 ? (
+                                                <div className="text-center py-12">
+                                                    <RefreshCw className="h-8 w-8 mx-auto animate-spin text-primary opacity-50" />
+                                                    <p className="text-sm text-muted-foreground mt-4">
+                                                        Loading comments...
                                                     </p>
                                                 </div>
-                                            ))
-                                        )}
-                                    </div>
+                                            ) : comments.length === 0 ? (
+                                                <div className="text-center py-12 text-muted-foreground bg-muted/10 rounded-2xl border border-dashed border-white/10 group/empty">
+                                                    <MessageSquare className="h-10 w-10 mx-auto mb-3 opacity-20 group-hover:opacity-40 transition-opacity" />
+                                                    <p className="text-sm">
+                                                        No comments yet. Be the
+                                                        first to share your
+                                                        thoughts!
+                                                    </p>
+                                                </div>
+                                            ) : (
+                                                <div className="grid gap-4">
+                                                    {comments.map((c, idx) => (
+                                                        <div
+                                                            key={`${c.time}-${idx}`}
+                                                            className="p-5 rounded-2xl bg-muted/20 border border-white/5 space-y-3 transition-colors hover:bg-muted/30"
+                                                        >
+                                                            <div className="flex items-center justify-between">
+                                                                <div className="flex items-center gap-3">
+                                                                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold ring-1 ring-primary/20">
+                                                                        {c.name.charAt(0).toUpperCase()}
+                                                                    </div>
+                                                                    <span className="font-bold text-sm text-foreground/90">
+                                                                        {c.name}
+                                                                    </span>
+                                                                </div>
+                                                                <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+                                                                    {new Date(
+                                                                        c.time
+                                                                    ).toLocaleDateString()}
+                                                                </span>
+                                                            </div>
+                                                            <p className="text-sm text-muted-foreground leading-relaxed pl-11">
+                                                                {c.message}
+                                                            </p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
                                 </CardContent>
                             </Card>
                         </FadeIn>

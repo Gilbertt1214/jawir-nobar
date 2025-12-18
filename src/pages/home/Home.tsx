@@ -207,7 +207,7 @@ export default function Home() {
                                                 idx === 0 ? "eager" : "lazy"
                                             }
                                         />
-                                        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/40 to-transparent" />
+                                        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
                                         <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
                                     </>
                                 ) : (
@@ -227,7 +227,7 @@ export default function Home() {
                                     {heroItem.year && (
                                         <Badge
                                             variant="outline"
-                                            className="text-xs border-white/20 bg-black/40 backdrop-blur-md px-3 py-1"
+                                            className="text-xs border-white/20 bg-black/40 text-hero-foreground backdrop-blur-md px-3 py-1"
                                         >
                                             {heroItem.year}
                                         </Badge>
@@ -247,7 +247,7 @@ export default function Home() {
                                     )}
                                     <Badge
                                         variant="secondary"
-                                        className="text-xs uppercase tracking-wider bg-white/10 hover:bg-white/20 backdrop-blur-md"
+                                        className="text-xs uppercase tracking-wider bg-black/30 hover:bg-black/40 text-hero-foreground border-white/10 backdrop-blur-md"
                                     >
                                         {heroItem.type}
                                     </Badge>
@@ -256,13 +256,13 @@ export default function Home() {
 
                             <StaggeredText
                                 text={heroItem.title}
-                                className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-tight text-gradient drop-shadow-2xl"
+                                className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-tight text-hero-foreground drop-shadow-2xl"
                                 delay={0.2}
                                 staggerDelay={0.08}
                             />
 
                             <FadeIn direction="up" delay={0.3}>
-                                <p className="text-base sm:text-lg text-muted-foreground line-clamp-3 max-w-2xl leading-relaxed">
+                                <p className="text-base sm:text-lg text-hero-muted line-clamp-3 max-w-2xl leading-relaxed drop-shadow-md">
                                     {heroItem.synopsis ||
                                         "Discover the latest movies and series to watch. Immerse yourself in the world of cinema."}
                                 </p>
@@ -286,7 +286,7 @@ export default function Home() {
                                         asChild
                                         size="lg"
                                         variant="outline"
-                                        className="gap-2 backdrop-blur-md bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20 hover:scale-105 transition-all duration-300 rounded-full h-12 px-8 text-base"
+                                        className="gap-2 backdrop-blur-md bg-white/10 border-white/20 text-hero-foreground hover:bg-white/20 hover:border-white/40 hover:scale-105 transition-all duration-300 rounded-full h-12 px-8 text-base"
                                     >
                                         <Link
                                             to={`/${heroItem.type}/${heroItem.id}`}

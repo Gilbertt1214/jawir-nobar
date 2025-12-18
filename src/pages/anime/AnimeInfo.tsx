@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { movieAPI } from "@/services/api";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Breadcrumb } from "@/components/common/Breadcrumb";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -218,25 +219,27 @@ export default function AnimeInfo() {
     }
 
     return (
-        <div className="min-h-screen bg-background pb-12">
-            {/* Backdrop with Parallax */}
-            <div className="relative h-[30vh] sm:h-[40vh] md:h-[50vh] -mt-16 sm:-mt-20 overflow-hidden">
-                <motion.div
-                    className="absolute inset-0 bg-cover bg-center"
-                    style={{
-                        backgroundImage: anime.cover
-                            ? `url(${anime.cover})`
-                            : "none",
-                        y: yVideo,
-                        opacity: opacityVideo,
-                    }}
-                >
-                    <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/20" />
-                    <div className="absolute inset-0 bg-gradient-to-r from-background via-transparent to-transparent" />
-                </motion.div>
+        <div className="min-h-screen bg-background pb-20">
+            {/* Backdrop */}
+            <div className="relative h-[65vh] sm:h-[75vh] md:h-[85vh] -mt-[72px] sm:-mt-24 lg:-mt-28 overflow-hidden bg-background">
+                <div className="relative w-full h-full">
+                    <img
+                        src={anime.cover}
+                        className="w-full h-full object-cover object-center"
+                        alt={anime.title}
+                        onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = "/placeholder.svg";
+                        }}
+                    />
+                    {/* Improved Gradients for consistency */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-background via-background/40 to-transparent opacity-80" />
+                    <div className="absolute inset-0 bg-gradient-hero" />
+                </div>
             </div>
 
-            <div className="container mx-auto px-4 -mt-24 sm:-mt-32 md:-mt-40 relative z-10">
+            <div className="container mx-auto px-4 relative z-10 -mt-40 sm:-mt-56 md:-mt-64">
+                <Breadcrumb className="mb-4 sm:mb-6 px-0" />
                 <div className="grid grid-cols-1 md:grid-cols-[250px_1fr] lg:grid-cols-[300px_1fr] gap-6 lg:gap-8">
                     {/* Poster */}
                     <div className="space-y-4">
@@ -299,7 +302,7 @@ export default function AnimeInfo() {
                     <div className="space-y-6">
                         {/* Title */}
                         <FadeIn delay={0.4} direction="left">
-                            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white leading-tight">
+                            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground leading-tight">
                                 {anime.title}
                             </h1>
                         </FadeIn>
@@ -314,13 +317,13 @@ export default function AnimeInfo() {
                                     </div>
                                 )}
                                 {anime.releaseDate && (
-                                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-muted-foreground">
+                                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary border border-border/50 text-muted-foreground">
                                         <Calendar className="h-3.5 w-3.5" />
                                         <span>{anime.releaseDate}</span>
                                     </div>
                                 )}
                                 {anime.studio && (
-                                    <div className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-muted-foreground">
+                                    <div className="px-3 py-1 rounded-full bg-secondary border border-border/50 text-muted-foreground">
                                         {anime.studio}
                                     </div>
                                 )}
@@ -341,7 +344,7 @@ export default function AnimeInfo() {
                                         <Badge
                                             key={i}
                                             variant="outline"
-                                            className="hover:bg-primary hover:text-white hover:border-primary transition-all cursor-pointer px-3 py-1"
+                                            className="hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all cursor-pointer px-3 py-1"
                                         >
                                             {genre}
                                         </Badge>
@@ -354,13 +357,16 @@ export default function AnimeInfo() {
                         {anime.synopsis && (
                             <FadeIn delay={0.7} direction="up">
                                 <div className="space-y-2">
-                                    <h2 className="text-lg font-semibold flex items-center gap-2">
+                                    <h2 className="text-lg font-semibold flex items-center gap-2 px-1">
                                         <span className="w-1 h-6 bg-primary rounded-full" />
                                         {t("synopsis")}
                                     </h2>
-                                    <p className="text-muted-foreground leading-relaxed">
-                                        {anime.synopsis}
-                                    </p>
+                                    <div className="relative group/synopsis">
+                                        <div className="absolute inset-0 bg-primary/5 blur-2xl rounded-3xl opacity-0 group-hover/synopsis:opacity-100 transition-opacity duration-500" />
+                                        <p className="relative p-5 rounded-2xl bg-card/40 backdrop-blur-md border border-white/5 text-muted-foreground leading-relaxed text-base sm:text-lg shadow-inner">
+                                            {anime.synopsis}
+                                        </p>
+                                    </div>
                                 </div>
                             </FadeIn>
                         )}
@@ -407,7 +413,7 @@ export default function AnimeInfo() {
                                                     className={`group flex flex-row overflow-hidden rounded-lg border transition-all hover:scale-[1.01] hover:shadow-xl h-24 sm:h-28 ${
                                                         isWatched
                                                             ? "border-primary/30 bg-primary/10 hover:bg-primary/20"
-                                                            : "border-white/5 bg-black/20 hover:bg-white/5"
+                                                            : "border-border/50 bg-card hover:bg-accent/50"
                                                     }`}
                                                 >
                                                     {/* Thumbnail */}
@@ -440,9 +446,9 @@ export default function AnimeInfo() {
                                                                 )}
                                                             </Badge>
                                                         </div>
-                                                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 bg-black/20 backdrop-blur-[1px]">
-                                                            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/40 transform scale-50 group-hover:scale-100 transition-transform">
-                                                                <Play className="w-4 h-4 sm:w-5 sm:h-5 text-white fill-current ml-0.5" />
+                                                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 bg-secondary/20 backdrop-blur-[1px]">
+                                                            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary/90 flex items-center justify-center shadow-lg shadow-primary/40 transform scale-50 group-hover:scale-100 transition-transform">
+                                                                <Play className="w-4 h-4 sm:w-5 sm:h-5 text-primary-foreground fill-current ml-0.5" />
                                                             </div>
                                                         </div>
                                                     </div>
@@ -502,34 +508,36 @@ export default function AnimeInfo() {
 
                         {/* Comments Section */}
                         <FadeIn delay={0.9} direction="up">
-                            <div className="space-y-4 pt-6">
-                                <h2 className="text-lg font-semibold flex items-center gap-2">
+                            <div className="space-y-4 pt-10">
+                                <h2 className="text-xl font-bold flex items-center gap-2 mb-4">
                                     <MessageSquare className="h-5 w-5 text-primary" />
                                     {t("comments")}
                                 </h2>
-                                <Card className="bg-card/50 backdrop-blur-sm border-white/5">
-                                    <CardContent className="p-4 sm:p-6 space-y-6">
+                                <Card className="bg-card/50 backdrop-blur-sm border-white/5 overflow-hidden shadow-xl">
+                                    <CardContent className="p-6 space-y-8">
                                         <div className="space-y-4">
-                                            <Input
-                                                placeholder={t("yourName")}
-                                                value={name}
-                                                onChange={(e) =>
-                                                    setName(e.target.value)
-                                                }
-                                                maxLength={50}
-                                                className="bg-background/50 border-white/10 focus:border-primary/50"
-                                            />
-                                            <Textarea
-                                                placeholder={t("writeComment")}
-                                                value={message}
-                                                onChange={(e) =>
-                                                    setMessage(e.target.value)
-                                                }
-                                                className="min-h-[100px] bg-background/50 border-white/10 focus:border-primary/50 resize-none"
-                                                maxLength={500}
-                                            />
-                                            <div className="flex justify-between items-center">
-                                                <span className="text-xs text-muted-foreground">
+                                            <div className="grid grid-cols-1 gap-4">
+                                                <Input
+                                                    placeholder={t("yourName")}
+                                                    value={name}
+                                                    onChange={(e) =>
+                                                        setName(e.target.value)
+                                                    }
+                                                    maxLength={50}
+                                                    className="bg-background/50 border-white/10 focus:border-primary/50 h-11"
+                                                />
+                                                <Textarea
+                                                    placeholder={t("writeComment")}
+                                                    value={message}
+                                                    onChange={(e) =>
+                                                        setMessage(e.target.value)
+                                                    }
+                                                    className="min-h-[120px] bg-background/50 border-white/10 focus:border-primary/50 resize-none p-4"
+                                                    maxLength={500}
+                                                />
+                                            </div>
+                                            <div className="flex justify-between items-center bg-background/30 p-2 pl-4 rounded-lg border border-white/5">
+                                                <span className="text-xs text-muted-foreground font-medium">
                                                     {message.length}/500
                                                     karakter
                                                 </span>
@@ -540,7 +548,7 @@ export default function AnimeInfo() {
                                                         !message.trim() ||
                                                         isLoadingComments
                                                     }
-                                                    className="gap-2 bg-primary hover:bg-primary"
+                                                    className="gap-2 px-6 shadow-lg shadow-primary/20"
                                                 >
                                                     {isLoadingComments ? (
                                                         <>
@@ -548,7 +556,10 @@ export default function AnimeInfo() {
                                                             {t("posting")}
                                                         </>
                                                     ) : (
-                                                        t("sendComment")
+                                                        <>
+                                                            <Play className="h-3.5 w-3.5 fill-current" />
+                                                            {t("sendComment")}
+                                                        </>
                                                     )}
                                                 </Button>
                                             </div>
@@ -557,41 +568,48 @@ export default function AnimeInfo() {
                                         <div className="space-y-4">
                                             {isLoadingComments &&
                                             comments.length === 0 ? (
-                                                <div className="text-center py-8">
-                                                    <RefreshCw className="h-6 w-6 mx-auto animate-spin text-primary" />
-                                                    <p className="text-sm text-muted-foreground mt-2">
+                                                <div className="text-center py-12">
+                                                    <RefreshCw className="h-8 w-8 mx-auto animate-spin text-primary opacity-50" />
+                                                    <p className="text-sm text-muted-foreground mt-4">
                                                         {t("loadingComments")}
                                                     </p>
                                                 </div>
                                             ) : comments.length === 0 ? (
-                                                <div className="text-center py-8 text-muted-foreground bg-muted/30 rounded-lg border border-dashed border-white/10">
-                                                    <MessageSquare className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                                                    <p>{t("noCommentsYet")}</p>
+                                                <div className="text-center py-12 text-muted-foreground bg-muted/10 rounded-2xl border border-dashed border-white/10 group/empty">
+                                                    <MessageSquare className="h-10 w-10 mx-auto mb-3 opacity-20 group-hover:opacity-40 transition-opacity" />
+                                                    <p className="text-sm">{t("noCommentsYet")}</p>
                                                 </div>
                                             ) : (
-                                                comments.map((c, idx) => (
-                                                    <FadeIn
-                                                        key={`${c.time}-${idx}`}
-                                                        direction="up"
-                                                        delay={0.1}
-                                                    >
-                                                        <div className="p-4 rounded-xl bg-muted/30 border border-white/5 space-y-2">
-                                                            <div className="flex items-center justify-between">
-                                                                <span className="font-semibold text-sm text-primary">
-                                                                    {c.name}
-                                                                </span>
-                                                                <span className="text-xs text-muted-foreground">
-                                                                    {new Date(
-                                                                        c.time
-                                                                    ).toLocaleString()}
-                                                                </span>
+                                                <div className="grid gap-4">
+                                                    {comments.map((c, idx) => (
+                                                        <FadeIn
+                                                            key={`${c.time}-${idx}`}
+                                                            direction="up"
+                                                            delay={0.1}
+                                                        >
+                                                            <div className="p-5 rounded-2xl bg-muted/20 border border-white/5 space-y-3 transition-colors hover:bg-muted/30">
+                                                                <div className="flex items-center justify-between">
+                                                                    <div className="flex items-center gap-3">
+                                                                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold ring-1 ring-primary/20">
+                                                                            {c.name.charAt(0).toUpperCase()}
+                                                                        </div>
+                                                                        <span className="font-bold text-sm text-foreground/90">
+                                                                            {c.name}
+                                                                        </span>
+                                                                    </div>
+                                                                    <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+                                                                        {new Date(
+                                                                            c.time
+                                                                        ).toLocaleDateString()}
+                                                                    </span>
+                                                                </div>
+                                                                <p className="text-sm text-muted-foreground leading-relaxed pl-11">
+                                                                    {c.message}
+                                                                </p>
                                                             </div>
-                                                            <p className="text-sm text-foreground/90 leading-relaxed">
-                                                                {c.message}
-                                                            </p>
-                                                        </div>
-                                                    </FadeIn>
-                                                ))
+                                                        </FadeIn>
+                                                    ))}
+                                                </div>
                                             )}
                                         </div>
                                     </CardContent>

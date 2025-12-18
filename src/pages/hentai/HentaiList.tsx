@@ -249,7 +249,7 @@ export default function HentaiList() {
                             size="sm"
                             onClick={handleRandom}
                             disabled={isLoadingRandom}
-                            className="border-primary text-primary hover:bg-primary hover:text-white"
+                            className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
                         >
                             <Shuffle
                                 className={`mr-2 h-4 w-4 ${
@@ -313,7 +313,7 @@ export default function HentaiList() {
                                                 .map((g, i) => (
                                                     <Badge
                                                         key={i}
-                                                        className="bg-primary text-white text-xs"
+                                                        className="bg-primary text-primary-foreground text-xs border-none"
                                                     >
                                                         {g}
                                                     </Badge>
@@ -331,7 +331,7 @@ export default function HentaiList() {
                                                 `/hentai/watch/${randomHentai.id}`
                                             )
                                         }
-                                        className="bg-primary hover:bg-primary text-white"
+                                        className="bg-primary hover:bg-primary/90 text-primary-foreground"
                                     >
                                         <Play className="mr-2 h-4 w-4" />
                                         {t('watchNow')}
@@ -352,9 +352,9 @@ export default function HentaiList() {
 
                 {/* Source Badge */}
                 <div className="flex gap-2 mb-6">
-                    <div className="inline-flex items-center px-4 py-2 rounded-lg bg-primary">
-                        <span className="text-white font-medium">Nekopoi</span>
-                        <Badge className="ml-2 bg-white text-primary hover:bg-gray-100">
+                    <div className="inline-flex items-center px-4 py-2 rounded-lg bg-primary text-primary-foreground">
+                        <span className="font-medium">Nekopoi</span>
+                        <Badge className="ml-2 bg-primary-foreground text-primary hover:bg-primary-foreground/90">
                             {totalItems}
                         </Badge>
                     </div>
@@ -403,7 +403,7 @@ export default function HentaiList() {
                                 </p>
                                 <Button
                                     onClick={() => refetchRelease()}
-                                    className="bg-primary hover:bg-primary text-white"
+                                    className="bg-primary hover:bg-primary/90 text-primary-foreground"
                                 >
                                     <RefreshCw className="mr-2 h-4 w-4" />
                                     {t('retry')}
@@ -472,12 +472,12 @@ export default function HentaiList() {
                                                         </div>
                                                     </div>
                                                     <div className="absolute top-2 right-2">
-                                                        <Badge className="text-xs backdrop-blur-sm bg-primary text-white border-none">
+                                                        <Badge className="text-xs backdrop-blur-sm bg-primary text-primary-foreground border-none">
                                                             Hentai
                                                         </Badge>
                                                     </div>
                                                     <div className="absolute top-2 left-2">
-                                                        <Badge className="text-xs backdrop-blur-sm bg-primary text-white border-none">
+                                                        <Badge className="text-xs backdrop-blur-sm bg-primary text-primary-foreground border-none">
                                                             {
                                                                 group.episodes
                                                                     .length
@@ -563,7 +563,7 @@ export default function HentaiList() {
                                                 onClick={() => setPage(pageNum)}
                                                 className={`w-10 h-10 ${
                                                     page === pageNum
-                                                        ? "bg-primary hover:bg-primary text-white"
+                                                        ? "bg-primary hover:bg-primary text-primary-foreground"
                                                         : ""
                                                 }`}
                                             >

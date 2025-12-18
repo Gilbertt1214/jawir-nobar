@@ -222,7 +222,7 @@ export default function EpisodeDetail() {
             </p>
           </div>
 
-          <div className="flex items-center gap-2 bg-muted/30 p-1 rounded-lg border border-white/5">
+          <div className="flex items-center gap-2 bg-muted/30 p-1 rounded-lg border border-border/50">
             <div className="flex items-center gap-2 px-3">
               <MonitorPlay className="h-4 w-4 text-primary" />
               <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
@@ -234,7 +234,7 @@ export default function EpisodeDetail() {
                 variant="ghost"
                 size="sm"
                 onClick={handleRetryProviders}
-                className="h-8 w-8 p-0 hover:bg-white/10"
+                className="h-8 w-8 p-0 hover:bg-accent"
                 title="Refresh providers"
               >
                 <RefreshCw className="h-3.5 w-3.5" />
@@ -246,7 +246,7 @@ export default function EpisodeDetail() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="gap-2 h-8 border-white/10 bg-background/50"
+                    className="gap-2 h-8 border-border/50 bg-background/50"
                     disabled={!selectedProvider}
                   >
                     <span className="truncate max-w-[150px] text-xs">
@@ -320,7 +320,7 @@ export default function EpisodeDetail() {
         )}
 
         {selectedProvider && (
-          <div className="relative w-full aspect-video bg-black rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/10 group">
+          <div className="relative w-full aspect-video bg-black rounded-xl overflow-hidden shadow-2xl ring-1 ring-border/10 group">
             <iframe
               src={selectedProvider.url}
               className="absolute inset-0 w-full h-full"
