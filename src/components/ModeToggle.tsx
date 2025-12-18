@@ -7,9 +7,23 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useTheme } from "@/contexts/ThemeContext"
+import { useLanguage } from "@/contexts/LanguageContext"
+import { toast } from "sonner"
 
 export function ModeToggle() {
   const { setTheme } = useTheme()
+  const { t } = useLanguage()
+
+  const handleSetTheme = (theme: "light" | "dark" | "system") => {
+    setTheme(theme)
+    if (theme === "light") {
+      toast.success(t("switchedToLight"))
+    } else if (theme === "dark") {
+      toast.success(t("switchedToDark"))
+    } else {
+      toast.success(t("switchedToSystem"))
+    }
+  }
 
   return (
     <DropdownMenu>
@@ -21,15 +35,15 @@ export function ModeToggle() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setTheme("light")}>
+        <DropdownMenuItem onClick={() => handleSetTheme("light")}>
           <Sun className="mr-2 h-4 w-4" />
           Light
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("dark")}>
+        <DropdownMenuItem onClick={() => handleSetTheme("dark")}>
           <Moon className="mr-2 h-4 w-4" />
           Dark
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("system")}>
+        <DropdownMenuItem onClick={() => handleSetTheme("system")}>
           <Laptop className="mr-2 h-4 w-4" />
           System
         </DropdownMenuItem>
