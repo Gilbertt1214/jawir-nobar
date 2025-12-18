@@ -185,10 +185,10 @@ export function Navbar() {
                                 "h-9 w-9 rounded-full transition-all",
                                 isScrolled ? "text-foreground/80 hover:bg-secondary hover:text-primary" : "text-hero-foreground/90 hover:bg-white/10 hover:text-hero-foreground"
                             )}
-                            title={language === 'en' ? 'Switch to Indonesian' : 'Switch to English'}
+                            title={language === 'en' ? t('switchToIndonesian') : t('switchToEnglish')}
                         >
                             <Globe className="h-4 w-4" />
-                            <span className="sr-only">Toggle language</span>
+                            <span className="sr-only">{t('toggleLanguage')}</span>
                         </Button>
                     </div>
 

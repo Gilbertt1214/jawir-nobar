@@ -524,7 +524,7 @@ export default function MovieDetail() {
                                                         value={String(season)}
                                                         className="px-4 py-2 text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg transition-all"
                                                     >
-                                                        Season {season}
+                                                        {t('season')?.replace('{season}', String(season)) || `Season ${season}`}
                                                     </TabsTrigger>
                                                 ))}
                                             </TabsList>
@@ -583,7 +583,7 @@ export default function MovieDetail() {
                                                                                 {
                                                                                     seasonInfo.episodeCount
                                                                                 }{" "}
-                                                                                Episodes
+                                                                                {t('episodes')}
                                                                             </span>
                                                                         </div>
                                                                     </div>
@@ -592,7 +592,7 @@ export default function MovieDetail() {
                                                                 {seasonInfo.overview && (
                                                                     <div className="space-y-2">
                                                                         <h4 className="text-sm font-semibold text-primary uppercase tracking-wider">
-                                                                            Overview
+                                                                            {t('overview')}
                                                                         </h4>
                                                                         <p className="text-muted-foreground leading-relaxed">
                                                                             {
@@ -641,7 +641,8 @@ export default function MovieDetail() {
                                                                         <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent" />
                                                                         <div className="absolute top-1 left-1 sm:top-2 sm:left-2">
                                                                             <Badge className="bg-black/60 backdrop-blur border-white/10 text-[10px] sm:text-xs px-1.5 py-0">
-                                                                                EP{" "}
+                                                                                {t('episode')}
+                                                                                {" "}
                                                                                 {
                                                                                     episode.episodeNumber
                                                                                 }
@@ -656,7 +657,7 @@ export default function MovieDetail() {
                                                                     <div className="p-3 sm:p-4 flex flex-col justify-center flex-1 min-w-0">
                                                                         <h3 className="font-medium text-sm sm:text-base line-clamp-1 group-hover:text-primary transition-colors">
                                                                             {episode.title ||
-                                                                                `Episode ${episode.episodeNumber}`}
+                                                                                `${t('episode')} ${episode.episodeNumber}`}
                                                                         </h3>
                                                                         <div className="flex items-center gap-2 mt-1">
                                                                             <span className="text-xs text-muted-foreground">
@@ -717,7 +718,7 @@ export default function MovieDetail() {
                                                                         season
                                                                     ].length -
                                                                         12}{" "}
-                                                                    remaining)
+                                                                    {t('remaining')})
                                                                 </Button>
                                                             </div>
                                                         )}

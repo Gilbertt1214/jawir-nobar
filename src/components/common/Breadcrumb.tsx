@@ -1,4 +1,5 @@
-import { Link, useLocation, useParams } from "react-router-dom";
+import { TranslationKey } from "@/lib/translations";
+import { Link, useLocation } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translateGenre, translateCountry } from "@/lib/translate";
@@ -11,39 +12,21 @@ interface BreadcrumbItem {
     isActive: boolean;
 }
 
-// Route label translations
-const ROUTE_LABELS: Record<string, { en: string; id: string }> = {
-    movie: { en: "Movie", id: "Film" },
-    series: { en: "Series", id: "Series" },
-    anime: { en: "Anime", id: "Anime" },
-    hentai: { en: "Hentai", id: "Hentai" },
-    genres: { en: "Genres", id: "Genre" },
-    genre: { en: "Genre", id: "Genre" },
-    countries: { en: "Countries", id: "Negara" },
-    country: { en: "Country", id: "Negara" },
-    years: { en: "Years", id: "Tahun" },
-    year: { en: "Year", id: "Tahun" },
-    search: { en: "Search", id: "Pencarian" },
-    browse: { en: "Browse", id: "Jelajahi" },
-    watch: { en: "Watch", id: "Tonton" },
-    episodes: { en: "Episodes", id: "Episode" },
-    nekopoi: { en: "Detail", id: "Detail" },
-};
+
 
 // Category translations for browse
-const CATEGORY_LABELS: Record<string, { en: string; id: string }> = {
-    "latest-movies": { en: "Latest Movies", id: "Film Terbaru" },
-    "popular-movies": { en: "Popular Movies", id: "Film Populer" },
-    "latest-series": { en: "Latest Series", id: "Series Terbaru" },
-    "indonesian-movies": { en: "Indonesian Movies", id: "Film Indonesia" },
-    "korean-drama": { en: "Korean Drama", id: "Drama Korea" },
-    romance: { en: "Romance", id: "Romantis" },
+const CATEGORY_LABELS: Record<string, TranslationKey> = {
+    "latest-movies": "latestMovies",
+    "popular-movies": "popularMovies",
+    "latest-series": "latestSeries",
+    "indonesian-movies": "indonesianMovies",
+    "korean-drama": "koreanDrama",
+    romance: "romance",
 };
 
 export function Breadcrumb({ className }: { className?: string }) {
     const location = useLocation();
-    const params = useParams();
-    const { language } = useLanguage();
+    const { t, language } = useLanguage();
 
     // Don't show breadcrumb on home page
     if (location.pathname === "/") {
@@ -55,7 +38,7 @@ export function Breadcrumb({ className }: { className?: string }) {
 
     // Always add Home
     breadcrumbs.push({
-        label: language === "id" ? "Beranda" : "Home",
+        label: t("breadcrumbHome"),
         path: "/",
         isActive: false,
     });
@@ -87,19 +70,19 @@ export function Breadcrumb({ className }: { className?: string }) {
         
         // Determine label based on path
         if (fromPath.includes("/search")) {
-            label = language === "id" ? "Pencarian" : "Search";
+            label = t("breadcrumbPencarian");
         } else if (fromPath.includes("/anime")) {
-            label = language === "id" ? "Anime" : "Anime";
+            label = t("anime");
         } else if (fromPath.includes("/genres")) {
-            label = language === "id" ? "Genre" : "Genres";
+            label = t("genres");
         } else if (fromPath.includes("/countries")) {
-            label = language === "id" ? "Negara" : "Countries";
+            label = t("countries");
         } else if (fromPath.includes("/years")) {
-            label = language === "id" ? "Tahun" : "Years";
+            label = t("years");
         } else {
             // Fallback: use the first segment
             const segment = fromPath.split("/")[1];
-            label = ROUTE_LABELS[segment]?.[language] || capitalizeWords(segment);
+            label = t(segment as TranslationKey) || capitalizeWords(segment);
         }
 
         breadcrumbs.push({
@@ -115,7 +98,7 @@ export function Breadcrumb({ className }: { className?: string }) {
                 lastSegment,
                 pathSegments.length - 1,
                 pathSegments,
-                params,
+                t,
                 language
             );
             breadcrumbs.push({
@@ -138,7 +121,7 @@ export function Breadcrumb({ className }: { className?: string }) {
                 segment,
                 index,
                 pathSegments,
-                params,
+                t,
                 language
             );
 
@@ -201,21 +184,37 @@ function getSegmentLabel(
     segment: string,
     index: number,
     allSegments: string[],
-    params: Record<string, string | undefined>,
+    t: (key: TranslationKey) => string,
     language: string
 ): string {
     const lowerSegment = segment.toLowerCase();
     
-    // Check if it's a known route
-    const routeLabel = ROUTE_LABELS[lowerSegment];
-    if (routeLabel) {
-        return language === "id" ? routeLabel.id : routeLabel.en;
+    // Known static routes
+    const staticRoutes: Record<string, TranslationKey> = {
+        movie: "movies",
+        series: "series",
+        anime: "anime",
+        hentai: "hentai",
+        genres: "genres",
+        genre: "genres",
+        countries: "countries",
+        country: "countries",
+        years: "years",
+        year: "years",
+        search: "breadcrumbPencarian",
+        browse: "browseByGenre",
+        watch: "watchNow",
+        episodes: "episodes",
+    };
+
+    if (staticRoutes[lowerSegment]) {
+        return t(staticRoutes[lowerSegment]);
     }
 
     // Check if it's a category in browse
-    const categoryLabel = CATEGORY_LABELS[lowerSegment];
-    if (categoryLabel) {
-        return language === "id" ? categoryLabel.id : categoryLabel.en;
+    const categoryKey = CATEGORY_LABELS[lowerSegment];
+    if (categoryKey) {
+        return t(categoryKey);
     }
 
     // Handle dynamic segments based on parent route
@@ -241,16 +240,16 @@ function getSegmentLabel(
 
     // For movie/series detail pages
     if (parentSegment === "movie" || parentSegment === "series") {
-        if (segment === "episodes") return language === "id" ? "Episode" : "Episodes";
-        return language === "id" ? "Detail" : "Detail";
+        if (segment === "episodes") return t("episodes");
+        return t("breadcrumbDetail");
     }
 
     // For anime/hentai pages
     if (parentSegment === "anime" || parentSegment === "hentai") {
-        if (segment === "watch") return language === "id" ? "Tonton" : "Watch";
+        if (segment === "watch") return t("watchNow");
         // If it's a slug/id, show "Detail" but only if not watch/episodes
         if (segment !== "watch" && segment !== "episodes" && segment !== "nekopoi") {
-            return language === "id" ? "Detail" : "Detail";
+            return t("breadcrumbDetail");
         }
     }
 

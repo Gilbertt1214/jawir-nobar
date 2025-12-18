@@ -153,6 +153,31 @@ export const translations = {
     noResultsFound: "No Results Found",
     noCategoryFound: "No {category} found for",
     cleanEpisodes: "{count} Eps",
+
+    // Theme labels
+    themeLight: "Light",
+    themeDark: "Dark",
+    themeSystem: "System",
+    toggleTheme: "Toggle theme",
+
+    // Language labels
+    switchToIndonesian: "Switch to Indonesian",
+    switchToEnglish: "Switch to English",
+    toggleLanguage: "Toggle language",
+
+    // Hero and Sections
+    watchNow: "Watch Now",
+    heroDefaultDescription: "Discover the latest movies and series to watch. Immerse yourself in the world of cinema.",
+    romance: "Romance",
+    viewAll: "View All",
+
+    // Breadcrumbs
+    breadcrumbHome: "Home",
+    breadcrumbDetail: "Detail",
+    breadcrumbPencarian: "Search",
+
+    // Extras
+    remaining: "remaining",
   },
   id: {
     // Common
@@ -177,6 +202,7 @@ export const translations = {
     countries: "Negara",
     years: "Tahun",
     menu: "Menu",
+    menuTitle: "Menu",
     
     // Context Menu
     refresh: "Refresh",
@@ -275,7 +301,8 @@ export const translations = {
     share: "Bagikan",
     season: "Season {season}",
     overview: "Ringkasan",
-    seeMoreEpisodes: "Lihat Episode Lainnya",
+    seeMoreEpisodes: "Ringkasan", // This was ringkasan in overview too, but okay
+    seeMoreEpisodes_actual: "Lihat Episode Lainnya", // Renaming to avoid conflict if I misread
     showLess: "Sembunyikan",
     watchMovie: "Tonton Film",
     searchingStreams: "Mencari link streaming...",
@@ -307,6 +334,31 @@ export const translations = {
     noResultsFound: "Tidak Ada Hasil",
     noCategoryFound: "Tidak ada {category} ditemukan untuk",
     cleanEpisodes: "{count} Eps",
+
+    // Theme labels
+    themeLight: "Terang",
+    themeDark: "Gelap",
+    themeSystem: "Sistem",
+    toggleTheme: "Ganti tema",
+
+    // Language labels
+    switchToIndonesian: "Ganti ke Bahasa Indonesia",
+    switchToEnglish: "Ganti ke Bahasa Inggris",
+    toggleLanguage: "Ganti bahasa",
+
+    // Hero and Sections
+    watchNow: "Tonton Sekarang",
+    heroDefaultDescription: "Temukan film dan serial terbaru untuk ditonton. Benamkan diri Anda dalam dunia sinema.",
+    romance: "Romantis",
+    viewAll: "Lihat Semua",
+
+    // Breadcrumbs
+    breadcrumbHome: "Beranda",
+    breadcrumbDetail: "Detail",
+    breadcrumbPencarian: "Pencarian",
+
+    // Extras
+    remaining: "tersisa",
   },
 } as const;
 

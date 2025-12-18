@@ -263,8 +263,7 @@ export default function Home() {
 
                             <FadeIn direction="up" delay={0.3}>
                                 <p className="text-base sm:text-lg text-hero-muted line-clamp-3 max-w-2xl leading-relaxed drop-shadow-md">
-                                    {heroItem.synopsis ||
-                                        "Discover the latest movies and series to watch. Immerse yourself in the world of cinema."}
+                                    {heroItem.synopsis || t('heroDefaultDescription')}
                                 </p>
                             </FadeIn>
 
@@ -279,7 +278,7 @@ export default function Home() {
                                             to={`/${heroItem.type}/${heroItem.id}`}
                                         >
                                             <Play className="w-5 h-5 fill-current" />
-                                            <span>Watch Now</span>
+                                            <span>{t('watchNow')}</span>
                                         </Link>
                                     </Button>
                                     <Button
@@ -292,7 +291,7 @@ export default function Home() {
                                             to={`/${heroItem.type}/${heroItem.id}`}
                                         >
                                             <Info className="w-5 h-5" />
-                                            <span>More Info</span>
+                                            <span>{t('moreInfo')}</span>
                                         </Link>
                                     </Button>
                                 </div>
@@ -442,7 +441,7 @@ export default function Home() {
                 {/* Romance */}
                 {adult?.data && adult.data.length > 0 && (
                     <Section
-                        title="Romance"
+                        title={t('romance')}
                         icon={<Heart className="w-6 h-6 text-rose-500" />}
                         movies={adult.data}
                         link="/browse/adult-movies"
