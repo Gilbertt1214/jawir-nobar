@@ -182,6 +182,7 @@ export const translations = {
     // Breadcrumbs
     breadcrumbHome: "Home",
     breadcrumbDetail: "Detail",
+    breadcrumbPencarian: "Search Results",
     remaining: "remaining",
 
     // Hentai specific
@@ -383,6 +384,7 @@ export const translations = {
     // Breadcrumbs
     breadcrumbHome: "Beranda",
     breadcrumbDetail: "Detail",
+    breadcrumbPencarian: "Hasil Pencarian",
     remaining: "tersisa",
 
     // Hentai specific

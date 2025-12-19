@@ -321,8 +321,10 @@ export default function MovieDetail() {
                                 target.src = "/placeholder.svg";
                             }}
                         />
-                        {/* Improved Gradients for consistency */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/40 to-transparent opacity-80" />
+                        {/* Improved Gradients for consistency - Darker overlay for better contrast */}
+                        <div className="absolute inset-0 bg-background/60" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/50 to-transparent" />
                         <div className="absolute inset-0 bg-gradient-hero" />
                     </div>
                 </ScaleIn>
@@ -378,7 +380,7 @@ export default function MovieDetail() {
                     {/* Details */}
                     <FadeIn className="space-y-8" direction="left" delay={0.2}>
                         <div className="space-y-4">
-                            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-gradient leading-tight">
+                            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-gradient leading-tight drop-shadow-lg [text-shadow:_0_2px_10px_rgb(0_0_0_/_80%)]">
                                 {movie.title?.includes(';') && movie.title.split(';')[0].trim() === movie.title.split(';')[1]?.trim() 
                                     ? movie.title.split(';')[0].trim() 
                                     : movie.title}
@@ -456,7 +458,12 @@ export default function MovieDetail() {
                                     {t("cast")}
                                 </h2>
                                 <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide mask-linear-fade">
-                                    {movie.cast.map((actor) => (
+                                    {/* Deduplicate cast by ID */}
+                                    {movie.cast
+                                        .filter((actor, index, self) => 
+                                            index === self.findIndex((t) => t.id === actor.id)
+                                        )
+                                        .map((actor) => (
                                         <div
                                             key={actor.id}
                                             className="flex-shrink-0 text-center w-20 sm:w-24 group"
@@ -477,7 +484,7 @@ export default function MovieDetail() {
                                                     }}
                                                 />
                                             </div>
-                                            <p className="text-xs sm:text-sm font-medium truncate group-hover:text-primary transition-colors">
+                                            <p className="text-xs sm:text-sm font-medium line-clamp-2 leading-tight group-hover:text-primary transition-colors h-8 flex items-center justify-center">
                                                 {actor.name}
                                             </p>
                                             {actor.character && (

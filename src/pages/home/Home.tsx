@@ -107,10 +107,19 @@ export default function Home() {
     });
 
     // Hero carousel state
-    const heroList =
-        latestMovies?.data?.slice(0, 5) ||
-        popularMovies?.data?.slice(0, 5) ||
-        [];
+    const [stableHeroList, setStableHeroList] = useState<any[]>([]);
+
+    useEffect(() => {
+        if (stableHeroList.length > 0) return; // Already set
+
+        if (latestMovies?.data?.length) {
+            setStableHeroList(latestMovies.data.slice(0, 5));
+        } else if (popularMovies?.data?.length) {
+            setStableHeroList(popularMovies.data.slice(0, 5));
+        }
+    }, [latestMovies?.data, popularMovies?.data, stableHeroList.length]);
+
+    const heroList = stableHeroList;
     const [heroIndex, setHeroIndex] = useState(0);
     const heroItem = heroList[heroIndex];
 
@@ -254,12 +263,11 @@ export default function Home() {
                                 </div>
                             </FadeIn>
 
-                            <StaggeredText
-                                text={heroItem.title}
-                                className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-tight text-hero-foreground drop-shadow-2xl"
-                                delay={0.2}
-                                staggerDelay={0.08}
-                            />
+                            <FadeIn direction="down" delay={0.2}>
+                                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-tight text-hero-foreground drop-shadow-2xl">
+                                    {heroItem.title}
+                                </h1>
+                            </FadeIn>
 
                             <FadeIn direction="up" delay={0.3}>
                                 <p className="text-base sm:text-lg text-hero-muted line-clamp-3 max-w-2xl leading-relaxed drop-shadow-md">

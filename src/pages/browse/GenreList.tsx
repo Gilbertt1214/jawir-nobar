@@ -55,17 +55,14 @@ export default function GenreList() {
           {t("browseByGenre")}
         </h1>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          <Link to="/hentai" className="block">
-            <div className="flex items-center gap-3 px-5 py-4 bg-card border border-border rounded-lg transition-all duration-300 hover:border-foreground hover:shadow-[4px_4px_0px_#000] dark:hover:shadow-[4px_4px_0px_#fff] group">
-              <Film className="w-5 h-5 text-primary flex-shrink-0 group-hover:scale-110 transition-transform duration-300" />
-              <span className="font-semibold text-foreground group-hover:text-primary transition-colors duration-300">
-                Hentai
-              </span>
-            </div>
-          </Link>
-
-          {genres?.map((genre) => (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          {genres
+            ?.filter(genre => {
+                 // Filter out redundant "Action & Adventure" if "Action" exists (common TMDB issue)
+                 if (genre === "Action & Adventure") return false;
+                 return true;
+            })
+            .map((genre) => (
             <Link
               key={genre}
               to={`/genre/${encodeURIComponent(genre)}`}
@@ -79,6 +76,16 @@ export default function GenreList() {
               </div>
             </Link>
           ))}
+
+          {/* Hentai - Moved to bottom */}
+          <Link to="/hentai" className="block">
+            <div className="flex items-center gap-3 px-5 py-4 bg-card border border-border rounded-lg transition-all duration-300 hover:border-foreground hover:shadow-[4px_4px_0px_#000] dark:hover:shadow-[4px_4px_0px_#fff] group">
+              <Film className="w-5 h-5 text-primary flex-shrink-0 group-hover:scale-110 transition-transform duration-300" />
+              <span className="font-semibold text-foreground group-hover:text-primary transition-colors duration-300">
+                Hentai
+              </span>
+            </div>
+          </Link>
         </div>
 
         <div className="mt-12 text-center">
