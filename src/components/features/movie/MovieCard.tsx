@@ -22,11 +22,11 @@ export function MovieCard({ movie, index = 0 }: MovieCardProps) {
         state={{ from: location }}
       >
         <Card className="overflow-hidden rounded-xl border bg-card shadow-sm group/card">
-          <div className="relative aspect-[2/3] overflow-hidden rounded-xl bg-muted shadow-card transition-all duration-300 ease-out group-hover/card:scale-105 group-hover/card:shadow-lg">
+          <div className="relative aspect-[2/3] overflow-hidden rounded-xl bg-muted shadow-card transition-all duration-300 ease-out group-hover/card:shadow-lg">
             <img
               src={movie.cover || "/placeholder.svg"}
               alt={movie.title}
-              className="object-cover w-full h-full bg-muted"
+              className="object-cover w-full h-full bg-muted transition-transform duration-300 group-hover/card:scale-110"
               loading="lazy"
               draggable="false"
               onError={(e) => {

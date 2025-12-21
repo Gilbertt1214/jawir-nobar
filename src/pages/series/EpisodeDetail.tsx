@@ -15,6 +15,7 @@ import {
   RefreshCw,
   ChevronLeft,
   ChevronRight,
+  Info,
 } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Alert, AlertDescription } from "@/components/ui/alert"
@@ -25,6 +26,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useState, useEffect, useMemo } from "react"
+import { cn } from "@/lib/utils"
 
 export default function EpisodeDetail() {
   const { id: seriesId } = useParams()
@@ -213,79 +215,104 @@ export default function EpisodeDetail() {
   return (
     <div className="w-full max-w-full px-3 py-4">
       <div className="max-w-6xl mx-auto space-y-8">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-xl md:text-2xl font-bold leading-tight">
-              {t('episode')} {episode.episodeNumber}:{" "}
-              <span className="text-primary">{episode.title}</span>
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              {t('season').replace('{season}', String(episode.seasonNumber))} • {t('episode')} {episode.episodeNumber}
-            </p>
+        <div className="flex flex-col gap-6">
+          <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+            <div>
+              <h1 className="text-xl md:text-2xl font-bold leading-tight">
+                {t('episode')} {episode.episodeNumber}:{" "}
+                <span className="text-primary">{episode.title}</span>
+              </h1>
+              <p className="text-sm text-muted-foreground mt-1">
+                {t('season').replace('{season}', String(episode.seasonNumber))} • {t('episode')} {episode.episodeNumber}
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2">
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => window.open(selectedProvider?.url, "_blank")}
+                    className="text-xs gap-2"
+                    disabled={!selectedProvider}
+                >
+                    <MonitorPlay className="h-3.5 w-3.5" />
+                    Open in New Tab
+                </Button>
+                 <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleRetryProviders}
+                    className="text-xs gap-2"
+                >
+                    <RefreshCw className="h-3.5 w-3.5" />
+                    Refresh
+                </Button>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2 bg-muted/30 p-1 rounded-lg border border-border/50">
-            <div className="flex items-center gap-2 px-3">
-              <MonitorPlay className="h-4 w-4 text-primary" />
-              <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                {t('selectServer')}
-              </span>
+          <div className="space-y-4">
+             <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground/80">
+                <MonitorPlay className="h-4 w-4 text-primary" />
+                Select Server:
             </div>
-            {providers && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleRetryProviders}
-                className="h-8 w-8 p-0 hover:bg-accent"
-                title="Refresh providers"
-              >
-                <RefreshCw className="h-3.5 w-3.5" />
-              </Button>
-            )}
-            {providers && providers.length > 0 ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="gap-2 h-8 border-border/50 bg-background/50"
-                    disabled={!selectedProvider}
-                  >
-                    <span className="truncate max-w-[150px] text-xs">
-                      {selectedProvider?.name || t('selectServer')}
-                    </span>
-                    <ChevronDown className="h-3 w-3 opacity-50" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  {providers.map((provider) => (
-                    <DropdownMenuItem
-                      key={provider.name}
+
+             {providers && providers.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {providers.map((provider, index) => (
+                    <Button
+                      key={`${provider.name}-${index}`}
+                      variant={selectedProvider?.name === provider.name ? "default" : "outline"}
+                      size="sm"
                       onClick={() => handleProviderChange(provider)}
-                      className="cursor-pointer text-xs"
+                      className={cn(
+                        "gap-2 transition-all",
+                         selectedProvider?.name === provider.name
+                          ? "bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 scale-105"
+                          : "bg-background/50 border-white/10 hover:bg-white/10 hover:text-white dark:hover:bg-white/10"
+                      )}
                     >
-                      <div className="flex flex-col gap-0.5">
-                        <span className="font-medium">{provider.name}</span>
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                          {provider.quality && (
-                            <span>{provider.quality}</span>
-                          )}
-                          {provider.language && (
-                            <span>• {provider.language}</span>
-                          )}
-                        </div>
-                      </div>
-                    </DropdownMenuItem>
+                       <MonitorPlay className={cn("h-3 w-3", selectedProvider?.name === provider.name ? "fill-current" : "")} />
+                      Server {index + 1} ({provider.name})
+                      {provider.quality && (
+                        <span className={cn(
+                          "ml-1 text-[10px] h-4 px-1 rounded flex items-center justify-center leading-none pointer-events-none",
+                           selectedProvider?.name === provider.name ? "bg-white/20 text-white" : "bg-white/10 text-white/60"
+                        )}>
+                          {provider.quality}
+                        </span>
+                      )}
+                    </Button>
                   ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <Button variant="outline" size="sm" disabled className="h-8 text-xs">
-                {t('streamUnavailable')}
-              </Button>
-            )}
-          </div>
+                </div>
+              ) : (
+                <Button variant="outline" size="sm" disabled className="h-8 text-xs">
+                  {t('streamUnavailable')}
+                </Button>
+              )}
+            <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                <div className="flex items-start gap-3">
+                    <Info className="h-5 w-5 text-blue-400 mt-0.5 flex-shrink-0" />
+                    <div className="space-y-2 text-sm">
+                        <h4 className="font-semibold text-blue-100">Tips Agar Subtitle Indonesia Selalu Muncul:</h4>
+                        <ul className="space-y-1.5 text-blue-100/80 list-disc ml-4">
+                            <li>
+                                <span className="font-medium text-blue-200">Jika muncul pop-up, silakan tutup dan klik play kembali.</span>
+                            </li>
+                            <li>
+                                <span className="font-medium text-blue-200">Gunakan Multi-Server:</span> Jika di Server 1 (misal: VidLink) tidak ada sub Indo, cobalah Server 2 (misal: Vidsrc).
+                            </li>
+                            <li>
+                                <span className="font-medium text-blue-200">Cek Ikon CC:</span> Klik ikon CC di pojok kanan bawah player untuk melihat daftar bahasa.
+                            </li>
+                            <li>
+                                <span className="font-medium text-blue-200">Update Otomatis:</span> Subtitle Indonesia biasanya muncul otomatis beberapa hari setelah rilis HD.
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
+      </div>
 
         {providersLoading && (
           <Alert>

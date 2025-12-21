@@ -15,6 +15,7 @@ import {
     MessageSquare,
     Share2,
     Tv,
+    Info,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -848,112 +849,105 @@ export default function MovieDetail() {
                                         {/* Controls */}
                                         {streamingProviders.length > 0 && (
                                             <div className="p-4 bg-background/50 backdrop-blur-md border-t border-white/5">
-                                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                                    <div className="flex items-center gap-3 flex-1">
-                                                        <Select
-                                                            value={String(
-                                                                selectedProvider
-                                                            )}
-                                                            onValueChange={
-                                                                handleProviderChange
-                                                            }
-                                                        >
-                                                            <SelectTrigger className="w-full sm:w-[200px] bg-background/50 border-white/10">
-                                                                <SelectValue placeholder="Select provider" />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                {streamingProviders.map(
-                                                                    (
-                                                                        provider,
-                                                                        index
-                                                                    ) => (
-                                                                        <SelectItem
-                                                                            key={
-                                                                                index
-                                                                            }
-                                                                            value={String(
-                                                                                index
-                                                                            )}
-                                                                        >
-                                                                            <div className="flex items-center gap-2">
-                                                                                <span className="font-medium">
-                                                                                    {
-                                                                                        provider.name
-                                                                                    }
-                                                                                </span>
-                                                                                {provider.quality && (
-                                                                                    <Badge
-                                                                                        variant="secondary"
-                                                                                        className="text-[10px] h-5"
-                                                                                    >
-                                                                                        {
-                                                                                            provider.quality
-                                                                                        }
-                                                                                    </Badge>
-                                                                                )}
-                                                                            </div>
-                                                                        </SelectItem>
+                                                <div className="flex flex-col gap-4">
+                                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                                        <div className="flex items-center gap-2 text-sm font-medium text-white/80">
+                                                            <Tv className="h-4 w-4 text-primary" />
+                                                            Select Server:
+                                                        </div>
+                                                        <div className="flex items-center gap-2">
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                onClick={() =>
+                                                                    window.open(
+                                                                        streamingProviders[
+                                                                            selectedProvider
+                                                                        ]?.url,
+                                                                        "_blank"
                                                                     )
-                                                                )}
-                                                            </SelectContent>
-                                                        </Select>
-
-                                                        {streamingProviders[
-                                                            selectedProvider
-                                                        ] && (
-                                                            <div className="hidden sm:flex items-center gap-3 text-xs text-muted-foreground">
-                                                                {streamingProviders[
-                                                                    selectedProvider
-                                                                ].quality && (
-                                                                    <Badge
-                                                                        variant="outline"
-                                                                        className="bg-transparent"
-                                                                    >
-                                                                        {
-                                                                            streamingProviders[
-                                                                                selectedProvider
-                                                                            ]
-                                                                                .quality
-                                                                        }
-                                                                    </Badge>
-                                                                )}
-                                                            </div>
-                                                        )}
+                                                                }
+                                                                className="text-xs gap-2 hover:bg-white/10"
+                                                                disabled={
+                                                                    !streamingProviders[
+                                                                        selectedProvider
+                                                                    ]
+                                                                }
+                                                            >
+                                                                <ExternalLink className="h-3.5 w-3.5" />
+                                                                Open in New Tab
+                                                            </Button>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                onClick={() =>
+                                                                    window.location.reload()
+                                                                }
+                                                                className="text-xs gap-2 hover:bg-white/10"
+                                                            >
+                                                                <RefreshCw className="h-3.5 w-3.5" />
+                                                                Refresh
+                                                            </Button>
+                                                        </div>
                                                     </div>
 
-                                                    <div className="flex items-center gap-2">
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            onClick={() =>
-                                                                window.open(
-                                                                    streamingProviders[
-                                                                        selectedProvider
-                                                                    ]?.url,
-                                                                    "_blank"
-                                                                )
-                                                            }
-                                                            className="text-xs gap-2"
-                                                            disabled={
-                                                                !streamingProviders[
-                                                                    selectedProvider
-                                                                ]
-                                                            }
-                                                        >
-                                                            <ExternalLink className="h-3.5 w-3.5" />
-                                                            Open in New Tab
-                                                        </Button>
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            onClick={() =>
-                                                                window.location.reload()
-                                                            }
-                                                            className="text-xs gap-2"
-                                                        >
-                                                            <RefreshCw className="h-3.5 w-3.5" />
-                                                            Refresh
-                                                        </Button>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {streamingProviders.map((provider, index) => (
+                                                            <Button
+                                                                key={index}
+                                                                variant={selectedProvider === index ? "default" : "outline"}
+                                                                size="sm"
+                                                                onClick={() => handleProviderChange(String(index))}
+                                                                className={cn(
+                                                                    "gap-2 transition-all",
+                                                                    selectedProvider === index 
+                                                                        ? "bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 scale-105" 
+                                                                        : "bg-background/50 border-white/10 hover:bg-white/10 hover:text-white dark:hover:bg-white/10"
+                                                                )}
+                                                            >
+                                                                <Play className={cn("h-3 w-3", selectedProvider === index ? "fill-current" : "")} />
+                                                                Server {index + 1} ({provider.name})
+                                                                {provider.quality && (
+                                                                    <Badge 
+                                                                        variant="secondary" 
+                                                                        className={cn(
+                                                                            "ml-1 text-[10px] h-4 px-1 leading-none pointer-events-none",
+                                                                            selectedProvider === index ? "bg-white/20 text-white" : "bg-white/10 text-white/60"
+                                                                        )}
+                                                                    >
+                                                                        {provider.quality}
+                                                                    </Badge>
+                                                                )}
+                                                            </Button>
+                                                        ))}
+                                                    </div>
+                                                </div>
+
+                                                
+                                                {/* Ad Tips */}
+                                                <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground bg-muted/30 p-2 rounded border border-white/5">
+                                                    <Info className="h-3.5 w-3.5 text-primary" />
+                                                    <span>Jika muncul pop-up, silakan tutup dan klik play kembali.</span>
+                                                </div>
+
+                                                {/* Subtitle Tips */}
+                                                <div className="mt-4 p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                                                    <div className="flex items-start gap-3">
+                                                        <Info className="h-5 w-5 text-blue-400 mt-0.5 flex-shrink-0" />
+                                                        <div className="space-y-2 text-sm">
+                                                            <h4 className="font-semibold text-blue-100">Tips Agar Subtitle Indonesia Selalu Muncul:</h4>
+                                                            <ul className="space-y-1.5 text-blue-100/80 list-disc ml-4">
+                                                                <li>
+                                                                    <span className="font-medium text-blue-200">Gunakan Multi-Server:</span> Jika di Server 1 (misal: VidLink) tidak ada sub Indo, cobalah Server 2 (misal: Vidsrc).
+                                                                </li>
+                                                                <li>
+                                                                    <span className="font-medium text-blue-200">Cek Ikon CC:</span> Klik ikon CC di pojok kanan bawah player untuk melihat daftar bahasa.
+                                                                </li>
+                                                                <li>
+                                                                    <span className="font-medium text-blue-200">Update Otomatis:</span> Subtitle Indonesia biasanya muncul otomatis beberapa hari setelah rilis HD.
+                                                                </li>
+                                                            </ul>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
