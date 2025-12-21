@@ -111,7 +111,7 @@ export function Navbar() {
                             placeholder={t('search')}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="relative pr-8 sm:pr-10 h-9 sm:h-10 lg:h-11 text-base md:text-base bg-secondary border-border rounded-full focus:bg-background focus:border-primary/50 transition-all duration-300 placeholder:text-muted-foreground"
+                            className="relative pr-8 sm:pr-10 h-9 sm:h-10 lg:h-11 text-base md:text-base bg-secondary border-gray-300 dark:border-border rounded-full focus:bg-background focus:border-primary/50 transition-all duration-300 placeholder:text-muted-foreground"
                         />
                         <Button
                             type="submit"
@@ -195,7 +195,9 @@ export function Navbar() {
 
                     {/* Theme Toggle - Desktop only */}
                     <div className="hidden lg:flex">
-                        <ModeToggle />
+                        <ModeToggle className={cn(
+                            isScrolled ? "text-foreground/80 hover:bg-secondary hover:text-primary" : "text-hero-foreground/90 hover:bg-white/10 hover:text-hero-foreground"
+                        )} />
                     </div>
 
                     {/* Mobile/Tablet Menu */}
