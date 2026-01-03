@@ -1,4 +1,4 @@
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { movieAPI } from "@/services/api";
 import { Button } from "@/components/ui/button";
@@ -30,7 +30,33 @@ export default function AnimeList() {
     const page = parseInt(searchParams.get("page") || "1");
 
     const [apiStatus, setApiStatus] = useState<boolean | null>(null);
+    const [previewResults, setPreviewResults] = useState<any[]>([]);
+    const [isPreviewSearching, setIsPreviewSearching] = useState(false);
+    const [isInputFocused, setIsInputFocused] = useState(false);
     const { t, language } = useLanguage();
+    const navigate = useNavigate();
+
+    // Search preview debouncing
+    useEffect(() => {
+        const timer = setTimeout(async () => {
+            if (searchQuery.length >= 2) {
+                setIsPreviewSearching(true);
+                try {
+                    const results = await movieAPI.searchAnimeOtakudesu(searchQuery);
+                    setPreviewResults(results.slice(0, 5)); // Limit to 5 for preview
+                } catch (error) {
+                    console.error("Anime preview search failed:", error);
+                    setPreviewResults([]);
+                } finally {
+                    setIsPreviewSearching(false);
+                }
+            } else {
+                setPreviewResults([]);
+            }
+        }, 300);
+
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
 
     const setPage = (newPage: number | ((prev: number) => number)) => {
         setSearchParams(prev => {
@@ -212,8 +238,58 @@ export default function AnimeList() {
                             placeholder={t('searchAnime')}
                             value={searchQuery}
                             onChange={(e) => handleSearchChange(e.target.value)}
+                            onFocus={() => setIsInputFocused(true)}
+                            onBlur={() => {
+                                setTimeout(() => setIsInputFocused(false), 200);
+                            }}
                             className="pl-12 py-6 text-base rounded-xl border-border bg-secondary text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary"
                         />
+
+                        {/* Search Preview Dropdown */}
+                        {isInputFocused && (previewResults.length > 0 || isPreviewSearching) && (
+                            <div className="absolute top-full left-0 right-0 mt-2 bg-background/95 backdrop-blur-xl border border-border rounded-2xl shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                                <div className="p-2 space-y-1">
+                                    {isPreviewSearching ? (
+                                        <div className="p-4 text-center text-sm text-muted-foreground flex items-center justify-center gap-2">
+                                            <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                                            {t('loading')}...
+                                        </div>
+                                    ) : (
+                                        previewResults.map((result) => (
+                                            <button
+                                                key={result.id || result.slug}
+                                                type="button"
+                                                onClick={() => {
+                                                    navigate(`/anime/${result.slug || result.id}`);
+                                                    handleSearchChange("");
+                                                    setPreviewResults([]);
+                                                }}
+                                                className="w-full flex items-center gap-3 p-2 hover:bg-primary/10 rounded-xl transition-colors text-left group"
+                                            >
+                                                <div className="w-10 h-14 bg-secondary rounded-md overflow-hidden flex-shrink-0">
+                                                    {result.cover && result.cover !== "/placeholder.svg" ? (
+                                                        <img 
+                                                            src={result.cover} 
+                                                            alt={result.title}
+                                                            className="w-full h-full object-cover"
+                                                        />
+                                                    ) : (
+                                                        <div className="w-full h-full flex items-center justify-center text-[10px] text-muted-foreground">
+                                                            No Img
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="text-sm font-medium truncate group-hover:text-primary transition-colors">
+                                                        {result.title}
+                                                    </div>
+                                                </div>
+                                            </button>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+                        )}
                     </div>
                     {searchQuery.length > 0 && searchQuery.length < 3 && (
                         <p className="text-xs text-muted-foreground mt-2 ml-1">

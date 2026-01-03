@@ -7,7 +7,9 @@ import {
     Tag,
     Tv,
     Languages,
+    X,
 } from "lucide-react";
+import { movieAPI } from "@/services/api";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
@@ -32,6 +34,42 @@ export function Navbar() {
     const { language, setLanguage, t } = useLanguage();
 
     const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const [searchResults, setSearchResults] = useState<any[]>([]);
+    const [isSearching, setIsSearching] = useState(false);
+
+    // Search preview debouncing
+    useEffect(() => {
+        const timer = setTimeout(async () => {
+            if (searchQuery.length >= 2) {
+                setIsSearching(true);
+                try {
+                    // Fetch from multiple sources
+                    const [movies, anime, hentai] = await Promise.all([
+                        movieAPI.searchMovies(searchQuery, 1).catch(() => ({ data: [] })),
+                        movieAPI.searchAnime(searchQuery).catch(() => []),
+                        movieAPI.searchAllHentai(searchQuery).catch(() => ({ nekopoi: [] }))
+                    ]);
+
+                    const combined = [
+                        ...(movies.data || []).map((m: any) => ({ ...m, category: 'movie' })),
+                        ...(anime || []).map((a: any) => ({ ...a, category: 'anime' })),
+                        ...(hentai.nekopoi || []).map((h: any) => ({ ...h, category: 'hentai' }))
+                    ].slice(0, 8); // Limit to 8 results
+
+                    setSearchResults(combined);
+                } catch (error) {
+                    console.error("Search preview failed:", error);
+                    setSearchResults([]);
+                } finally {
+                    setIsSearching(false);
+                }
+            } else {
+                setSearchResults([]);
+            }
+        }, 300);
+
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
 
     const toggleLanguage = () => {
         const newLang = language === 'en' ? 'id' : 'en';
@@ -151,9 +189,12 @@ export function Navbar() {
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 onFocus={() => setIsSearchOpen(true)}
                                 onBlur={() => {
-                                    if (!searchQuery) {
-                                        setIsSearchOpen(false);
-                                    }
+                                    // Small delay to allow clicking search results
+                                    setTimeout(() => {
+                                        if (!searchQuery) {
+                                            setIsSearchOpen(false);
+                                        }
+                                    }, 200);
                                 }}
                                 className={cn(
                                     "transition-all duration-300 bg-transparent border-none focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground",
@@ -165,22 +206,23 @@ export function Navbar() {
                             />
                             
                             {/* Mobile Search Toggle / Submit Button */}
+                            {/* Mobile Search Toggle / Submit Button */}
                              <Button
-                                type={isSearchOpen ? "submit" : "button"}
+                                type={isSearchOpen && searchQuery ? "submit" : "button"}
                                 size="icon"
                                 variant="ghost"
                                 onClick={(e) => {
                                     if (!isSearchOpen) {
                                         e.preventDefault();
                                         setIsSearchOpen(true);
-                                        // Wait for state update then focus input
                                         setTimeout(() => {
                                             const input = e.currentTarget.parentElement?.querySelector('input');
                                             input?.focus();
                                         }, 10);
-                                    } 
-                                    // If open and has query, let it submit
-                                    // If open and empty, maybe close? (handled by blur mostly)
+                                    } else if (isSearchOpen && !searchQuery) {
+                                        e.preventDefault();
+                                        setIsSearchOpen(false);
+                                    }
                                 }}
                                 className={cn(
                                     "rounded-full hover:bg-primary/20 hover:text-primary transition-colors z-10",
@@ -191,9 +233,86 @@ export function Navbar() {
                                 )}
                                 aria-label={t('search')}
                             >
-                                <Search className="h-4 w-4" />
+                                {isSearchOpen && !searchQuery ? (
+                                    <X className="h-4 w-4" />
+                                ) : (
+                                    <Search className="h-4 w-4" />
+                                )}
                             </Button>
                         </div>
+
+                        {/* Search Preview Dropdown */}
+                        {isSearchOpen && (searchResults.length > 0 || isSearching) && (
+                            <div className="absolute top-full left-0 right-0 mt-2 bg-background/95 backdrop-blur-xl border border-border rounded-2xl shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                                <div className="p-2 space-y-1">
+                                    {isSearching ? (
+                                        <div className="p-4 text-center text-sm text-muted-foreground flex items-center justify-center gap-2">
+                                            <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                                            Searching...
+                                        </div>
+                                    ) : (
+                                        searchResults.map((result) => (
+                                            <button
+                                                key={`${result.category}-${result.id}`}
+                                                type="button"
+                                                onClick={() => {
+                                                    let path = "";
+                                                    if (result.category === 'anime') {
+                                                        path = `/anime/${result.id}`;
+                                                    } else if (result.category === 'hentai') {
+                                                        path = `/hentai/nekopoi/${result.id}`;
+                                                    } else {
+                                                        path = `/movie/${result.id}`;
+                                                    }
+                                                    navigate(path);
+                                                    setSearchQuery("");
+                                                    setIsSearchOpen(false);
+                                                    setSearchResults([]);
+                                                }}
+                                                className="w-full flex items-center gap-3 p-2 hover:bg-primary/10 rounded-xl transition-colors text-left group"
+                                            >
+                                                <div className="w-10 h-14 bg-secondary rounded-md overflow-hidden flex-shrink-0">
+                                                    {result.cover && result.cover !== "/placeholder.svg" ? (
+                                                        <img 
+                                                            src={result.cover} 
+                                                            alt={result.title}
+                                                            className="w-full h-full object-cover"
+                                                        />
+                                                    ) : (
+                                                        <div className="w-full h-full flex items-center justify-center text-[10px] text-muted-foreground">
+                                                            No Img
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="text-sm font-medium truncate group-hover:text-primary transition-colors">
+                                                        {result.title || result.name}
+                                                    </div>
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        <span className="text-[10px] px-1.5 py-0.5 bg-secondary rounded-md text-muted-foreground uppercase">
+                                                            {result.category}
+                                                        </span>
+                                                        {result.release_date && (
+                                                            <span className="text-[10px] text-muted-foreground">
+                                                                {new Date(result.release_date).getFullYear()}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </button>
+                                        ))
+                                    )}
+                                </div>
+                                {searchQuery && !isSearching && (
+                                    <button
+                                        type="submit"
+                                        className="w-full p-3 text-xs text-center border-t border-border hover:bg-primary/5 text-primary font-medium transition-colors"
+                                    >
+                                        See all results for "{searchQuery}"
+                                    </button>
+                                )}
+                            </div>
+                        )}
                     </form>
                 </div>
 
