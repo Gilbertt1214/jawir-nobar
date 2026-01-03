@@ -41,8 +41,7 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { commentsService } from "@/services/firebase/comments.service";
-import { FadeIn } from "@/components/animations/FadeIn";
-import { ScaleIn } from "@/components/animations/ScaleIn";
+import { motion } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTranslatedMovie } from "@/hooks/useTranslatedData";
@@ -311,7 +310,15 @@ export default function MovieDetail() {
         <div className="min-h-screen bg-background pb-20">
             {/* Backdrop */}
             <div className="relative h-[65vh] sm:h-[75vh] md:h-[85vh] -mt-[72px] sm:-mt-24 lg:-mt-28 overflow-hidden bg-background">
-                <ScaleIn className="absolute inset-0 h-full w-full">
+                <motion.div 
+                    className="absolute inset-0 h-full w-full"
+                    initial={{ scale: 1.1, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ 
+                        scale: { duration: 10, ease: "easeOut" }, 
+                        opacity: { duration: 0.8 } 
+                    }}
+                >
                     <div className="relative w-full h-full">
                         <img
                             src={movie.backdrops?.[0] || movie.cover || "/placeholder.svg"}
@@ -328,14 +335,19 @@ export default function MovieDetail() {
                         <div className="absolute inset-0 bg-gradient-to-r from-background via-background/50 to-transparent" />
                         <div className="absolute inset-0 bg-gradient-hero" />
                     </div>
-                </ScaleIn>
+                </motion.div>
             </div>
 
             <div className="container mx-auto px-4 sm:px-6 relative z-10 -mt-40 sm:-mt-56 md:-mt-64">
                 <Breadcrumb className="mb-4 sm:mb-6 px-0" />
                 <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] lg:grid-cols-[350px_1fr] gap-8">
                     {/* Poster & Actions */}
-                    <FadeIn className="space-y-6" direction="right" delay={0.1}>
+                    <motion.div 
+                        className="space-y-6"
+                        initial={{ opacity: 0, x: -50 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
+                    >
                         <div className="relative aspect-[2/3] rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/10 group">
                             <img
                                 src={movie.cover || "/placeholder.svg"}
@@ -376,10 +388,15 @@ export default function MovieDetail() {
                                 {t("share")}
                             </Button>
                         </div>
-                    </FadeIn>
+                    </motion.div>
 
                     {/* Details */}
-                    <FadeIn className="space-y-8" direction="left" delay={0.2}>
+                    <motion.div 
+                        className="space-y-8"
+                        initial={{ opacity: 0, x: 50 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
+                    >
                         <div className="space-y-4">
                             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-gradient leading-tight drop-shadow-lg [text-shadow:_0_2px_10px_rgb(0_0_0_/_80%)]">
                                 {movie.title?.includes(';') && movie.title.split(';')[0].trim() === movie.title.split(';')[1]?.trim() 
@@ -453,7 +470,12 @@ export default function MovieDetail() {
 
                         {/* Cast Section */}
                         {movie.cast && movie.cast.length > 0 && (
-                            <div className="space-y-3">
+                            <motion.div 
+                                className="space-y-3"
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.5 }}
+                            >
                                 <h2 className="text-lg font-semibold flex items-center gap-2">
                                     <span className="w-1 h-6 bg-primary rounded-full" />
                                     {t("cast")}
@@ -496,7 +518,7 @@ export default function MovieDetail() {
                                         </div>
                                     ))}
                                 </div>
-                            </div>
+                            </motion.div>
                         )}
 
                         {/* Episodes for Series */}
@@ -659,11 +681,7 @@ export default function MovieDetail() {
                                                                                 }
                                                                             </Badge>
                                                                         </div>
-                                                                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 bg-black/20 backdrop-blur-[1px]">
-                                                                            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/40 transform scale-50 group-hover:scale-100 transition-transform">
-                                                                                <Play className="w-4 h-4 sm:w-5 sm:h-5 text-primary-foreground fill-current ml-0.5" />
-                                                                            </div>
-                                                                        </div>
+
                                                                     </div>
                                                                     <div className="p-3 sm:p-4 flex flex-col justify-center flex-1 min-w-0">
                                                                         <h3 className="font-medium text-sm sm:text-base line-clamp-1 group-hover:text-primary transition-colors">
@@ -958,7 +976,13 @@ export default function MovieDetail() {
                         )}
 
                         {/* Comments Section */}
-                        <FadeIn className="space-y-4 pt-10" direction="up">
+                        <motion.div 
+                            className="space-y-4 pt-10" 
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: 0.2 }}
+                        >
                             <h2 className="text-xl font-bold flex items-center gap-2 mb-4">
                                 <MessageSquare className="h-5 w-5 text-primary" />
                                 {t("comments")}
@@ -1062,8 +1086,8 @@ export default function MovieDetail() {
                                         </div>
                                 </CardContent>
                             </Card>
-                        </FadeIn>
-                    </FadeIn>
+                        </motion.div>
+                    </motion.div>
                 </div>
             </div>
         </div>

@@ -20,7 +20,7 @@
         --secondary-foreground: 0 0% 0%;
 
         --muted: 220 14% 94%;
-        --muted-foreground: 0 0% 40%;
+        --muted-foreground: 215 16% 35%;
 
         --accent: 0 0% 96%;
         --accent-foreground: 0 0% 0%;
@@ -228,28 +228,56 @@
         isolation: isolate;
     }
 
+
+    /* Default Scrollbar (Light Mode) */
     ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
+        width: 10px;
+        height: 10px;
     }
 
     ::-webkit-scrollbar-track {
-        background: hsl(var(--background));
-        border-radius: 10px;
+        background: transparent;
+        border-radius: 5px;
+        margin: 4px;
     }
 
     ::-webkit-scrollbar-thumb {
-        background: hsl(var(--primary));
-        border-radius: 10px;
+        background: hsl(0 0% 80%);
+        border-radius: 5px;
+        border: 2px solid transparent;
+        background-clip: content-box;
+        transition: background 0.3s ease;
     }
 
     ::-webkit-scrollbar-thumb:hover {
-        background: hsl(217.2, 91.2%, 50%);
+        background: hsl(0 0% 60%);
+        border: 2px solid transparent;
+        background-clip: content-box;
     }
 
+    /* Firefox Default (Light Mode) */
     * {
         scrollbar-width: thin;
-        scrollbar-color: hsl(var(--primary)) hsl(var(--background));
+        scrollbar-color: hsl(0 0% 80%) transparent;
+    }
+
+    /* Dark Mode Scrollbar Overrides */
+    .dark ::-webkit-scrollbar-thumb {
+        background: hsl(var(--primary)); /* Fallback */
+        background-image: var(--gradient-primary);
+        border: 2px solid transparent;
+        background-clip: content-box;
+    }
+
+    .dark ::-webkit-scrollbar-thumb:hover {
+        background: hsl(var(--primary));
+        border: 2px solid transparent;
+        background-clip: content-box;
+        filter: brightness(1.2);
+    }
+
+    .dark {
+        scrollbar-color: hsl(var(--primary)) transparent;
     }
 
     .scrollbar-hide {

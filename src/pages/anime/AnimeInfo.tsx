@@ -151,11 +151,16 @@ export default function AnimeInfo() {
 
     const sortedEpisodes = useMemo(() => {
         if (!anime?.episodes) return [];
-        return [...anime.episodes].sort((a, b) => {
-            const numA = parseInt(a.title.match(/\d+/)?.[0] || "0");
-            const numB = parseInt(b.title.match(/\d+/)?.[0] || "0");
-            return numA - numB;
-        });
+        return [...anime.episodes]
+            .map((ep, index) => ({
+                ...ep,
+                // Extract episode number from title "Episode X" or use index + 1
+                _epNum: (() => {
+                    const match = ep.title.match(/Episode\s*(\d+)/i);
+                    return match ? parseInt(match[1]) : index + 1;
+                })()
+            }))
+            .sort((a, b) => a._epNum - b._epNum);
     }, [anime?.episodes]);
 
     const markAsWatched = (episodeSlug: string) => {
@@ -388,10 +393,8 @@ export default function AnimeInfo() {
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {sortedEpisodes.map((ep, i) => {
-                                    const episodeNum = parseInt(
-                                        ep.title.match(/\d+/)?.[0] ||
-                                            String(i + 1)
-                                    );
+                                    // Use pre-computed episode number
+                                    const episodeNum = ep._epNum;
                                     const isWatched = watchedEpisodes.has(
                                         ep.slug
                                     );
@@ -446,11 +449,7 @@ export default function AnimeInfo() {
                                                                 )}
                                                             </Badge>
                                                         </div>
-                                                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 bg-secondary/20 backdrop-blur-[1px]">
-                                                            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary/90 flex items-center justify-center shadow-lg shadow-primary/40 transform scale-50 group-hover:scale-100 transition-transform">
-                                                                <Play className="w-4 h-4 sm:w-5 sm:h-5 text-primary-foreground fill-current ml-0.5" />
-                                                            </div>
-                                                        </div>
+
                                                     </div>
                                                     {/* Info */}
                                                     <div className="p-3 sm:p-4 flex flex-col justify-center flex-1 min-w-0">

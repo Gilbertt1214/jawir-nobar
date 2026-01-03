@@ -47,6 +47,7 @@ export interface Movie {
     duration?: string;
     releaseDate?: string;
     studio?: string;
+    totalEpisodes?: string;
 }
 
 export interface AnimeEpisode {

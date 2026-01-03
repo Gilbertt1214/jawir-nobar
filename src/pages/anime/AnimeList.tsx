@@ -152,9 +152,7 @@ export default function AnimeList() {
                             Anime
                         </h1>
                         <div className="flex items-center gap-2">
-                            <p className="text-sm text-muted-foreground">
-                                Powered by Otakudesu (Sanka API)
-                            </p>
+
                             {apiStatus !== null && (
                                 <div className="flex items-center gap-1">
                                     {apiStatus ? (
@@ -298,12 +296,7 @@ export default function AnimeList() {
                                                     {/* Gradient overlay */}
                                                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
-                                                    {/* Play button on hover */}
-                                                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                                        <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center">
-                                                            <Play className="w-5 h-5 text-white fill-white" />
-                                                        </div>
-                                                    </div>
+
 
                                                     {/* Episode badge */}
                                                     {item.latestEpisode && (

@@ -342,7 +342,8 @@ class SankaAnimeAPI {
 
     private posterCache: Map<string, string> = new Map();
     private async fetchPosterFromDetail(
-        animeId: string
+        animeId: string,
+        retries: number = 2
     ): Promise<string | null> {
         if (this.posterCache.has(animeId)) {
             console.log(
@@ -352,23 +353,32 @@ class SankaAnimeAPI {
             return this.posterCache.get(animeId) || null;
         }
 
-        try {
-            console.log(`🖼️ Fetching poster for ${animeId}...`);
-            const detail = await this.getAnimeDetail(animeId);
-            console.log(
-                `🖼️ Detail response for ${animeId}:`,
-                detail?.poster ? "Has poster" : "No poster",
-                detail?.poster
-            );
-            if (detail?.poster) {
-                this.posterCache.set(animeId, detail.poster);
-                return detail.poster;
+        for (let attempt = 0; attempt <= retries; attempt++) {
+            try {
+                console.log(`🖼️ Fetching poster for ${animeId} (attempt ${attempt + 1})...`);
+                const detail = await this.getAnimeDetail(animeId);
+                console.log(
+                    `🖼️ Detail response for ${animeId}:`,
+                    detail?.poster ? "Has poster" : "No poster",
+                    detail?.poster
+                );
+                if (detail?.poster) {
+                    this.posterCache.set(animeId, detail.poster);
+                    return detail.poster;
+                }
+                
+                // If no poster on first attempt, wait and retry
+                if (attempt < retries) {
+                    await new Promise(r => setTimeout(r, 200));
+                }
+            } catch (error) {
+                console.error(`❌ Error fetching poster for ${animeId} (attempt ${attempt + 1}):`, error);
+                if (attempt < retries) {
+                    await new Promise(r => setTimeout(r, 300));
+                }
             }
-            return null;
-        } catch (error) {
-            console.error(`❌ Error fetching poster for ${animeId}:`, error);
-            return null;
         }
+        return null;
     }
 
     private async fetchPostersInBatch(
@@ -535,15 +545,18 @@ class SankaAnimeAPI {
                 }
 
                 const episodeLists =
-                    data.episodeList?.map((ep) => ({
-                        episode: `Episode ${ep.title}`,
-                        episode_number:
-                            typeof ep.title === "number"
-                                ? ep.title
-                                : parseInt(String(ep.title)) || 0,
-                        slug: ep.episodeId,
-                        otakudesu_url: ep.href,
-                    })) ||
+                    data.episodeList?.map((ep, index) => {
+                        // Use ep.title if it's a pure number, otherwise use index + 1
+                        const epNum = typeof ep.title === "number" 
+                            ? ep.title 
+                            : (/^\d+$/.test(String(ep.title)) ? parseInt(String(ep.title)) : index + 1);
+                        return {
+                            episode: `Episode ${epNum}`,
+                            episode_number: epNum,
+                            slug: ep.episodeId,
+                            otakudesu_url: ep.href,
+                        };
+                    }) ||
                     data.episode_lists ||
                     [];
 

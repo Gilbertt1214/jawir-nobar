@@ -462,11 +462,7 @@ export default function HentaiInfo() {
                                                                     )}
                                                                 </Badge>
                                                             </div>
-                                                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 bg-secondary/20 backdrop-blur-[1px]">
-                                                                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/40 transform scale-50 group-hover:scale-100 transition-transform">
-                                                                    <Play className="w-4 h-4 sm:w-5 sm:h-5 text-primary-foreground fill-current ml-0.5" />
-                                                                </div>
-                                                            </div>
+
                                                         </div>
                                                         {/* Info */}
                                                         <div className="p-3 sm:p-4 flex flex-col justify-center flex-1 min-w-0">
@@ -555,11 +551,7 @@ export default function HentaiInfo() {
                                                             )}
                                                         </Badge>
                                                     </div>
-                                                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 bg-black/20 backdrop-blur-[1px]">
-                                                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/40 transform scale-50 group-hover:scale-100 transition-transform">
-                                                            <Play className="w-4 h-4 sm:w-5 sm:h-5 text-white fill-current ml-0.5" />
-                                                        </div>
-                                                    </div>
+
                                                 </div>
                                                 {/* Info */}
                                                 <div className="p-3 sm:p-4 flex flex-col justify-center flex-1 min-w-0">

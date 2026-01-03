@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRef, useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 interface MovieCarouselProps {
     title: string;
@@ -148,10 +149,22 @@ export function MovieCarousel({ title, movies }: MovieCarouselProps) {
                     <div className="hidden lg:block absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-background to-transparent z-[5] pointer-events-none" />
                 )}
 
-                {/* Scrollable Container */}
+            {/* Scrollable Container */}
                 <div
                     ref={scrollRef}
-                    className="flex gap-3 sm:gap-4 overflow-x-auto scrollbar-hide pb-4 px-1"
+                    className="flex gap-3 sm:gap-4 overflow-x-auto scrollbar-hide pb-4 px-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-xl"
+                    tabIndex={0}
+                    role="region"
+                    aria-label={`${title} carousel`}
+                    onKeyDown={(e) => {
+                        if (e.key === "ArrowLeft") {
+                            e.preventDefault();
+                            scroll("left");
+                        } else if (e.key === "ArrowRight") {
+                            e.preventDefault();
+                            scroll("right");
+                        }
+                    }}
                     style={{
                         scrollbarWidth: "none",
                         msOverflowStyle: "none",
@@ -159,12 +172,16 @@ export function MovieCarousel({ title, movies }: MovieCarouselProps) {
                     }}
                 >
                     {movies.map((movie, index) => (
-                        <div
+                        <motion.div
                             key={movie.id}
                             className="flex-none w-36 sm:w-40 md:w-44 lg:w-48"
+                            initial={{ opacity: 0, x: 20 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true, margin: "-50px" }}
+                            transition={{ delay: index * 0.05, duration: 0.4, ease: "easeOut" }}
                         >
                             <MovieCard movie={movie} index={index} />
-                        </div>
+                        </motion.div>
                     ))}
                 </div>
             </div>

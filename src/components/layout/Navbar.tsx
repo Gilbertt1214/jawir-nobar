@@ -31,11 +31,25 @@ export function Navbar() {
     const navigate = useNavigate();
     const { language, setLanguage, t } = useLanguage();
 
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
+
     const toggleLanguage = () => {
         const newLang = language === 'en' ? 'id' : 'en';
         setLanguage(newLang);
         toast.success(newLang === 'en' ? 'Language: English' : 'Bahasa: Indonesia');
     };
+
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "Escape") {
+                if (isSearchOpen) setIsSearchOpen(false);
+                if (isMenuOpen) setIsMenuOpen(false);
+            }
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [isSearchOpen, isMenuOpen]);
 
     useEffect(() => {
         let ticking = false;
@@ -59,6 +73,7 @@ export function Navbar() {
         if (searchQuery.trim()) {
             navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
             setSearchQuery("");
+            setIsSearchOpen(false);
         }
     };
 
@@ -69,17 +84,20 @@ export function Navbar() {
     return (
         <header
             className={cn(
-                "sticky top-0 z-50 w-full",
+                "sticky top-0 z-50 w-full transition-all duration-300",
                 isScrolled
                     ? "bg-background/80 backdrop-blur-xl border-b border-border shadow-md py-2"
                     : "bg-transparent border-transparent py-2"
             )}
         >
-            <nav className="container mx-auto flex h-14 sm:h-16 lg:h-20 items-center justify-between px-3 sm:px-4 lg:px-6 gap-2 sm:gap-4">
-                {/* Logo */}
+            <nav className="container mx-auto flex h-14 sm:h-16 lg:h-20 items-center justify-between px-3 sm:px-4 lg:px-6 gap-2 sm:gap-4 relative">
+                {/* Logo - Hidden when search is open on mobile */}
                 <Link
                     to="/"
-                    className="flex items-center gap-2 font-bold text-base sm:text-lg lg:text-2xl flex-shrink-0 group"
+                    className={cn(
+                        "flex items-center gap-2 font-bold text-base sm:text-lg lg:text-2xl flex-shrink-0 group transition-all duration-300",
+                        isSearchOpen ? "hidden sm:flex" : "flex"
+                    )}
                 >
                     <div className="relative">
                         <div className="absolute inset-0 bg-primary/50 blur-lg rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -100,28 +118,82 @@ export function Navbar() {
                 </Link>
 
                 {/* Search Bar - Responsive */}
-                <div className="flex items-center flex-1 min-w-0 mx-2 sm:mx-4 lg:mx-auto lg:max-w-md transition-all duration-300">
+                <div className={cn(
+                    "flex-1 flex justify-end lg:justify-center transition-all duration-300",
+                    isMenuOpen ? "hidden" : "flex",
+                    isSearchOpen ? "w-full absolute left-0 right-0 px-2 sm:static sm:w-auto z-50" : ""
+                )}>
                     <form
                         onSubmit={handleSearch}
-                        className="relative flex-1 group"
+                        className={cn(
+                            "relative transition-all duration-300 flex items-center bg-transparent",
+                            isSearchOpen 
+                                ? "w-full sm:w-[300px] lg:w-[400px]" 
+                                : "w-auto sm:w-[300px] lg:w-[400px]"
+                        )}
                     >
-                        <div className="absolute inset-0 bg-primary/20 blur-md rounded-full opacity-0 group-focus-within:opacity-100 transition-opacity duration-300" />
-                        <Input
-                            type="search"
-                            placeholder={t('search')}
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="relative pr-8 sm:pr-10 h-9 sm:h-10 lg:h-11 text-base md:text-base bg-secondary border-gray-300 dark:border-border rounded-full focus:bg-background focus:border-primary/50 transition-all duration-300 placeholder:text-muted-foreground"
-                        />
-                        <Button
-                            type="submit"
-                            size="icon"
-                            variant="ghost"
-                            className="absolute right-0.5 sm:right-1 top-0.5 sm:top-1 h-8 w-8 sm:h-8 sm:w-8 lg:h-9 lg:w-9 rounded-full hover:bg-primary/20 hover:text-primary transition-colors"
-                            aria-label={t('search')}
-                        >
-                            <Search className="h-4 w-4" />
-                        </Button>
+                         {/* Enhanced Backdrop Blur for Mobile Search Overlay */}
+                        <div className={cn(
+                            "absolute inset-0 bg-primary/20 blur-md rounded-full transition-opacity duration-300",
+                            isSearchOpen || searchQuery ? "opacity-100" : "opacity-0"
+                        )} />
+                        
+                        <div className={cn(
+                            "relative flex items-center w-full transition-all duration-300 overflow-hidden",
+                            isSearchOpen 
+                                ? "bg-background/95 backdrop-blur-md border border-primary/20 shadow-lg rounded-full sm:bg-secondary sm:shadow-none sm:border-none" 
+                                : "bg-transparent sm:bg-secondary sm:rounded-full"
+                        )}>
+                            <Input
+                                type="search"
+                                placeholder={t('search')}
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                onFocus={() => setIsSearchOpen(true)}
+                                onBlur={() => {
+                                    if (!searchQuery) {
+                                        setIsSearchOpen(false);
+                                    }
+                                }}
+                                className={cn(
+                                    "transition-all duration-300 bg-transparent border-none focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground",
+                                    "h-10 sm:h-10 lg:h-11",
+                                    isSearchOpen 
+                                        ? "w-full pl-4 pr-10 opacity-100" 
+                                        : "w-0 sm:w-full pl-0 sm:pl-4 opacity-0 sm:opacity-100 p-0 sm:p-2"
+                                )}
+                            />
+                            
+                            {/* Mobile Search Toggle / Submit Button */}
+                             <Button
+                                type={isSearchOpen ? "submit" : "button"}
+                                size="icon"
+                                variant="ghost"
+                                onClick={(e) => {
+                                    if (!isSearchOpen) {
+                                        e.preventDefault();
+                                        setIsSearchOpen(true);
+                                        // Wait for state update then focus input
+                                        setTimeout(() => {
+                                            const input = e.currentTarget.parentElement?.querySelector('input');
+                                            input?.focus();
+                                        }, 10);
+                                    } 
+                                    // If open and has query, let it submit
+                                    // If open and empty, maybe close? (handled by blur mostly)
+                                }}
+                                className={cn(
+                                    "rounded-full hover:bg-primary/20 hover:text-primary transition-colors z-10",
+                                    "h-10 w-10 sm:h-10 sm:w-10 lg:h-11 lg:w-11",
+                                    isSearchOpen 
+                                        ? "absolute right-0" 
+                                        : "relative sm:absolute sm:right-0 bg-secondary/50 sm:bg-transparent"
+                                )}
+                                aria-label={t('search')}
+                            >
+                                <Search className="h-4 w-4" />
+                            </Button>
+                        </div>
                     </form>
                 </div>
 
@@ -206,15 +278,18 @@ export function Navbar() {
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                className="lg:hidden h-9 w-9 sm:h-10 sm:w-10 rounded-full hover:bg-secondary"
+                                className={cn(
+                                    "lg:hidden h-9 w-9 sm:h-10 sm:w-10 rounded-full hover:bg-secondary",
+                                    !isScrolled && "text-hero-foreground hover:bg-white/10"
+                                )}
                                 aria-label="Open menu"
                             >
-                                <Menu className={cn("h-5 w-5", !isScrolled && "text-hero-foreground")} />
+                                <Menu className="h-5 w-5" />
                             </Button>
                         </SheetTrigger>
                         <SheetContent
                             side="right"
-                            className="w-[260px] xs:w-[280px] sm:w-[320px] border-l border-border bg-background/95 backdrop-blur-xl"
+                            className="w-[80vw] sm:w-[350px] border-l border-border bg-background/95 backdrop-blur-xl"
                         >
                             <SheetHeader>
                                 <SheetTitle className="text-left text-lg sm:text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-400">
@@ -276,7 +351,7 @@ export function Navbar() {
                                 </Button>
 
                                 {/* Theme Toggle - Mobile */}
-                                <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3">
+                                <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3 cursor-pointer hover:bg-muted/50 rounded-xl transition-colors">
                                     <span className="text-sm font-medium">{t('changeTheme')}</span>
                                     <ModeToggle />
                                 </div>

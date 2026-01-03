@@ -10,10 +10,11 @@ import { Footer } from "@/components/layout/Footer";
 import { ScrollToTop } from "@/components/layout/ScrollToTop";
 import { ContextMenu } from "@/components/layout/ContextMenu";
 import { Breadcrumb } from "@/components/common/Breadcrumb";
+import { PageTransition } from "@/components/layout/PageTransition";
 import { useEffect, Suspense, lazy } from "react";
 import Lenis from "lenis";
 import { Loader2 } from "lucide-react";
-import Snowfall from "react-snowfall";
+import { AnimatePresence } from "framer-motion";
 
 const Home = lazy(() => import("./pages/home/Home"));
 const MovieDetail = lazy(() => import("./pages/movie/MovieDetail"));
@@ -35,6 +36,8 @@ const AnimeInfo = lazy(() => import("./pages/anime/AnimeInfo"));
 const AnimeWatch = lazy(() => import("./pages/anime/AnimeWatch"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
+const Snowfall = lazy(() => import("react-snowfall"));
+
 const queryClient = new QueryClient({
     defaultOptions: {
         queries: {
@@ -50,6 +53,185 @@ const PageLoader = () => (
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
     </div>
 );
+
+const AnimatedRoutes = () => {
+    const location = useLocation();
+    
+    return (
+        <AnimatePresence mode="wait">
+            <Routes location={location} key={location.pathname}>
+                <Route
+                    path="/"
+                    element={
+                        <PageTransition>
+                            <Home />
+                        </PageTransition>
+                    }
+                />
+
+                <Route
+                    path="/movie/:id"
+                    element={
+                        <PageTransition>
+                            <MovieDetail />
+                        </PageTransition>
+                    }
+                />
+                <Route
+                    path="/series/:id"
+                    element={
+                        <PageTransition>
+                            <MovieDetail />
+                        </PageTransition>
+                    }
+                />
+                <Route
+                    path="/series/:id/episodes"
+                    element={
+                        <PageTransition>
+                            <SeriesEpisodes />
+                        </PageTransition>
+                    }
+                />
+                <Route
+                    path="/series/:id/watch"
+                    element={
+                        <PageTransition>
+                            <EpisodeDetail />
+                        </PageTransition>
+                    }
+                />
+
+                <Route
+                    path="/hentai"
+                    element={
+                        <PageTransition>
+                            <HentaiList />
+                        </PageTransition>
+                    }
+                />
+                <Route
+                    path="/hentai/nekopoi/:slug"
+                    element={
+                        <PageTransition>
+                            <HentaiInfo />
+                        </PageTransition>
+                    }
+                />
+                <Route
+                    path="/hentai/watch/:id"
+                    element={
+                        <PageTransition>
+                            <HentaiWatch />
+                        </PageTransition>
+                    }
+                />
+
+                <Route
+                    path="/anime"
+                    element={
+                        <PageTransition>
+                            <AnimeList />
+                        </PageTransition>
+                    }
+                />
+                <Route
+                    path="/anime/:slug"
+                    element={
+                        <PageTransition>
+                            <AnimeInfo />
+                        </PageTransition>
+                    }
+                />
+                <Route
+                    path="/anime/watch/:slug"
+                    element={
+                        <PageTransition>
+                            <AnimeWatch />
+                        </PageTransition>
+                    }
+                />
+
+                <Route
+                    path="/browse/:category"
+                    element={
+                        <PageTransition>
+                            <BrowseCategory />
+                        </PageTransition>
+                    }
+                />
+                <Route
+                    path="/search"
+                    element={
+                        <PageTransition>
+                            <Search />
+                        </PageTransition>
+                    }
+                />
+
+                <Route
+                    path="/genres"
+                    element={
+                        <PageTransition>
+                            <GenreList />
+                        </PageTransition>
+                    }
+                />
+                <Route
+                    path="/genre/:genre"
+                    element={
+                        <PageTransition>
+                            <GenreMovies />
+                        </PageTransition>
+                    }
+                />
+
+                <Route
+                    path="/countries"
+                    element={
+                        <PageTransition>
+                            <CountryList />
+                        </PageTransition>
+                    }
+                />
+                <Route
+                    path="/country/:country"
+                    element={
+                        <PageTransition>
+                            <CountryMovies />
+                        </PageTransition>
+                    }
+                />
+
+                <Route
+                    path="/years"
+                    element={
+                        <PageTransition>
+                            <YearList />
+                        </PageTransition>
+                    }
+                />
+                <Route
+                    path="/year/:year"
+                    element={
+                        <PageTransition>
+                            <YearMovies />
+                        </PageTransition>
+                    }
+                />
+
+                <Route
+                    path="*"
+                    element={
+                        <PageTransition>
+                            <NotFound />
+                        </PageTransition>
+                    }
+                />
+            </Routes>
+        </AnimatePresence>
+    );
+};
 
 const ContentLayout = ({ children }: { children: React.ReactNode }) => {
     const location = useLocation();
@@ -108,114 +290,27 @@ const App = () => {
                             <ScrollToTop />
                             <ContextMenu />
                             <div className="flex min-h-screen flex-col bg-background font-sans antialiased">
-                                {/* Christmas Snowfall Effect 🎄 */}
-                                <Snowfall
-                                    color="white"
-                                    snowflakeCount={150}
-                                    radius={[0.5, 2.5]}
-                                    speed={[0.5, 2]}
-                                    wind={[-0.5, 1]}
-                                    style={{
-                                        position: "fixed",
-                                        width: "100vw",
-                                        height: "100vh",
-                                        zIndex: 9999,
-                                        pointerEvents: "none",
-                                    }}
-                                />
+                                    {/* Christmas Snowfall Effect 🎄 */}
+                                    <Suspense fallback={null}>
+                                        <Snowfall
+                                            color="white"
+                                            snowflakeCount={150}
+                                            radius={[0.5, 2.5]}
+                                            speed={[0.5, 2]}
+                                            wind={[-0.5, 1]}
+                                            style={{
+                                                position: "fixed",
+                                                width: "100vw",
+                                                height: "100vh",
+                                                zIndex: 9999,
+                                                pointerEvents: "none",
+                                            }}
+                                        />
+                                    </Suspense>
                                 <Navbar />
                                 <ContentLayout>
                                     <Suspense fallback={<PageLoader />}>
-                                        <Routes>
-                                            <Route
-                                                path="/"
-                                                element={<Home />}
-                                            />
-
-                                            <Route
-                                                path="/movie/:id"
-                                                element={<MovieDetail />}
-                                            />
-                                            <Route
-                                                path="/series/:id"
-                                                element={<MovieDetail />}
-                                            />
-                                            <Route
-                                                path="/series/:id/episodes"
-                                                element={<SeriesEpisodes />}
-                                            />
-                                            <Route
-                                                path="/series/:id/watch"
-                                                element={<EpisodeDetail />}
-                                            />
-
-                                            <Route
-                                                path="/hentai"
-                                                element={<HentaiList />}
-                                            />
-                                            <Route
-                                                path="/hentai/nekopoi/:slug"
-                                                element={<HentaiInfo />}
-                                            />
-                                            <Route
-                                                path="/hentai/watch/:id"
-                                                element={<HentaiWatch />}
-                                            />
-
-                                            <Route
-                                                path="/anime"
-                                                element={<AnimeList />}
-                                            />
-                                            <Route
-                                                path="/anime/:slug"
-                                                element={<AnimeInfo />}
-                                            />
-                                            <Route
-                                                path="/anime/watch/:slug"
-                                                element={<AnimeWatch />}
-                                            />
-
-                                            <Route
-                                                path="/browse/:category"
-                                                element={<BrowseCategory />}
-                                            />
-                                            <Route
-                                                path="/search"
-                                                element={<Search />}
-                                            />
-
-                                            <Route
-                                                path="/genres"
-                                                element={<GenreList />}
-                                            />
-                                            <Route
-                                                path="/genre/:genre"
-                                                element={<GenreMovies />}
-                                            />
-
-                                            <Route
-                                                path="/countries"
-                                                element={<CountryList />}
-                                            />
-                                            <Route
-                                                path="/country/:country"
-                                                element={<CountryMovies />}
-                                            />
-
-                                            <Route
-                                                path="/years"
-                                                element={<YearList />}
-                                            />
-                                            <Route
-                                                path="/year/:year"
-                                                element={<YearMovies />}
-                                            />
-
-                                            <Route
-                                                path="*"
-                                                element={<NotFound />}
-                                            />
-                                        </Routes>
+                                        <AnimatedRoutes />
                                     </Suspense>
                                 </ContentLayout>
                                 <Footer />

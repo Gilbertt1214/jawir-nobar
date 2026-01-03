@@ -13,6 +13,7 @@ interface SectionProps {
     link: string;
     children?: React.ReactNode;
     delay?: number;
+    className?: string;
 }
 
 export function Section({
@@ -22,23 +23,19 @@ export function Section({
     link,
     children,
     delay = 0,
+    className, // Destructure className
 }: SectionProps) {
     const { t } = useLanguage();
     
     return (
-        <FadeIn delay={delay} direction="up" className="space-y-6">
-            <section className="space-y-6 content-visibility-auto">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="flex items-center gap-3 group cursor-pointer">
-                        <div className="h-8 w-1.5 bg-primary rounded-full group-hover:h-10 transition-all duration-300" />
-                        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground group-hover:text-primary transition-colors">
+        <FadeIn delay={delay} direction="up" className="space-y-6 w-full">
+            <section className={`space-y-6 border-t border-border/50 pt-12 first:border-0 first:pt-0 ${className}`}>
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        {icon}
+                        <h2 className="text-2xl font-bold tracking-tight bg-gradient-to-br from-foreground to-muted-foreground bg-clip-text text-transparent">
                             {title}
                         </h2>
-                        {icon && (
-                            <div className="text-primary opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300">
-                                {icon}
-                            </div>
-                        )}
                     </div>
                     {children}
                     <Button
