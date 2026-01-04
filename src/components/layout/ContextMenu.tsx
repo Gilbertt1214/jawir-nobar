@@ -120,10 +120,10 @@ export function ContextMenu() {
             ref={menuRef}
             className={cn(
                 "fixed z-[9999] min-w-[200px]",
-                "bg-white dark:bg-zinc-900",
+                "bg-background/80 backdrop-blur-xl",
                 "rounded-2xl",
-                "shadow-xl shadow-black/10 dark:shadow-black/30",
-                "border border-gray-100 dark:border-zinc-800",
+                "shadow-2xl shadow-black/20",
+                "border border-border",
                 "p-2",
                 "animate-in fade-in zoom-in-95 duration-150"
             )}
@@ -157,7 +157,7 @@ export function ContextMenu() {
                     onClick={handleHome} 
                 />
 
-                <div className="my-1 border-t border-gray-100 dark:border-zinc-800" />
+                <div className="my-1 border-t border-border/50" />
 
                 <MenuItem 
                     icon={<Globe className="w-5 h-5" strokeWidth={2} />} 
@@ -185,15 +185,15 @@ function MenuItem({
             onClick={onClick}
             className={cn(
                 "w-full flex items-center gap-4 px-4 py-3 rounded-xl",
-                "hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors duration-150",
+                "hover:bg-primary/10 hover:text-primary transition-all duration-150",
                 "group text-left",
                 className
             )}
         >
-            <div className="text-gray-700 dark:text-gray-300">
+            <div className="text-foreground/70 group-hover:text-primary transition-colors">
                 {icon}
             </div>
-            <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+            <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
                 {label}
             </span>
         </button>
