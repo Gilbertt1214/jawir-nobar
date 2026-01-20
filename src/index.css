@@ -160,6 +160,22 @@
 
 
 @layer utilities {
+    @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+    }
+
+    .animate-shimmer {
+        background: linear-gradient(
+            90deg,
+            hsl(var(--muted)) 25%,
+            hsl(var(--muted) / 0.8) 50%,
+            hsl(var(--muted)) 75%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 2s infinite linear;
+    }
+
     .content-visibility-auto {
         content-visibility: auto;
         contain-intrinsic-size: 0 500px;

@@ -4,6 +4,7 @@ import { movieAPI } from "@/services/api";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { SkeletonGrid } from "@/components/features/movie/SkeletonCard";
 import {
     AlertCircle,
     Search,
@@ -14,7 +15,7 @@ import {
     Tv,
     CheckCircle,
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -33,16 +34,45 @@ export default function AnimeList() {
     const [previewResults, setPreviewResults] = useState<any[]>([]);
     const [isPreviewSearching, setIsPreviewSearching] = useState(false);
     const [isInputFocused, setIsInputFocused] = useState(false);
+    
+    // Local state for the search input to keep typing fast (Low INP)
+    const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
+    
     const { t, language } = useLanguage();
     const navigate = useNavigate();
 
-    // Search preview debouncing
+    // Debounce search query update to URL (Low INP)
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (localSearchQuery !== searchQuery) {
+                setSearchParams(prev => {
+                    const next = new URLSearchParams(prev);
+                    if (localSearchQuery) {
+                        next.set("q", localSearchQuery);
+                    } else {
+                        next.delete("q");
+                    }
+                    next.delete("page");
+                    if (activeTab) next.set("tab", activeTab);
+                    return next;
+                });
+            }
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [localSearchQuery, activeTab, setSearchParams, searchQuery]);
+
+    // Update local state when URL changes (e.g. back navigation)
+    useEffect(() => {
+        setLocalSearchQuery(searchQuery);
+    }, [searchQuery]);
+
+    // Search preview debouncing (separate from URL update)
     useEffect(() => {
         const timer = setTimeout(async () => {
-            if (searchQuery.length >= 2) {
+            if (localSearchQuery.length >= 2) {
                 setIsPreviewSearching(true);
                 try {
-                    const results = await movieAPI.searchAnimeOtakudesu(searchQuery);
+                    const results = await movieAPI.searchAnimeOtakudesu(localSearchQuery);
                     setPreviewResults(results.slice(0, 5)); // Limit to 5 for preview
                 } catch (error) {
                     console.error("Anime preview search failed:", error);
@@ -56,7 +86,7 @@ export default function AnimeList() {
         }, 300);
 
         return () => clearTimeout(timer);
-    }, [searchQuery]);
+    }, [localSearchQuery]);
 
     const setPage = (newPage: number | ((prev: number) => number)) => {
         setSearchParams(prev => {
@@ -71,18 +101,7 @@ export default function AnimeList() {
     };
 
     const handleSearchChange = (val: string) => {
-        setSearchParams(prev => {
-            const next = new URLSearchParams(prev);
-            if (val) {
-                next.set("q", val);
-            } else {
-                next.delete("q");
-            }
-            // Reset page on search
-            next.delete("page");
-            if (activeTab) next.set("tab", activeTab);
-            return next;
-        });
+        setLocalSearchQuery(val);
     };
 
     const handleTabChange = (val: string) => {
@@ -149,8 +168,7 @@ export default function AnimeList() {
         }
     };
 
-    // Get display data based on active tab and search
-    const getDisplayData = () => {
+    const displayData = useMemo(() => {
         if (searchQuery.length > 2 && searchResults) {
             return searchResults;
         }
@@ -158,9 +176,7 @@ export default function AnimeList() {
             return ongoingAnime || [];
         }
         return completeAnime?.data || [];
-    };
-
-    const displayData = getDisplayData();
+    }, [searchQuery, searchResults, activeTab, ongoingAnime, completeAnime]);
     const isLoading =
         searchQuery.length > 2
             ? loadingSearch
@@ -236,7 +252,7 @@ export default function AnimeList() {
                         <Input
                             type="text"
                             placeholder={t('searchAnime')}
-                            value={searchQuery}
+                            value={localSearchQuery}
                             onChange={(e) => handleSearchChange(e.target.value)}
                             onFocus={() => setIsInputFocused(true)}
                             onBlur={() => {
@@ -298,22 +314,20 @@ export default function AnimeList() {
                     )}
                 </form>
 
-                {/* Loading State */}
-                {isLoading && (
-                    <div className="flex flex-col items-center justify-center py-16">
-                        <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent mb-4"></div>
-                        <p className="text-muted-foreground">
-                            {activeTab === "complete"
-                                ? t('loadingAnimeThumbnails')
-                                : t('loading')}
-                        </p>
+                {/* Loading State & Content Grid */}
+                {isLoading ? (
+                    <div className="space-y-8">
+                        {activeTab === "complete" && (
+                             <p className="text-sm text-muted-foreground animate-pulse mb-4">
+                                {t('loadingAnimeThumbnails')}
+                            </p>
+                        )}
+                        <SkeletonGrid count={12} />
                     </div>
-                )}
-
-                {/* Content Grid */}
-                {!isLoading && displayData && (
-                    <>
-                        {displayData.length === 0 ? (
+                ) : (
+                    displayData && (
+                        <>
+                            {displayData.length === 0 ? (
                             <div className="rounded-xl p-8 text-center bg-card border border-border">
                                 <div className="max-w-md mx-auto">
                                     <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-secondary">
@@ -364,6 +378,7 @@ export default function AnimeList() {
                                                         alt={item.title}
                                                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                                                         loading="lazy"
+                                                        decoding="async"
                                                         onError={(e) => {
                                                             e.currentTarget.src =
                                                                 "/placeholder.svg";
@@ -404,8 +419,8 @@ export default function AnimeList() {
                             </div>
                         )}
                     </>
-                )}
-
+                )
+            )}
                 {/* Pagination for Complete Anime */}
                 {activeTab === "complete" &&
                     completeAnime &&

@@ -4,6 +4,7 @@ import { movieAPI } from "@/services/api";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { SkeletonGrid } from "@/components/features/movie/SkeletonCard";
 import {
     AlertCircle,
     Search,
@@ -64,23 +65,58 @@ interface RandomHentai {
 
 export default function HentaiList() {
     const navigate = useNavigate();
-    const [searchQuery, setSearchQuery] = useState("");
-    const [page, setPage] = useState(1);
+    const [searchParams, setSearchParams] = useSearchParams();
+    const searchQuery = searchParams.get("q") || "";
+    const pageParam = parseInt(searchParams.get("page") || "1");
+    const [page, setPage] = useState(pageParam);
     const [apiStatus, setApiStatus] = useState<boolean | null>(null);
     const [isLoadingRandom, setIsLoadingRandom] = useState(false);
     const [randomHentai, setRandomHentai] = useState<RandomHentai | null>(null);
     const [previewResults, setPreviewResults] = useState<any[]>([]);
     const [isPreviewSearching, setIsPreviewSearching] = useState(false);
     const [isInputFocused, setIsInputFocused] = useState(false);
+
+    // Local state for the search input to keep typing fast (Low INP)
+    const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
+
     const { t, language } = useLanguage();
+
+    // Debounce search query update to URL (Low INP)
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (localSearchQuery !== searchQuery) {
+                setSearchParams(prev => {
+                    const next = new URLSearchParams(prev);
+                    if (localSearchQuery) {
+                        next.set("q", localSearchQuery);
+                    } else {
+                        next.delete("q");
+                    }
+                    next.set("page", "1");
+                    return next;
+                });
+            }
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [localSearchQuery, setSearchParams, searchQuery]);
+
+    // Update local state when URL changes
+    useEffect(() => {
+        setLocalSearchQuery(searchQuery);
+    }, [searchQuery]);
+
+    // Update page state when URL changes
+    useEffect(() => {
+        setPage(pageParam);
+    }, [pageParam]);
 
     // Search preview debouncing
     useEffect(() => {
         const timer = setTimeout(async () => {
-            if (searchQuery.length >= 2) {
+            if (localSearchQuery.length >= 2) {
                 setIsPreviewSearching(true);
                 try {
-                    const results = await movieAPI.searchAllHentai(searchQuery);
+                    const results = await movieAPI.searchAllHentai(localSearchQuery);
                     setPreviewResults(results.nekopoi.slice(0, 5)); // Limit to 5 for preview
                 } catch (error) {
                     console.error("Hentai preview search failed:", error);
@@ -94,7 +130,7 @@ export default function HentaiList() {
         }, 300);
 
         return () => clearTimeout(timer);
-    }, [searchQuery]);
+    }, [localSearchQuery]);
 
     // Handle random hentai
     const handleRandom = async () => {
@@ -390,8 +426,8 @@ export default function HentaiList() {
                         <Input
                             type="text"
                             placeholder={t('searchHentai')}
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
+                            value={localSearchQuery}
+                            onChange={(e) => setLocalSearchQuery(e.target.value)}
                             onFocus={() => setIsInputFocused(true)}
                             onBlur={() => {
                                 setTimeout(() => setIsInputFocused(false), 200);
@@ -415,7 +451,7 @@ export default function HentaiList() {
                                                 type="button"
                                                 onClick={() => {
                                                     navigate(`/hentai/nekopoi/${result.id}`);
-                                                    setSearchQuery("");
+                                                    setLocalSearchQuery("");
                                                     setPreviewResults([]);
                                                 }}
                                                 className="w-full flex items-center gap-3 p-2 hover:bg-primary/10 rounded-xl transition-colors text-left group"
@@ -453,44 +489,18 @@ export default function HentaiList() {
                     )}
                 </form>
 
-                {/* Loading State */}
-                {isLoading && (
-                    <div className="flex flex-col items-center justify-center py-16">
-                        <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent mb-4"></div>
-                        <p className="text-muted-foreground">
+                {/* Loading State & Content Grid */}
+                {isLoading ? (
+                    <div className="space-y-8">
+                        <p className="text-sm text-muted-foreground animate-pulse mb-4">
                             {t('loadingContent')}
                         </p>
+                        <SkeletonGrid count={12} />
                     </div>
-                )}
-
-                {/* Error State */}
-                {releaseError && (
-                    <div className="rounded-xl p-6 mb-6 bg-card border border-primary">
-                        <div className="flex items-start gap-4">
-                            <AlertCircle className="h-6 w-6 text-primary flex-shrink-0 mt-0.5" />
-                            <div className="space-y-3">
-                                <p className="font-semibold text-foreground">
-                                    {t('failedToLoadContent')}
-                                </p>
-                                <p className="text-sm text-muted-foreground">
-                                    {(releaseError as Error).message}
-                                </p>
-                                <Button
-                                    onClick={() => refetchRelease()}
-                                    className="bg-primary hover:bg-primary/90 text-primary-foreground"
-                                >
-                                    <RefreshCw className="mr-2 h-4 w-4" />
-                                    {t('retry')}
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {/* Content Grid */}
-                {!isLoading && !releaseError && (
-                    <>
-                        {groupedData.length === 0 ? (
+                ) : (
+                    !releaseError && (
+                        <>
+                            {groupedData.length === 0 ? (
                             <div className="rounded-xl p-8 text-center bg-card border border-border">
                                 <div className="max-w-md mx-auto">
                                     <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-secondary">
@@ -533,6 +543,7 @@ export default function HentaiList() {
                                                         alt={group.baseTitle}
                                                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                                                         loading="lazy"
+                                                        decoding="async"
                                                         referrerPolicy="no-referrer"
                                                         onError={(e) => {
                                                             e.currentTarget.src =
@@ -576,6 +587,31 @@ export default function HentaiList() {
                             </div>
                         )}
                     </>
+                    )
+                )}
+
+                {/* Error State */}
+                {releaseError && (
+                    <div className="rounded-xl p-6 mb-6 bg-card border border-primary mt-8">
+                        <div className="flex items-start gap-4">
+                            <AlertCircle className="h-6 w-6 text-primary flex-shrink-0 mt-0.5" />
+                            <div className="space-y-3">
+                                <p className="font-semibold text-foreground">
+                                    {t('failedToLoadContent')}
+                                </p>
+                                <p className="text-sm text-muted-foreground">
+                                    {(releaseError as Error).message}
+                                </p>
+                                <Button
+                                    onClick={() => refetchRelease()}
+                                    className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                                >
+                                    <RefreshCw className="mr-2 h-4 w-4" />
+                                    {t('retry')}
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
                 )}
 
                 {/* Pagination */}

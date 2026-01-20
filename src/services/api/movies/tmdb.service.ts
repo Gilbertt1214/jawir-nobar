@@ -176,7 +176,7 @@ export class TMDBService {
                 id: String(m.id),
                 title: m.title,
                 cover: m.poster_path
-                    ? `https://image.tmdb.org/t/p/w500${m.poster_path}`
+                    ? `https://image.tmdb.org/t/p/w342${m.poster_path}`
                     : "/placeholder.svg",
                 rating: m.vote_average || 0,
                 genre: (m.genre_ids || []).map((id: number) =>
@@ -209,7 +209,7 @@ export class TMDBService {
                 id: String(t.id),
                 title: t.name,
                 cover: t.poster_path
-                    ? `https://image.tmdb.org/t/p/w500${t.poster_path}`
+                    ? `https://image.tmdb.org/t/p/w342${t.poster_path}`
                     : "/placeholder.svg",
                 rating: t.vote_average || 0,
                 genre: (t.genre_ids || []).map((id: number) =>
@@ -242,7 +242,7 @@ export class TMDBService {
                 id: String(m.id),
                 title: m.title,
                 cover: m.poster_path
-                    ? `https://image.tmdb.org/t/p/w500${m.poster_path}`
+                    ? `https://image.tmdb.org/t/p/w342${m.poster_path}`
                     : "/placeholder.svg",
                 rating: m.vote_average || 0,
                 genre: (m.genre_ids || []).map((id: number) =>
@@ -515,7 +515,7 @@ export class TMDBService {
                     id: String(item.id),
                     title: item.title || item.name,
                     cover: item.poster_path
-                        ? `https://image.tmdb.org/t/p/w500${item.poster_path}`
+                        ? `https://image.tmdb.org/t/p/w342${item.poster_path}`
                         : "/placeholder.svg",
                     rating: item.vote_average || 0,
                     genre: (item.genre_ids || []).map((id: number) =>
@@ -572,7 +572,7 @@ export class TMDBService {
                         id: String(m.id),
                         title: m.title,
                         cover: m.poster_path
-                            ? `https://image.tmdb.org/t/p/w500${m.poster_path}`
+                            ? `https://image.tmdb.org/t/p/w342${m.poster_path}`
                             : "/placeholder.svg",
                         rating: m.vote_average || 0,
                         genre: [genre],
@@ -595,7 +595,7 @@ export class TMDBService {
                         id: String(t.id),
                         title: t.name,
                         cover: t.poster_path
-                            ? `https://image.tmdb.org/t/p/w500${t.poster_path}`
+                            ? `https://image.tmdb.org/t/p/w342${t.poster_path}`
                             : "/placeholder.svg",
                         rating: t.vote_average || 0,
                         genre: [genre],
@@ -639,7 +639,7 @@ export class TMDBService {
                     id: String(x.id),
                     title: x.title,
                     cover: x.poster_path
-                        ? `https://image.tmdb.org/t/p/w500${x.poster_path}`
+                        ? `https://image.tmdb.org/t/p/w342${x.poster_path}`
                         : "/placeholder.svg",
                     rating: x.vote_average || 0,
                     genre: [],
@@ -652,7 +652,7 @@ export class TMDBService {
                     id: String(x.id),
                     title: x.name,
                     cover: x.poster_path
-                        ? `https://image.tmdb.org/t/p/w500${x.poster_path}`
+                        ? `https://image.tmdb.org/t/p/w342${x.poster_path}`
                         : "/placeholder.svg",
                     rating: x.vote_average || 0,
                     genre: [],
@@ -698,7 +698,7 @@ export class TMDBService {
                     id: String(x.id),
                     title: x.title,
                     cover: x.poster_path
-                        ? `https://image.tmdb.org/t/p/w500${x.poster_path}`
+                        ? `https://image.tmdb.org/t/p/w342${x.poster_path}`
                         : "/placeholder.svg",
                     rating: x.vote_average || 0,
                     genre: [],
@@ -712,7 +712,7 @@ export class TMDBService {
                     id: String(x.id),
                     title: x.name,
                     cover: x.poster_path
-                        ? `https://image.tmdb.org/t/p/w500${x.poster_path}`
+                        ? `https://image.tmdb.org/t/p/w342${x.poster_path}`
                         : "/placeholder.svg",
                     rating: x.vote_average || 0,
                     genre: [],

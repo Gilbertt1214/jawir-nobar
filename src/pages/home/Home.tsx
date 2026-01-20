@@ -249,21 +249,25 @@ export default function Home() {
 
     if (isLoading) {
         return (
-            <div className="container mx-auto px-4 py-8 space-y-8">
-                {/* Hero Skeleton */}
-                <div className="relative h-[80vh] w-full bg-muted animate-pulse rounded-3xl overflow-hidden" />
+            <div className="min-h-screen bg-background pb-20">
+                {/* Hero Skeleton - Match the real Hero's negative margin and height */}
+                <div className="relative h-[80vh] md:h-[85vh] w-full -mt-[72px] sm:-mt-24 lg:-mt-28 bg-muted animate-shimmer rounded-b-3xl overflow-hidden" />
 
-                {/* Content Skeletons */}
-                <div className="space-y-12">
+                {/* Content Skeletons - Match the real main container structure */}
+                <main className="container mx-auto px-4 py-12 space-y-16 relative z-10 -mt-20">
                     <div className="space-y-4">
-                        <div className="h-8 w-48 bg-muted animate-pulse rounded" />
+                        <div className="h-8 w-48 bg-muted animate-shimmer rounded" />
                         <SkeletonGrid count={6} />
                     </div>
                     <div className="space-y-4">
-                        <div className="h-8 w-48 bg-muted animate-pulse rounded" />
+                        <div className="h-8 w-48 bg-muted animate-shimmer rounded" />
                         <SkeletonGrid count={6} />
                     </div>
-                </div>
+                    <div className="space-y-4">
+                        <div className="h-8 w-48 bg-muted animate-shimmer rounded" />
+                        <SkeletonGrid count={6} />
+                    </div>
+                </main>
             </div>
         );
     }
@@ -470,7 +474,7 @@ export default function Home() {
                         icon={
                             <Sparkles className="w-6 h-6 text-primary animate-pulse" />
                         }
-                        movies={latestMovies.data}
+                        movies={latestMovies.data.slice(0, 10)}
                         link="/browse/latest-movies"
                         delay={0.1}
                     />
@@ -481,7 +485,7 @@ export default function Home() {
                     <Section
                         title={t('popularMovies')}
                         icon={<TrendingUp className="w-6 h-6 text-primary" />}
-                        movies={popularMovies.data}
+                        movies={popularMovies.data.slice(0, 10)}
                         link="/browse/popular-movies"
                         delay={0.2}
                     />
@@ -492,7 +496,7 @@ export default function Home() {
                     <Section
                         title={t('latestSeries')}
                         icon={<Tv className="w-6 h-6 text-primary" />}
-                        movies={latestSeries.data}
+                        movies={latestSeries.data.slice(0, 10)}
                         link="/browse/latest-series"
                         delay={0.3}
                     />
@@ -532,7 +536,7 @@ export default function Home() {
                             </div>
 
                             {anime?.data && anime.data.length > 0 && (
-                                <MovieCarousel title="" movies={anime.data} />
+                                <MovieCarousel title="" movies={anime.data.slice(0, 10)} />
                             )}
                         </section>
                     </FadeIn>
@@ -550,7 +554,7 @@ export default function Home() {
                         <Section
                             title={t('ongoingAnime')}
                             icon={<Tv className="w-6 h-6 text-primary" />}
-                            movies={ongoingAnime}
+                            movies={ongoingAnime.slice(0, 10)}
                             link="/anime"
                             delay={0.5}
                         />
@@ -562,7 +566,7 @@ export default function Home() {
                     <Section
                         title={t('indonesianMovies')}
                         icon={<Globe className="w-6 h-6 text-primary" />}
-                        movies={indo.data}
+                        movies={indo.data.slice(0, 10)}
                         link="/browse/indonesian-movies"
                         delay={0.6}
                     />
@@ -573,7 +577,7 @@ export default function Home() {
                     <Section
                         title={t('koreanDrama')}
                         icon={<Heart className="w-6 h-6 text-primary" />}
-                        movies={kdrama.data}
+                        movies={kdrama.data.slice(0, 10)}
                         link="/browse/korean-drama"
                         delay={0.7}
                     />
@@ -584,7 +588,7 @@ export default function Home() {
                     <Section
                         title={t('romance')}
                         icon={<Heart className="w-6 h-6 text-rose-500" />}
-                        movies={adult.data}
+                        movies={adult.data.slice(0, 10)}
                         link="/browse/adult-movies"
                         delay={0.8}
                     />

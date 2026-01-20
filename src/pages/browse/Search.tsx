@@ -1,5 +1,6 @@
 import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
 import { movieAPI } from "@/services/api";
 import { MovieGrid } from "@/components/features/movie/MovieGrid";
 import { Pagination } from "@/components/common/Pagination";
@@ -20,6 +21,34 @@ export default function Search() {
     const query = searchParams.get("q") || "";
     const currentPage = parseInt(searchParams.get("page") || "1");
     const activeCategory = (searchParams.get("category") as SearchCategory) || "all";
+    
+    // Local state for the search input to keep typing fast (Low INP)
+    const [localQuery, setLocalQuery] = useState(query);
+
+    // Debounce query update to URL (Low INP)
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (localQuery !== query) {
+                setSearchParams(prev => {
+                    const next = new URLSearchParams(prev);
+                    if (localQuery) {
+                        next.set("q", localQuery);
+                    } else {
+                        next.delete("q");
+                    }
+                    next.set("page", "1");
+                    if (activeCategory) next.set("category", activeCategory);
+                    return next;
+                });
+            }
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [localQuery, activeCategory, setSearchParams, query]);
+
+    // Update local state when URL changes
+    useEffect(() => {
+        setLocalQuery(query);
+    }, [query]);
 
     // Search Movies & Series (TMDB)
     const {
