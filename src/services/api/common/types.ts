@@ -63,18 +63,21 @@ export interface AnimeDetail extends Movie {
     totalEpisodes?: string;
 }
 
+// Represents a JAV/Hentai entry from Nekopoi or similar sources
 export interface NekopoiJAV {
-    id: string;
-    title: string;
-    cover: string;
-    genre: string[];
-    duration: string;
-    synopsis: string;
-    type: string;
-    uploadDate: string;
-    nekopoiUrl?: string;
-    downloadLinks?: DownloadLink[];
-    streamLinks?: StreamLink[];
+    id: string;          // Unique slug or ID extracted from source URL
+    title: string;       // Original title from the provider
+    cover: string;       // Poster image URL
+    genre: string[];     // Array of genres/tags
+    duration: string;    // Episode duration (if available)
+    synopsis: string;    // Brief summary of the content
+    type: string;        // Typically "hentai"
+    uploadDate: string;  // Upload timestamp or info string
+    nekopoiUrl?: string; // Original source link (for detail fetching)
+    seriesSlug?: string; // Parent series slug
+    seriesTitle?: string; // Parent series title
+    downloadLinks?: DownloadLink[]; // Optional download mirrors
+    streamLinks?: StreamLink[];     // Optional streaming mirrors
 }
 
 // Alias for backward compatibility
@@ -119,6 +122,7 @@ export interface StreamingProvider {
     quality?: string;
     language?: string;
     tier?: number;
+    id?: string;
 }
 
 // Internal API types
@@ -158,4 +162,42 @@ export interface NekopoiSearchResult {
     url: string;
     type: string;
     thumb: string;
+}
+
+// Manga / Comic types
+export interface Manga {
+    id: string; // slug
+    title: string;
+    cover: string;
+    type?: string; // Manga, Manhwa, Manhua
+    status?: string;
+    latestChapter?: string;
+    rating?: string;
+    slug?: string;
+}
+
+export interface Chapter {
+    title: string;
+    slug: string;
+    releaseDate?: string;
+}
+
+export interface MangaDetail {
+    id: string;
+    title: string;
+    cover: string;
+    alternativeTitle?: string;
+    author?: string;
+    artist?: string;
+    synopsis?: string;
+    genres: string[];
+    status?: string;
+    type?: string;
+    chapters: Chapter[];
+    rating?: string;
+}
+
+export interface ChapterPage {
+    index: number;
+    url: string;
 }

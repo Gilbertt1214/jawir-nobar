@@ -12,7 +12,11 @@ import type {
     StreamingProvider,
     AnimeDetail,
     NekopoiHentai,
+    Manga,
+    MangaDetail,
+    ChapterPage,
 } from "./common/types";
+import { sankaMangaService } from "./manga/manga.service";
 
 // Export all types
 export * from "./common/types";
@@ -151,6 +155,10 @@ class MovieAPI {
     // Get episode stream from Otakudesu API
     async getAnimeEpisodeStreamOtakudesu(episodeSlug: string) {
         return this.anime.getEpisodeStreamOtakudesu(episodeSlug);
+    }
+
+    async getServerUrl(serverId: string) {
+        return this.anime.getServerUrl(serverId);
     }
 
     async searchAnime(query: string): Promise<Movie[]> {
@@ -376,6 +384,23 @@ class MovieAPI {
     buildAnimeStreamUrl(animeSlug: string, episode: number): string {
         const baseUrl = this.streaming.getAnimeScraperUrl();
         return `${baseUrl}/${animeSlug}/episode-${episode}`;
+    }
+
+    // Manga Methods
+    async getLatestManga(page: number = 1): Promise<PaginatedResponse<Manga>> {
+        return sankaMangaService.getLatestManga(page);
+    }
+
+    async getMangaDetail(slug: string): Promise<MangaDetail | null> {
+        return sankaMangaService.getMangaDetail(slug);
+    }
+
+    async getChapterImages(chapterSlug: string): Promise<ChapterPage[]> {
+        return sankaMangaService.getChapterImages(chapterSlug);
+    }
+
+    async searchManga(query: string, page: number = 1): Promise<PaginatedResponse<Manga>> {
+        return sankaMangaService.searchManga(query, page);
     }
 }
 

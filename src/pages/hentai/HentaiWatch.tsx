@@ -120,7 +120,7 @@ export default function HentaiWatch() {
             };
         }, [hentaiDetail, allHentai, id]);
 
-    // Mark as watched on load
+    // Mark as watched on load and store mapping for breadcrumbs
     useEffect(() => {
         if (hentaiDetail && id) {
             const base = extractBaseTitle(hentaiDetail.title);
@@ -131,6 +131,19 @@ export default function HentaiWatch() {
             const watched = stored ? new Set(JSON.parse(stored)) : new Set();
             watched.add(id);
             localStorage.setItem(key, JSON.stringify([...watched]));
+
+            // Breadcrumb mapping: Use seriesSlug from metadata if available, 
+            // otherwise fallback to regex guessing
+            const parentSlug = hentaiDetail.seriesSlug || id
+                .replace(/-episode-\d+.*$/i, "")
+                .replace(/-ep-\d+.*$/i, "")
+                .replace(/-eps-\d+.*$/i, "");
+            
+            if (parentSlug && parentSlug !== id) {
+                sessionStorage.setItem(`parent_slug_${id}`, parentSlug);
+                window.dispatchEvent(new Event("breadcrumb-update"));
+                console.log(`🔗 Registered Hentai breadcrumb mapping: ${id} -> ${parentSlug}`);
+            }
         }
     }, [hentaiDetail, id]);
 

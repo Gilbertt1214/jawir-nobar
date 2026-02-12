@@ -255,7 +255,7 @@ export class AnimeService {
                     .split("-")
                     .filter(
                         (part) =>
-                            !["subtitle", "indonesia", "sub", "indo", "movie", "season"].includes(
+                            !["subtitle", "indonesia", "sub", "indo", "movie", "season", "episode", "eps"].includes(
                                 part.toLowerCase()
                             )
                     )
@@ -334,10 +334,12 @@ export class AnimeService {
                         url: episodeData.stream_url || "",
                         available: true,
                         quality: quality.quality,
+                        id: server.id,
                     }))
                 ),
                 nextEpisode: episodeData.next_episode?.slug,
                 prevEpisode: episodeData.previous_episode?.slug,
+                animeSlug: episodeData.anime?.slug,
                 downloadUrls: (episodeData as any).download_urls,
             };
         } catch (error) {
@@ -345,6 +347,11 @@ export class AnimeService {
             return null;
         }
     }
+
+    async getServerUrl(serverId: string) {
+        return sankaAnimeAPI.getServerUrl(serverId);
+    }
+    
     async getAnimeDetail(id: string): Promise<AnimeDetail | null> {
         try {
             const jikanData = await this.jikanRequest<{ data: JikanAnime }>(

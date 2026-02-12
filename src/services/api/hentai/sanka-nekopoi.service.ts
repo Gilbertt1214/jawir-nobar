@@ -622,7 +622,14 @@ export class SankaNekopoiService {
             data.img || data.image || data.poster || "/placeholder.svg";
         const synopsis = data.sinopsis || data.synopsis || "";
 
+        // Extract series slug from 'anime' field if it's a URL
+        let seriesSlug = undefined;
+        if (data.anime && typeof data.anime === "string") {
+            seriesSlug = extractSlug(data.anime);
+        }
+
         console.log("🖼️ Cover image:", cover);
+        console.log("🔗 Extracted seriesSlug:", seriesSlug);
 
         return {
             id,
@@ -632,6 +639,7 @@ export class SankaNekopoiService {
             duration: data.duration || "",
             synopsis,
             type: "hentai",
+            seriesSlug,
             uploadDate: data.info || "",
             streamLinks,
             downloadLinks,

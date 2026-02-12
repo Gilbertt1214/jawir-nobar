@@ -1,5 +1,6 @@
 import { TranslationKey } from "@/lib/translations";
-import { Link, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useLocation, Link } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translateGenre, translateCountry } from "@/lib/translate";
@@ -27,13 +28,27 @@ const CATEGORY_LABELS: Record<string, TranslationKey> = {
 export function Breadcrumb({ className }: { className?: string }) {
     const location = useLocation();
     const { t, language } = useLanguage();
+    const [pathSegments, setPathSegments] = useState<string[]>([]);
+    const [, setTick] = useState(0);
+
+    useEffect(() => {
+        const segments = location.pathname.split("/").filter((p) => p !== "");
+        setPathSegments(segments);
+    }, [location]);
+
+    // Force re-render when metadata mapping updates (e.g. from AnimeWatch)
+    useEffect(() => {
+        const handleUpdate = () => setTick((t) => t + 1);
+        window.addEventListener("breadcrumb-update", handleUpdate);
+        return () =>
+            window.removeEventListener("breadcrumb-update", handleUpdate);
+    }, []);
 
     // Don't show breadcrumb on home page
     if (location.pathname === "/") {
         return null;
     }
 
-    const pathSegments = location.pathname.split("/").filter(Boolean);
     const breadcrumbs: BreadcrumbItem[] = [];
 
     // Always add Home
@@ -50,6 +65,7 @@ export function Breadcrumb({ className }: { className?: string }) {
     const routeRedirects: Record<string, string> = {
         anime: "/anime",
         hentai: "/hentai",
+        manga: "/manga",
         genres: "/genres",
         genre: "/genres",
         countries: "/countries",
@@ -79,6 +95,8 @@ export function Breadcrumb({ className }: { className?: string }) {
             label = t("countries");
         } else if (fromPath.includes("/years")) {
             label = t("years");
+        } else if (fromPath.includes("/manga")) {
+            label = t("manga");
         } else {
             // Fallback: use the first segment
             const segment = fromPath.split("/")[1];
@@ -113,8 +131,88 @@ export function Breadcrumb({ className }: { className?: string }) {
         let currentPath = "";
         pathSegments.forEach((segment, index) => {
             currentPath += `/${segment}`;
-            const isLast = index === pathSegments.length - 1;
             const segmentLower = segment.toLowerCase();
+            const isLast = index === pathSegments.length - 1;
+
+            // Handle intermediate "consumable" segments (watch, read, episodes)
+            // Replace them with a "Detail" link pointing back to the info page
+            if (
+                (segmentLower === "watch" ||
+                    segmentLower === "read" ||
+                    segmentLower === "episodes" ||
+                    segmentLower === "nekopoi") &&
+                !isLast
+            ) {
+                const nextSegment = pathSegments[index + 1];
+                let detailPath = "";
+
+                // Determine the correct path to the detail/info page
+                // based on known URL structures
+                const parentRoute =
+                    index > 0 ? pathSegments[index - 1].toLowerCase() : "";
+
+                if (segmentLower === "read" && parentRoute === "manga") {
+                    // Manga structure: /manga/read/:chapterSlug -> Info: /manga/:slug
+                    const mangaSlug = nextSegment.split("-chapter-")[0];
+                    detailPath = `/manga/${mangaSlug}`;
+                } else if (
+                    segmentLower === "watch" &&
+                    parentRoute === "anime"
+                ) {
+                    // Anime structure: /anime/watch/:episodeSlug -> Info: /anime/:animeSlug
+                    // Use session storage mapping if available
+                    const mappingKey = `parent_slug_${nextSegment}`;
+                    const mappedSlug = sessionStorage.getItem(mappingKey);
+                    
+                    if (mappedSlug) {
+                        detailPath = `/anime/${mappedSlug}`;
+                    } else {
+                        // Fallback to regex (less reliable but better than nothing)
+                        const animeSlug = nextSegment
+                            .replace(/-episode-\d+.*$/i, "")
+                            .replace(/-eps-\d+.*$/i, "");
+                        detailPath = `/anime/${animeSlug}`;
+                    }
+                } else if (
+                    segmentLower === "nekopoi" &&
+                    parentRoute === "hentai"
+                ) {
+                    // Hentai info structure: /hentai/nekopoi/:slug -> Info (same page)
+                    detailPath = `/hentai/nekopoi/${nextSegment}`;
+                } else if (
+                    segmentLower === "watch" &&
+                    parentRoute === "hentai"
+                ) {
+                    // Hentai watch structure: /hentai/watch/:slug -> Info: /hentai/nekopoi/:slug
+                    // Use session storage mapping if available
+                    const mappingKey = `parent_slug_${nextSegment}`;
+                    const mappedSlug = sessionStorage.getItem(mappingKey);
+                    
+                    if (mappedSlug) {
+                        detailPath = `/hentai/nekopoi/${mappedSlug}`;
+                    } else {
+                        // Fallback to regex (strip episode parts)
+                        const hentaiSlug = nextSegment
+                            .replace(/-episode-\d+.*$/i, "")
+                            .replace(/-ep-\d+.*$/i, "")
+                            .replace(/-eps-\d+.*$/i, "");
+                        detailPath = `/hentai/nekopoi/${hentaiSlug}`;
+                    }
+                } else {
+                    // Default fallback: strip the current segment from path
+                    detailPath = currentPath.substring(
+                        0,
+                        currentPath.lastIndexOf("/")
+                    );
+                }
+
+                breadcrumbs.push({
+                    label: t("breadcrumbDetail"),
+                    path: detailPath,
+                    isActive: false,
+                });
+                return;
+            }
 
             // Get label for this segment
             const label = getSegmentLabel(
@@ -195,6 +293,7 @@ function getSegmentLabel(
         series: "series",
         anime: "anime",
         hentai: "hentai",
+        manga: "manga",
         genres: "genres",
         genre: "genres",
         countries: "countries",
@@ -241,6 +340,12 @@ function getSegmentLabel(
     // For movie/series detail pages
     if (parentSegment === "movie" || parentSegment === "series") {
         if (segment === "episodes") return t("episodes");
+        return t("breadcrumbDetail");
+    }
+
+    // For manga pages
+    if (parentSegment === "manga") {
+        if (segment === "read") return t("readNow");
         return t("breadcrumbDetail");
     }
 

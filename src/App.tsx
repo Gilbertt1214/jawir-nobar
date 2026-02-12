@@ -34,6 +34,9 @@ const HentaiWatch = lazy(() => import("./pages/hentai/HentaiWatch"));
 const AnimeList = lazy(() => import("./pages/anime/AnimeList"));
 const AnimeInfo = lazy(() => import("./pages/anime/AnimeInfo"));
 const AnimeWatch = lazy(() => import("./pages/anime/AnimeWatch"));
+const MangaList = lazy(() => import("./pages/manga/MangaList"));
+const MangaDetail = lazy(() => import("./pages/manga/MangaDetail"));
+const MangaRead = lazy(() => import("./pages/manga/MangaRead"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const Snowfall = lazy(() => import("react-snowfall"));
@@ -151,6 +154,31 @@ const AnimatedRoutes = () => {
                         </PageTransition>
                     }
                 />
+                
+                <Route
+                    path="/manga"
+                    element={
+                        <PageTransition>
+                            <MangaList />
+                        </PageTransition>
+                    }
+                />
+                <Route
+                    path="/manga/:slug"
+                    element={
+                        <PageTransition>
+                            <MangaDetail />
+                        </PageTransition>
+                    }
+                />
+                <Route
+                    path="/manga/read/:chapterSlug"
+                    element={
+                        <PageTransition>
+                            <MangaRead />
+                        </PageTransition>
+                    }
+                />
 
                 <Route
                     path="/browse/:category"
@@ -239,8 +267,10 @@ const ContentLayout = ({ children }: { children: React.ReactNode }) => {
         (location.pathname.startsWith("/movie/") ||
             location.pathname.startsWith("/series/") ||
             location.pathname.startsWith("/anime/") ||
+            location.pathname.startsWith("/manga/") ||
             location.pathname.startsWith("/hentai/nekopoi/")) &&
         !location.pathname.includes("/watch") &&
+        !location.pathname.includes("/read") &&
         !location.pathname.includes("/episodes");
 
     return (

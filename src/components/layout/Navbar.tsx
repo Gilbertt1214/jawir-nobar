@@ -6,6 +6,7 @@ import {
     Calendar,
     Tag,
     Tv,
+    BookOpen,
     Languages,
     X,
 } from "lucide-react";
@@ -44,16 +45,18 @@ export function Navbar() {
                 setIsSearching(true);
                 try {
                     // Fetch from multiple sources
-                    const [movies, anime, hentai] = await Promise.all([
+                    const [movies, anime, hentai, manga] = await Promise.all([
                         movieAPI.searchMovies(searchQuery, 1).catch(() => ({ data: [] })),
                         movieAPI.searchAnime(searchQuery).catch(() => []),
-                        movieAPI.searchAllHentai(searchQuery).catch(() => ({ nekopoi: [] }))
+                        movieAPI.searchAllHentai(searchQuery).catch(() => ({ nekopoi: [] })),
+                        movieAPI.searchManga(searchQuery, 1).catch(() => ({ data: [] }))
                     ]);
 
                     const combined = [
                         ...(movies.data || []).map((m: any) => ({ ...m, category: 'movie' })),
                         ...(anime || []).map((a: any) => ({ ...a, category: 'anime' })),
-                        ...(hentai.nekopoi || []).map((h: any) => ({ ...h, category: 'hentai' }))
+                        ...(hentai.nekopoi || []).map((h: any) => ({ ...h, category: 'hentai' })),
+                        ...(manga.data || []).map((ma: any) => ({ ...ma, category: 'manga' }))
                     ].slice(0, 8); // Limit to 8 results
 
                     setSearchResults(combined);
@@ -261,6 +264,8 @@ export function Navbar() {
                                                         path = `/anime/${result.id}`;
                                                     } else if (result.category === 'hentai') {
                                                         path = `/hentai/nekopoi/${result.id}`;
+                                                    } else if (result.category === 'manga') {
+                                                        path = `/manga/${result.id}`;
                                                     } else {
                                                         path = `/movie/${result.id}`;
                                                     }
@@ -277,6 +282,7 @@ export function Navbar() {
                                                             src={result.cover} 
                                                             alt={result.title}
                                                             className="w-full h-full object-cover"
+                                                            referrerPolicy="no-referrer"
                                                         />
                                                     ) : (
                                                         <div className="w-full h-full flex items-center justify-center text-[10px] text-muted-foreground">
@@ -329,6 +335,18 @@ export function Navbar() {
                                 )}
                             >
                                 {t('anime')}
+                            </Button>
+                        </Link>
+                        <Link to="/manga">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className={cn(
+                                    "text-sm px-3 xl:px-4 rounded-full transition-all duration-300",
+                                    isScrolled ? "text-foreground/80 hover:bg-secondary hover:text-primary" : "text-white/90 hover:bg-white/10 hover:text-white"
+                                )}
+                            >
+                                {t('manga')}
                             </Button>
                         </Link>
                         <Link to="/genres">
@@ -423,6 +441,15 @@ export function Navbar() {
                                     >
                                         <Tv className="h-4 w-4 sm:h-5 sm:w-5" />
                                         {t('anime')}
+                                    </Button>
+                                </Link>
+                                <Link to="/manga" onClick={handleMenuItemClick}>
+                                    <Button
+                                        variant="ghost"
+                                        className="w-full justify-start gap-3 sm:gap-4 h-11 sm:h-12 text-sm sm:text-base font-medium rounded-xl hover:bg-primary/10 hover:text-primary transition-all"
+                                    >
+                                        <BookOpen className="h-4 w-4 sm:h-5 sm:w-5" />
+                                        {t('manga')}
                                     </Button>
                                 </Link>
                                 <Link to="/genres" onClick={handleMenuItemClick}>

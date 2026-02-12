@@ -22,6 +22,9 @@ export default function AnimeWatch() {
     const [iframeKey, setIframeKey] = useState(0);
     const [providerError, setProviderError] = useState(false);
     const { t, language } = useLanguage();
+    const [selectedServer, setSelectedServer] = useState<StreamingProvider | null>(null);
+    const [resolvedUrl, setResolvedUrl] = useState<string>("");
+    const [isSwitching, setIsSwitching] = useState(false);
 
     // Check if this is a "not available" placeholder slug
     const isNotAvailable = slug?.startsWith("not-available-");
@@ -43,6 +46,16 @@ export default function AnimeWatch() {
         enabled: Boolean(slug) && !isNotAvailable,
         retry: 2,
     });
+    
+    // Store mapping for breadcrumbs
+    useEffect(() => {
+        if (episodeData?.animeSlug && slug) {
+            const mappingKey = `parent_slug_${slug}`;
+            sessionStorage.setItem(mappingKey, episodeData.animeSlug);
+            window.dispatchEvent(new Event("breadcrumb-update"));
+            console.log(`🔗 Registered breadcrumb mapping: ${slug} -> ${episodeData.animeSlug}`);
+        }
+    }, [episodeData, slug]);
 
     // Extract episode number from slug
     const episodeNumber = useMemo(() => {
@@ -54,6 +67,7 @@ export default function AnimeWatch() {
 
     // Get stream provider from Otakudesu API response
     const currentStream = useMemo((): StreamingProvider | null => {
+        if (selectedServer) return selectedServer;
         if (!episodeData) return null;
 
         // Use stream_url directly from API (desustream.info embed)
@@ -66,7 +80,45 @@ export default function AnimeWatch() {
             };
         }
         return null;
-    }, [episodeData]);
+    }, [episodeData, selectedServer]);
+
+    // Update resolved URL when currentStream changes
+    useEffect(() => {
+        if (currentStream && !selectedServer) {
+            setResolvedUrl(currentStream.url);
+        }
+    }, [currentStream, selectedServer]);
+
+    const handleServerChange = async (server: any) => {
+        if (selectedServer?.id === server.id && selectedServer?.quality === server.quality) return;
+        
+        setIsSwitching(true);
+        setProviderError(false);
+        try {
+            if (server.id) {
+                console.log("Switching to server:", server.name, "ID:", server.id);
+                const realUrl = await movieAPI.getServerUrl(server.id);
+                if (realUrl) {
+                    setResolvedUrl(realUrl);
+                    setSelectedServer({
+                        ...server,
+                        url: realUrl
+                    });
+                } else {
+                    setProviderError(true);
+                }
+            } else {
+                setResolvedUrl(server.url);
+                setSelectedServer(server);
+            }
+            setIframeKey(p => p + 1);
+        } catch (error) {
+            console.error("Failed to switch server:", error);
+            setProviderError(true);
+        } finally {
+            setIsSwitching(false);
+        }
+    };
 
     // List of domains that are known to block iframe embedding via X-Frame-Options or CSP
     // Also including domains that might cause "Component already rendered" if injected poorly
@@ -93,6 +145,8 @@ export default function AnimeWatch() {
     useEffect(() => {
         setIframeKey((p) => p + 1);
         setProviderError(false); // Reset error on slug change
+        setSelectedServer(null); // Reset selected server on slug change
+        setResolvedUrl("");
     }, [slug]);
 
     // Loading state
@@ -190,7 +244,7 @@ export default function AnimeWatch() {
                                         className="bg-primary hover:bg-primary w-full sm:w-auto"
                                         onClick={() =>
                                             window.open(
-                                                currentStream.url,
+                                                resolvedUrl || currentStream.url,
                                                 "_blank"
                                             )
                                         }
@@ -201,16 +255,26 @@ export default function AnimeWatch() {
                                 </div>
                             </div>
                         ) : (
-                            <iframe
-                                key={iframeKey}
-                                src={currentStream.url}
-                                title={`${displayTitle} - Video Player`}
-                                className="absolute inset-0 w-full h-full"
-                                allowFullScreen
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                referrerPolicy="no-referrer"
-                                onError={() => setProviderError(true)}
-                            />
+                            <>
+                                {isSwitching && (
+                                    <div className="absolute inset-0 z-10 bg-black/60 flex items-center justify-center">
+                                        <div className="flex flex-col items-center gap-3">
+                                            <RefreshCw className="w-8 h-8 text-primary animate-spin" />
+                                            <p className="text-white text-sm font-medium">Switching Server...</p>
+                                        </div>
+                                    </div>
+                                )}
+                                <iframe
+                                    key={iframeKey}
+                                    src={resolvedUrl || currentStream.url}
+                                    title={`${displayTitle} - Video Player`}
+                                    className="absolute inset-0 w-full h-full"
+                                    allowFullScreen
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    referrerPolicy="no-referrer"
+                                    onError={() => setProviderError(true)}
+                                />
+                            </>
                         )}
                     </div>
 
@@ -245,7 +309,7 @@ export default function AnimeWatch() {
                                 variant="outline"
                                 size="icon"
                                 onClick={() =>
-                                    window.open(currentStream.url, "_blank")
+                                    window.open(resolvedUrl || currentStream.url, "_blank")
                                 }
                                 className="h-11 w-11"
                                 title={t("newTab")}
@@ -255,6 +319,41 @@ export default function AnimeWatch() {
                             </Button>
                         </div>
                     </div>
+
+                    {/* Server & Quality Selection */}
+                    {episodeData?.streamServers && episodeData.streamServers.length > 0 && (
+                        <div className="bg-card rounded-lg p-4 border border-border space-y-4">
+                            <div className="flex items-center gap-2 text-foreground font-semibold">
+                                <Monitor className="w-5 h-5 text-primary" />
+                                <h2>{t("serverList")} & {t("quality")}</h2>
+                            </div>
+                            
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                                {episodeData.streamServers.map((server: any, idx: number) => {
+                                    const isActive = (selectedServer?.id === server.id && selectedServer?.quality === server.quality) || 
+                                                    (!selectedServer && idx === 0);
+                                    
+                                    return (
+                                        <Button
+                                            key={`${server.id}-${server.quality}-${idx}`}
+                                            variant={isActive ? "default" : "outline"}
+                                            className={`justify-start h-auto py-3 px-4 ${isActive ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''}`}
+                                            onClick={() => handleServerChange(server)}
+                                            disabled={isSwitching}
+                                        >
+                                            <div className="flex flex-col items-start text-left">
+                                                <span className="font-bold text-sm uppercase">{server.quality}</span>
+                                                <span className="text-xs opacity-80 truncate w-full">{server.name}</span>
+                                            </div>
+                                            {isActive && (
+                                                <div className="ml-auto w-2 h-2 bg-white rounded-full animate-pulse" />
+                                            )}
+                                        </Button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
 
                     {/* Episode Navigation */}
                     <div className="flex justify-between items-center gap-4">

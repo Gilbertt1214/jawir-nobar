@@ -16,6 +16,7 @@ export const translations = {
     
     // Navbar
     anime: "Anime",
+    manga: "Manga",
     hentai: "Hentai",
     genres: "Genres",
     countries: "Countries",
@@ -54,6 +55,9 @@ export const translations = {
     stream: "Stream",
     download: "Download",
     
+    quality: "Quality",
+    serverList: "Server List",
+    
     // Anime/Hentai
     episodes: "Episodes",
     episode: "Episode",
@@ -80,6 +84,7 @@ export const translations = {
     
     // Search
     searchAnime: "Search anime... (min 3 characters)",
+    searchManga: "Search manga... (min 3 characters)",
     searchHentai: "Search hentai... (min 3 characters)",
     minCharSearch: "Type at least 3 characters to search",
     tryAgainLater: "Try again later or search for a specific title",
@@ -107,6 +112,7 @@ export const translations = {
     // Movie Card
     typeSeries: "Series",
     typeAnime: "Anime",
+    typeManga: "Manga",
     
     // Home Page
     heroDescription: "Discover the latest movies and series to watch. Immerse yourself in the world of cinema.",
@@ -123,6 +129,7 @@ export const translations = {
     overview: "Overview",
     seeMoreEpisodes: "See More Episodes",
     showLess: "Show Less",
+    readMore: "Read More",
     watchMovie: "Watch Movie",
     searchingStreams: "Searching for streams...",
     streamUnavailable: "Stream Unavailable",
@@ -161,6 +168,13 @@ export const translations = {
     noResultsFound: "No Results Found",
     noCategoryFound: "No {category} found for",
     cleanEpisodes: "{count} Eps",
+    readNow: "Read Now",
+    latestManga: "Latest Manga",
+    chapter: "Chapter",
+    chapters: "Chapters",
+    nextChapter: "Next Chapter",
+    prevChapter: "Previous Chapter",
+    mangaSourceDisclaimer: "Manga provided by Komikindo via Sanka API.",
 
     // Theme labels
     themeLight: "Light",
@@ -218,6 +232,7 @@ export const translations = {
     
     // Navbar
     anime: "Anime",
+    manga: "Manga",
     hentai: "Hentai",
     genres: "Genre",
     countries: "Negara",
@@ -255,6 +270,8 @@ export const translations = {
     selectServer: "Pilih server",
     stream: "Streaming",
     download: "Unduh",
+    quality: "Kualitas",
+    serverList: "Daftar Server",
     
     // Anime/Hentai
     episodes: "Episode",
@@ -282,6 +299,7 @@ export const translations = {
     
     // Search
     searchAnime: "Cari anime... (min 3 karakter)",
+    searchManga: "Cari manga... (min 3 karakter)",
     searchHentai: "Cari hentai... (min 3 karakter)",
     minCharSearch: "Ketik minimal 3 karakter untuk mencari",
     tryAgainLater: "Coba lagi nanti atau cari judul spesifik",
@@ -309,6 +327,7 @@ export const translations = {
     // Movie Card
     typeSeries: "Series",
     typeAnime: "Anime",
+    typeManga: "Manga",
     
     // Home Page
     heroDescription: "Temukan film dan serial terbaru untuk ditonton. Benamkan diri Anda dalam dunia sinema.",
@@ -325,6 +344,7 @@ export const translations = {
     overview: "Ringkasan",
     seeMoreEpisodes: "Lihat Episode Lainnya",
     showLess: "Sembunyikan",
+    readMore: "Baca Selengkapnya",
     watchMovie: "Tonton Film",
     searchingStreams: "Mencari link streaming...",
     streamUnavailable: "Stream Tidak Tersedia",
@@ -363,6 +383,13 @@ export const translations = {
     noResultsFound: "Tidak Ada Hasil",
     noCategoryFound: "Tidak ada {category} ditemukan untuk",
     cleanEpisodes: "{count} Eps",
+    readNow: "Baca Sekarang",
+    latestManga: "Manga Terbaru",
+    chapter: "Chapter",
+    chapters: "Chapter",
+    nextChapter: "Chapter Selanjutnya",
+    prevChapter: "Chapter Sebelumnya",
+    mangaSourceDisclaimer: "Manga disediakan oleh Komikindo melalui Sanka API.",
 
     // Theme labels
     themeLight: "Terang",

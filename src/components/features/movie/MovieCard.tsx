@@ -53,6 +53,7 @@ export function MovieCard({ movie, className, aspectRatio = "portrait" }: MovieC
               loading="lazy"
               decoding="async"
               draggable="false"
+              referrerPolicy="no-referrer"
               onError={(e) => {
                 const target = e.currentTarget;
                 if (target.src !== "/placeholder.svg") {

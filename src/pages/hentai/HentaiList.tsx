@@ -85,7 +85,7 @@ export default function HentaiList() {
     useEffect(() => {
         const timer = setTimeout(() => {
             if (localSearchQuery !== searchQuery) {
-                setSearchParams(prev => {
+                setSearchParams((prev) => {
                     const next = new URLSearchParams(prev);
                     if (localSearchQuery) {
                         next.set("q", localSearchQuery);
@@ -116,7 +116,8 @@ export default function HentaiList() {
             if (localSearchQuery.length >= 2) {
                 setIsPreviewSearching(true);
                 try {
-                    const results = await movieAPI.searchAllHentai(localSearchQuery);
+                    const results =
+                        await movieAPI.searchAllHentai(localSearchQuery);
                     setPreviewResults(results.nekopoi.slice(0, 5)); // Limit to 5 for preview
                 } catch (error) {
                     console.error("Hentai preview search failed:", error);
@@ -187,13 +188,13 @@ export default function HentaiList() {
             ];
 
             const results = await Promise.all(
-                pagesToLoad.map((p) => movieAPI.getAllHentaiLatest(p))
+                pagesToLoad.map((p) => movieAPI.getAllHentaiLatest(p)),
             );
 
             const allData = results.flatMap((r) => r.nekopoi.data);
             const uniqueData = allData.filter(
                 (item, index, self) =>
-                    index === self.findIndex((t) => t.id === item.id)
+                    index === self.findIndex((t) => t.id === item.id),
             );
 
             return {
@@ -264,7 +265,7 @@ export default function HentaiList() {
         });
 
         return Object.values(groups).sort(
-            (a, b) => b.latestEpisode - a.latestEpisode
+            (a, b) => b.latestEpisode - a.latestEpisode,
         );
     }, [rawData]);
 
@@ -280,52 +281,9 @@ export default function HentaiList() {
                         <h1 className="text-3xl font-bold text-foreground mb-2">
                             Hentai
                         </h1>
-                        <div className="flex items-center gap-2">
 
-                            {apiStatus !== null && (
-                                <div className="flex items-center gap-1">
-                                    {apiStatus ? (
-                                        <Wifi className="h-3 w-3 text-green-500" />
-                                    ) : (
-                                        <WifiOff className="h-3 w-3 text-primary" />
-                                    )}
-                                    <span
-                                        className={`text-xs ${
-                                            apiStatus
-                                                ? "text-green-500"
-                                                : "text-primary"
-                                        }`}
-                                    >
-                                        {apiStatus ? t('online') : t('offline')}
-                                    </span>
-                                </div>
-                            )}
-                        </div>
                     </div>
-                    <div className="flex gap-2">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handleRandom}
-                            disabled={isLoadingRandom}
-                            className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
-                        >
-                            <Shuffle
-                                className={`mr-2 h-4 w-4 ${
-                                    isLoadingRandom ? "animate-spin" : ""
-                                }`}
-                            />
-                            {isLoadingRandom ? t('loading') : t('random')}
-                        </Button>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => refetchRelease()}
-                        >
-                            <RefreshCw className="mr-2 h-4 w-4" />
-                            {t('refresh')}
-                        </Button>
-                    </div>
+
                 </div>
 
                 {/* Random Hentai Card */}
@@ -334,7 +292,7 @@ export default function HentaiList() {
                         <div className="flex items-center gap-2 mb-4">
                             <Shuffle className="h-5 w-5 text-primary" />
                             <h2 className="text-lg font-bold text-foreground">
-                                🎲 {t('randomPick')}
+                                🎲 {t("randomPick")}
                             </h2>
                             <Button
                                 variant="ghost"
@@ -381,19 +339,22 @@ export default function HentaiList() {
                                     )}
                                 <p className="text-muted-foreground text-sm line-clamp-3 mb-4">
                                     {randomHentai.synopsis ||
-                                        t('noCategoryFound').replace('{category}', 'Hentai')}
+                                        t("noCategoryFound").replace(
+                                            "{category}",
+                                            "Hentai",
+                                        )}
                                 </p>
                                 <div className="flex flex-wrap gap-2">
                                     <Button
                                         onClick={() =>
                                             navigate(
-                                                `/hentai/watch/${randomHentai.id}`
+                                                `/hentai/watch/${randomHentai.id}`,
                                             )
                                         }
                                         className="bg-primary hover:bg-primary/90 text-primary-foreground"
                                     >
                                         <Play className="mr-2 h-4 w-4" />
-                                        {t('watchNow')}
+                                        {t("watchNow")}
                                     </Button>
                                     <Button
                                         variant="outline"
@@ -401,7 +362,7 @@ export default function HentaiList() {
                                         disabled={isLoadingRandom}
                                     >
                                         <Shuffle className="mr-2 h-4 w-4" />
-                                        {t('retry')}
+                                        {t("retry")}
                                     </Button>
                                 </div>
                             </div>
@@ -409,15 +370,7 @@ export default function HentaiList() {
                     </div>
                 )}
 
-                {/* Source Badge */}
-                <div className="flex gap-2 mb-6">
-                    <div className="inline-flex items-center px-4 py-2 rounded-lg bg-primary text-primary-foreground">
-                        <span className="font-medium">Nekopoi</span>
-                        <Badge className="ml-2 bg-primary-foreground text-primary hover:bg-primary-foreground/90">
-                            {totalItems}
-                        </Badge>
-                    </div>
-                </div>
+
 
                 {/* Search Bar */}
                 <form onSubmit={handleSearch} className="mb-8">
@@ -425,9 +378,11 @@ export default function HentaiList() {
                         <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                         <Input
                             type="text"
-                            placeholder={t('searchHentai')}
+                            placeholder={t("searchHentai")}
                             value={localSearchQuery}
-                            onChange={(e) => setLocalSearchQuery(e.target.value)}
+                            onChange={(e) =>
+                                setLocalSearchQuery(e.target.value)
+                            }
                             onFocus={() => setIsInputFocused(true)}
                             onBlur={() => {
                                 setTimeout(() => setIsInputFocused(false), 200);
@@ -436,55 +391,65 @@ export default function HentaiList() {
                         />
 
                         {/* Search Preview Dropdown */}
-                        {isInputFocused && (previewResults.length > 0 || isPreviewSearching) && (
-                            <div className="absolute top-full left-0 right-0 mt-2 bg-background/95 backdrop-blur-xl border border-border rounded-2xl shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                                <div className="p-2 space-y-1">
-                                    {isPreviewSearching ? (
-                                        <div className="p-4 text-center text-sm text-muted-foreground flex items-center justify-center gap-2">
-                                            <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                                            {t('loading')}...
-                                        </div>
-                                    ) : (
-                                        previewResults.map((result) => (
-                                            <button
-                                                key={result.id}
-                                                type="button"
-                                                onClick={() => {
-                                                    navigate(`/hentai/nekopoi/${result.id}`);
-                                                    setLocalSearchQuery("");
-                                                    setPreviewResults([]);
-                                                }}
-                                                className="w-full flex items-center gap-3 p-2 hover:bg-primary/10 rounded-xl transition-colors text-left group"
-                                            >
-                                                <div className="w-10 h-14 bg-secondary rounded-md overflow-hidden flex-shrink-0">
-                                                    {result.cover && result.cover !== "/placeholder.svg" ? (
-                                                        <img 
-                                                            src={result.cover} 
-                                                            alt={result.title}
-                                                            className="w-full h-full object-cover"
-                                                            referrerPolicy="no-referrer"
-                                                        />
-                                                    ) : (
-                                                        <div className="w-full h-full flex items-center justify-center text-[10px] text-muted-foreground">
-                                                            No Img
-                                                        </div>
-                                                    )}
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="text-sm font-medium truncate group-hover:text-primary transition-colors">
-                                                        {result.title}
+                        {isInputFocused &&
+                            (previewResults.length > 0 ||
+                                isPreviewSearching) && (
+                                <div className="absolute top-full left-0 right-0 mt-2 bg-background/95 backdrop-blur-xl border border-border rounded-2xl shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                                    <div className="p-2 space-y-1">
+                                        {isPreviewSearching ? (
+                                            <div className="p-4 text-center text-sm text-muted-foreground flex items-center justify-center gap-2">
+                                                <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                                                {t("loading")}...
+                                            </div>
+                                        ) : (
+                                            previewResults.map((result) => (
+                                                <button
+                                                    key={result.id}
+                                                    type="button"
+                                                    onClick={() => {
+                                                        navigate(
+                                                            `/hentai/nekopoi/${result.id}`,
+                                                        );
+                                                        setLocalSearchQuery("");
+                                                        setPreviewResults([]);
+                                                    }}
+                                                    className="w-full flex items-center gap-3 p-2 hover:bg-primary/10 rounded-xl transition-colors text-left group"
+                                                >
+                                                    <div className="w-10 h-14 bg-secondary rounded-md overflow-hidden flex-shrink-0">
+                                                        {result.cover &&
+                                                        result.cover !==
+                                                            "/placeholder.svg" ? (
+                                                            <img
+                                                                src={
+                                                                    result.cover
+                                                                }
+                                                                alt={
+                                                                    result.title
+                                                                }
+                                                                className="w-full h-full object-cover"
+                                                                referrerPolicy="no-referrer"
+                                                            />
+                                                        ) : (
+                                                            <div className="w-full h-full flex items-center justify-center text-[10px] text-muted-foreground">
+                                                                No Img
+                                                            </div>
+                                                        )}
                                                     </div>
-                                                </div>
-                                            </button>
-                                        ))
-                                    )}
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="text-sm font-medium truncate group-hover:text-primary transition-colors">
+                                                            {result.title}
+                                                        </div>
+                                                    </div>
+                                                </button>
+                                            ))
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            )}
                     </div>
                     {searchQuery.length > 0 && searchQuery.length < 3 && (
                         <p className="text-xs text-muted-foreground mt-2 ml-1">
-                            {t('minCharSearch')}
+                            {t("minCharSearch")}
                         </p>
                     )}
                 </form>
@@ -493,7 +458,7 @@ export default function HentaiList() {
                 {isLoading ? (
                     <div className="space-y-8">
                         <p className="text-sm text-muted-foreground animate-pulse mb-4">
-                            {t('loadingContent')}
+                            {t("loadingContent")}
                         </p>
                         <SkeletonGrid count={12} />
                     </div>
@@ -501,92 +466,77 @@ export default function HentaiList() {
                     !releaseError && (
                         <>
                             {groupedData.length === 0 ? (
-                            <div className="rounded-xl p-8 text-center bg-card border border-border">
-                                <div className="max-w-md mx-auto">
-                                    <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-secondary">
-                                        <AlertCircle className="h-8 w-8 text-muted-foreground" />
+                                <div className="rounded-xl p-8 text-center bg-card border border-border">
+                                    <div className="max-w-md mx-auto">
+                                        <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-secondary">
+                                            <AlertCircle className="h-8 w-8 text-muted-foreground" />
+                                        </div>
+                                        <h3 className="text-lg font-semibold text-foreground mb-2">
+                                            {searchQuery.length > 2
+                                                ? `${t("noResultsFor")} "${searchQuery}"`
+                                                : t("noContentAvailable")}
+                                        </h3>
+                                        <p className="text-muted-foreground text-sm mb-6">
+                                            {searchQuery.length > 2
+                                                ? t("tryDifferentKeywords")
+                                                : t("tryAgainLater")}
+                                        </p>
                                     </div>
-                                    <h3 className="text-lg font-semibold text-foreground mb-2">
-                                        {searchQuery.length > 2
-                                            ? `${t('noResultsFor')} "${searchQuery}"`
-                                            : t('noContentAvailable')}
-                                    </h3>
-                                    <p className="text-muted-foreground text-sm mb-6">
-                                        {searchQuery.length > 2
-                                            ? t('tryDifferentKeywords')
-                                            : t('tryAgainLater')}
-                                    </p>
                                 </div>
-                            </div>
-                        ) : (
-                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                                {groupedData.map((group, index) => {
-                                    const hasCover =
-                                        group.cover &&
-                                        group.cover !== "/placeholder.svg" &&
-                                        group.cover !== "" &&
-                                        group.cover.startsWith("http");
-                                    const imageUrl = hasCover
-                                        ? group.cover
-                                        : "/placeholder.svg";
+                            ) : (
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                                    {groupedData.map((group, index) => {
+                                        const hasCover =
+                                            group.cover &&
+                                            group.cover !==
+                                                "/placeholder.svg" &&
+                                            group.cover !== "" &&
+                                            group.cover.startsWith("http");
+                                        const imageUrl = hasCover
+                                            ? group.cover
+                                            : "/placeholder.svg";
 
-                                    return (
-                                        <Link
-                                            key={`${group.baseTitle}-${index}`}
-                                            to={`/hentai/nekopoi/${group.firstEpisodeId}`}
-                                            className="group"
-                                        >
-                                            <Card className="overflow-hidden border-0 transition-all duration-300 hover:scale-[1.02] bg-card">
-                                                <div className="relative aspect-[2/3] overflow-hidden bg-muted">
-                                                    <img
-                                                        src={imageUrl}
-                                                        alt={group.baseTitle}
-                                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                                        loading="lazy"
-                                                        decoding="async"
-                                                        referrerPolicy="no-referrer"
-                                                        onError={(e) => {
-                                                            e.currentTarget.src =
-                                                                "/placeholder.svg";
-                                                        }}
-                                                    />
-                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-
-                                                    <div className="absolute top-2 right-2">
-                                                        <Badge className="text-xs backdrop-blur-sm bg-primary text-primary-foreground border-none">
-                                                            Hentai
-                                                        </Badge>
-                                                    </div>
-                                                    <div className="absolute top-2 left-2">
-                                                        <Badge className="text-xs backdrop-blur-sm bg-primary text-primary-foreground border-none">
-                                                            {
-                                                                group.episodes
-                                                                    .length
-                                                            }{" "}
-                                                            Ep
-                                                        </Badge>
-                                                    </div>
-                                                    <div className="absolute bottom-2 left-2">
-                                                        <Badge className="text-xs backdrop-blur-sm bg-primary/80 text-white border-none">
-                                                            Ep{" "}
-                                                            {
-                                                                group.latestEpisode
+                                        return (
+                                            <Link
+                                                key={`${group.baseTitle}-${index}`}
+                                                to={`/hentai/nekopoi/${group.firstEpisodeId}`}
+                                                className="group"
+                                            >
+                                                <Card className="overflow-hidden border-0 transition-all duration-300 hover:scale-[1.02] bg-card">
+                                                    <div className="relative aspect-[2/3] overflow-hidden bg-muted">
+                                                        <img
+                                                            src={imageUrl}
+                                                            alt={
+                                                                group.baseTitle
                                                             }
-                                                        </Badge>
+                                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                                            loading="lazy"
+                                                            decoding="async"
+                                                            referrerPolicy="no-referrer"
+                                                            onError={(e) => {
+                                                                e.currentTarget.src =
+                                                                    "/placeholder.svg";
+                                                            }}
+                                                        />
+                                                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                        <div className="absolute top-2 right-2">
+                                                            <Badge className="text-xs backdrop-blur-sm bg-primary text-primary-foreground border-none">
+                                                                Hentai
+                                                            </Badge>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                                <CardContent className="p-3">
-                                                    <h3 className="font-semibold text-sm line-clamp-2 text-foreground group-hover:text-primary transition-colors">
-                                                        {group.baseTitle}
-                                                    </h3>
-                                                </CardContent>
-                                            </Card>
-                                        </Link>
-                                    );
-                                })}
-                            </div>
-                        )}
-                    </>
+                                                    <CardContent className="p-3">
+                                                        <h3 className="font-semibold text-sm line-clamp-2 text-foreground group-hover:text-primary transition-colors">
+                                                            {group.baseTitle}
+                                                        </h3>
+                                                    </CardContent>
+                                                </Card>
+                                            </Link>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </>
                     )
                 )}
 
@@ -597,7 +547,7 @@ export default function HentaiList() {
                             <AlertCircle className="h-6 w-6 text-primary flex-shrink-0 mt-0.5" />
                             <div className="space-y-3">
                                 <p className="font-semibold text-foreground">
-                                    {t('failedToLoadContent')}
+                                    {t("failedToLoadContent")}
                                 </p>
                                 <p className="text-sm text-muted-foreground">
                                     {(releaseError as Error).message}
@@ -607,7 +557,7 @@ export default function HentaiList() {
                                     className="bg-primary hover:bg-primary/90 text-primary-foreground"
                                 >
                                     <RefreshCw className="mr-2 h-4 w-4" />
-                                    {t('retry')}
+                                    {t("retry")}
                                 </Button>
                             </div>
                         </div>
@@ -618,9 +568,9 @@ export default function HentaiList() {
                 {releaseData && !searchQuery && releaseData.totalPages > 1 && (
                     <div className="flex flex-col items-center gap-4 mt-8">
                         <div className="text-sm text-muted-foreground">
-                            {t('showingTitles')
-                                .replace('{count}', String(groupedData.length))
-                                .replace('{page}', String(page))}
+                            {t("showingTitles")
+                                .replace("{count}", String(groupedData.length))
+                                .replace("{page}", String(page))}
                         </div>
                         <div className="flex items-center gap-2">
                             <Button
@@ -628,7 +578,7 @@ export default function HentaiList() {
                                 onClick={() => setPage(1)}
                                 disabled={page <= 1}
                             >
-                                {t('first')}
+                                {t("first")}
                             </Button>
                             <Button
                                 variant="outline"
@@ -637,14 +587,14 @@ export default function HentaiList() {
                                 }
                                 disabled={page <= 1}
                             >
-                                {t('previous')}
+                                {t("previous")}
                             </Button>
                             <div className="flex items-center gap-1">
                                 {Array.from(
                                     {
                                         length: Math.min(
                                             5,
-                                            releaseData.totalPages
+                                            releaseData.totalPages,
                                         ),
                                     },
                                     (_, i) => {
@@ -677,7 +627,7 @@ export default function HentaiList() {
                                                 {pageNum}
                                             </Button>
                                         );
-                                    }
+                                    },
                                 )}
                             </div>
                             <Button
@@ -685,20 +635,23 @@ export default function HentaiList() {
                                 onClick={() => setPage((p) => p + 1)}
                                 disabled={page >= releaseData.totalPages}
                             >
-                                {t('next')}
+                                {t("next")}
                             </Button>
                             <Button
                                 variant="outline"
                                 onClick={() => setPage(releaseData.totalPages)}
                                 disabled={page >= releaseData.totalPages}
                             >
-                                {t('last')}
+                                {t("last")}
                             </Button>
                         </div>
                         <span className="text-muted-foreground">
-                            {t('pageInfo')
-                                .replace('{current}', String(page))
-                                .replace('{total}', String(releaseData.totalPages))}
+                            {t("pageInfo")
+                                .replace("{current}", String(page))
+                                .replace(
+                                    "{total}",
+                                    String(releaseData.totalPages),
+                                )}
                         </span>
                     </div>
                 )}
@@ -708,7 +661,7 @@ export default function HentaiList() {
                     <div className="inline-flex items-center gap-3 px-6 py-4 rounded-xl bg-card border border-border">
                         <AlertCircle className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                         <p className="text-xs text-muted-foreground">
-                            {t('thirdPartySource')}
+                            {t("thirdPartySource")}
                         </p>
                     </div>
                 </div>

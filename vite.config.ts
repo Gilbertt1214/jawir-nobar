@@ -30,7 +30,7 @@ const createSankaProxy = (
 ) => ({
   target: "https://www.sankavollerei.com",
   changeOrigin: true,
-  secure: true,
+  secure: false, // Bypass expired certificate
   rewrite: (urlPath: string) =>
     urlPath.replace(new RegExp(`^${fromPath}`), toPath),
   configure: (proxy: any) => {
@@ -85,6 +85,11 @@ export default defineConfig((env: ConfigEnv) => ({
         "/sanka-anime",
         "/anime",
         "Sanka Anime"
+      ),
+      "/sanka-comic": createSankaProxy(
+        "/sanka-comic",
+        "/comic/bacaman",
+        "Sanka Manga"
       ),
     },
   },

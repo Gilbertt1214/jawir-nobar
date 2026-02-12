@@ -193,32 +193,8 @@ export default function AnimeList() {
                         <h1 className="text-3xl font-bold text-foreground mb-2">
                             Anime
                         </h1>
-                        <div className="flex items-center gap-2">
 
-                            {apiStatus !== null && (
-                                <div className="flex items-center gap-1">
-                                    {apiStatus ? (
-                                        <Wifi className="h-3 w-3 text-green-500" />
-                                    ) : (
-                                        <WifiOff className="h-3 w-3 text-primary" />
-                                    )}
-                                    <span
-                                        className={`text-xs ${
-                                            apiStatus
-                                                ? "text-green-500"
-                                                : "text-primary"
-                                        }`}
-                                    >
-                                        {apiStatus ? t('online') : t('offline')}
-                                    </span>
-                                </div>
-                            )}
-                        </div>
                     </div>
-                    <Button variant="outline" size="sm" onClick={handleRefresh}>
-                        <RefreshCw className="mr-2 h-4 w-4" />
-                        {t('refresh')}
-                    </Button>
                 </div>
 
                 {/* Tabs */}
