@@ -17,6 +17,7 @@ import {
     ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SketchButton } from "@/components/ui/SketchButton";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -409,31 +410,26 @@ export default function Home() {
                                         exit: { opacity: 0, scale: 0.95 }
                                     }}
                                 >
-                                    <Button
-                                        asChild
-                                        size="lg"
-                                        className="gap-2 shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:scale-105 transition-all duration-300 rounded-full h-12 px-8 text-base font-semibold"
+                                    <Link
+                                        to={`/${heroItem.type}/${heroItem.id}`}
                                     >
-                                        <Link
-                                            to={`/${heroItem.type}/${heroItem.id}`}
-                                        >
-                                            <Play className="w-5 h-5 fill-current" />
-                                            <span>{t('watchNow')}</span>
-                                        </Link>
-                                    </Button>
-                                    <Button
-                                        asChild
-                                        size="lg"
-                                        variant="outline"
-                                        className="gap-2 backdrop-blur-md bg-white/10 border-white/20 text-white hover:bg-white/20 hover:border-white/40 hover:scale-105 transition-all duration-300 rounded-full h-12 px-8 text-base font-medium"
+                                        <SketchButton>
+                                            <span className="flex items-center gap-2">
+                                                <Play className="w-5 h-5 fill-current" />
+                                                <span>{t('watchNow')}</span>
+                                            </span>
+                                        </SketchButton>
+                                    </Link>
+                                    <Link
+                                        to={`/${heroItem.type}/${heroItem.id}`}
                                     >
-                                        <Link
-                                            to={`/${heroItem.type}/${heroItem.id}`}
-                                        >
-                                            <Info className="w-5 h-5" />
-                                            <span>{t('moreInfo')}</span>
-                                        </Link>
-                                    </Button>
+                                        <SketchButton variant="secondary">
+                                            <span className="flex items-center gap-2">
+                                                <Info className="w-5 h-5" />
+                                                <span>{t('moreInfo')}</span>
+                                            </span>
+                                        </SketchButton>
+                                    </Link>
                                 </motion.div>
                             </motion.div>
                         )}

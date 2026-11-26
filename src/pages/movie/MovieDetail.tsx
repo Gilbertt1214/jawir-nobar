@@ -2,6 +2,7 @@ import { useParams, Link, useMatch } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { movieAPI } from "@/services/api";
 import { Button } from "@/components/ui/button";
+import { SketchButton } from "@/components/ui/SketchButton";
 import { Badge } from "@/components/ui/badge";
 import { Breadcrumb } from "@/components/common/Breadcrumb";
 import {
@@ -367,26 +368,28 @@ export default function MovieDetail() {
 
                         <div className="grid grid-cols-2 gap-3">
                             {movie.trailer && (
-                                <Button
-                                    className="w-full gap-2 shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all"
-                                    size="lg"
+                                <SketchButton
                                     onClick={() =>
                                         window.open(movie.trailer, "_blank")
                                     }
                                 >
-                                    <Play className="h-4 w-4 fill-current" />
-                                    {t("trailer")}
-                                </Button>
+                                    <span className="flex items-center gap-2">
+                                        <Play className="h-4 w-4 fill-current" />
+                                        {t("trailer")}
+                                    </span>
+                                </SketchButton>
                             )}
-                            <Button
-                                variant="outline"
-                                className="w-full gap-2 backdrop-blur-sm bg-background/50"
-                                size="lg"
-                                aria-label={t("share")}
+                            <SketchButton
+                                variant="secondary"
+                                onClick={() => {
+                                    navigator.clipboard?.writeText(window.location.href);
+                                }}
                             >
-                                <Share2 className="h-4 w-4" />
-                                {t("share")}
-                            </Button>
+                                <span className="flex items-center gap-2">
+                                    <Share2 className="h-4 w-4" />
+                                    {t("share")}
+                                </span>
+                            </SketchButton>
                         </div>
                     </motion.div>
 
@@ -730,15 +733,13 @@ export default function MovieDetail() {
                                                         .length > 12 &&
                                                         !showAllEpisodes && (
                                                             <div className="flex justify-center pt-4">
-                                                                    <Button
-                                                                        variant="outline"
-                                                                        className="min-w-[200px] border-white/10 hover:bg-primary hover:text-primary-foreground transition-all"
+                                                                    <SketchButton
+                                                                        variant="secondary"
                                                                         onClick={() =>
                                                                             setShowAllEpisodes(
                                                                                 true
                                                                             )
                                                                         }
-                                                                        aria-label={t("seeMoreEpisodes")}
                                                                     >
                                                                     {t(
                                                                         "seeMoreEpisodes"
@@ -749,7 +750,7 @@ export default function MovieDetail() {
                                                                     ].length -
                                                                         12}{" "}
                                                                     {t('remaining')})
-                                                                </Button>
+                                                                </SketchButton>
                                                             </div>
                                                         )}
 
@@ -757,9 +758,8 @@ export default function MovieDetail() {
                                                         seasonGroups[season]
                                                             .length > 12 && (
                                                             <div className="flex justify-center pt-4">
-                                                                <Button
-                                                                    variant="ghost"
-                                                                    className="text-muted-foreground hover:text-foreground"
+                                                                <SketchButton
+                                                                    variant="secondary"
                                                                     onClick={() =>
                                                                         setShowAllEpisodes(
                                                                             false
@@ -769,7 +769,7 @@ export default function MovieDetail() {
                                                                     {t(
                                                                         "showLess"
                                                                     )}
-                                                                </Button>
+                                                                </SketchButton>
                                                             </div>
                                                         )}
                                                 </TabsContent>
@@ -825,16 +825,17 @@ export default function MovieDetail() {
                                                             {t("providerIssue")}
                                                         </p>
                                                     </div>
-                                                    <Button
+                                                    <SketchButton
                                                         variant="secondary"
                                                         onClick={
                                                             tryNextProvider
                                                         }
-                                                        className="gap-2"
                                                     >
-                                                        <RefreshCw className="h-4 w-4" />
-                                                        {t("tryNextProvider")}
-                                                    </Button>
+                                                        <span className="flex items-center gap-2">
+                                                            <RefreshCw className="h-4 w-4" />
+                                                            {t("tryNextProvider")}
+                                                        </span>
+                                                    </SketchButton>
                                                 </div>
                                             ) : streamingProviders[
                                                   selectedProvider
@@ -1014,27 +1015,26 @@ export default function MovieDetail() {
                                                 <span className="text-xs text-muted-foreground font-medium">
                                                     {message.length}/500 {t("characters")}
                                                 </span>
-                                                <Button
+                                                <SketchButton
                                                     onClick={addComment}
                                                     disabled={
                                                         !name.trim() ||
                                                         !message.trim() ||
                                                         isLoadingComments
                                                     }
-                                                    className="gap-2 px-6 shadow-lg shadow-primary/20"
                                                 >
                                                     {isLoadingComments ? (
-                                                        <>
+                                                        <span className="flex items-center gap-2">
                                                             <RefreshCw className="h-4 w-4 animate-spin" />
                                                             {t("posting")}...
-                                                        </>
+                                                        </span>
                                                     ) : (
-                                                        <>
+                                                        <span className="flex items-center gap-2">
                                                             <Play className="h-3.5 w-3.5 fill-current" />
                                                             {t("submitComment")}
-                                                        </>
+                                                        </span>
                                                     )}
-                                                </Button>
+                                                </SketchButton>
                                             </div>
                                         </div>
 

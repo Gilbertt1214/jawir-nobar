@@ -8,6 +8,7 @@ import { SkeletonGrid } from "@/components/features/movie/SkeletonCard";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Search as SearchIcon, Film, Tv, Clapperboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SketchButton } from "@/components/ui/SketchButton";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -210,69 +211,69 @@ export default function Search() {
 
                 {/* Category Filter Buttons */}
                 <div className="flex flex-wrap gap-3">
-                    <Button
-                        variant={activeCategory === "all" ? "default" : "outline"}
-                        size="lg"
+                    <SketchButton
                         onClick={() => handleCategoryChange("all")}
-                        className="gap-2 transition-all"
+                        variant={activeCategory === "all" ? undefined : "secondary"}
                     >
-                        <SearchIcon className="h-4 w-4" />
-                        {t('all')}
-                        <Badge
-                            variant={activeCategory === "all" ? "secondary" : "outline"}
-                            className="ml-1"
-                        >
-                            {totalAll}
-                        </Badge>
-                    </Button>
+                        <span className="flex items-center gap-2">
+                            <SearchIcon className="h-4 w-4" />
+                            {t('all')}
+                            <Badge
+                                variant={activeCategory === "all" ? "secondary" : "outline"}
+                                className="ml-1"
+                            >
+                                {totalAll}
+                            </Badge>
+                        </span>
+                    </SketchButton>
 
-                    <Button
-                        variant={activeCategory === "movies" ? "default" : "outline"}
-                        size="lg"
+                    <SketchButton
                         onClick={() => handleCategoryChange("movies")}
-                        className="gap-2 transition-all"
+                        variant={activeCategory === "movies" ? undefined : "secondary"}
                     >
-                        <Film className="h-4 w-4" />
-                        {t('movies')}
-                        <Badge
-                            variant={activeCategory === "movies" ? "secondary" : "outline"}
-                            className="ml-1"
-                        >
-                            {totalMovies}
-                        </Badge>
-                    </Button>
+                        <span className="flex items-center gap-2">
+                            <Film className="h-4 w-4" />
+                            {t('movies')}
+                            <Badge
+                                variant={activeCategory === "movies" ? "secondary" : "outline"}
+                                className="ml-1"
+                            >
+                                {totalMovies}
+                            </Badge>
+                        </span>
+                    </SketchButton>
 
-                    <Button
-                        variant={activeCategory === "series" ? "default" : "outline"}
-                        size="lg"
+                    <SketchButton
                         onClick={() => handleCategoryChange("series")}
-                        className="gap-2 transition-all"
+                        variant={activeCategory === "series" ? undefined : "secondary"}
                     >
-                        <Tv className="h-4 w-4" />
-                        {t('series')}
-                        <Badge
-                            variant={activeCategory === "series" ? "secondary" : "outline"}
-                            className="ml-1"
-                        >
-                            {totalSeries}
-                        </Badge>
-                    </Button>
+                        <span className="flex items-center gap-2">
+                            <Tv className="h-4 w-4" />
+                            {t('series')}
+                            <Badge
+                                variant={activeCategory === "series" ? "secondary" : "outline"}
+                                className="ml-1"
+                            >
+                                {totalSeries}
+                            </Badge>
+                        </span>
+                    </SketchButton>
 
-                    <Button
-                        variant={activeCategory === "anime" ? "default" : "outline"}
-                        size="lg"
+                    <SketchButton
                         onClick={() => handleCategoryChange("anime")}
-                        className="gap-2 transition-all"
+                        variant={activeCategory === "anime" ? undefined : "secondary"}
                     >
-                        <Clapperboard className="h-4 w-4" />
-                        {t('anime')}
-                        <Badge
-                            variant={activeCategory === "anime" ? "secondary" : "outline"}
-                            className="ml-1"
-                        >
-                            {totalAnime}
-                        </Badge>
-                    </Button>
+                        <span className="flex items-center gap-2">
+                            <Clapperboard className="h-4 w-4" />
+                            {t('anime')}
+                            <Badge
+                                variant={activeCategory === "anime" ? "secondary" : "outline"}
+                                className="ml-1"
+                            >
+                                {totalAnime}
+                            </Badge>
+                        </span>
+                    </SketchButton>
                 </div>
             </div>
 
@@ -361,13 +362,12 @@ export default function Search() {
                                   .replace('{query}', query) + ` "${query}"`}
                     </p>
                     {activeCategory !== "all" && (
-                        <Button
-                            variant="outline"
-                            className="mt-4"
+                        <SketchButton
+                            variant="secondary"
                             onClick={() => handleCategoryChange("all")}
                         >
                             {t('viewAllCategories')}
-                        </Button>
+                        </SketchButton>
                     )}
                 </div>
             )}
