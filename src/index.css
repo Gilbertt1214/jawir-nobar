@@ -155,6 +155,7 @@
 
     body {
         @apply bg-background text-foreground antialiased selection:bg-primary/30 selection:text-primary-foreground overflow-x-hidden;
+        font-family: "Patrick Hand", "Caveat", "Kalam", cursive;
         -webkit-tap-highlight-color: transparent;
         touch-action: manipulation;
     }
@@ -420,5 +421,58 @@
 
     sakuga-button:nth-of-type(even) {
         transform: rotate(0.5deg);
+    }
+
+    /* ── Sakuga Input hand-drawn overrides ── */
+    sakuga-input {
+        display: inline-block;
+        --sk-input-width: 100%;
+    }
+
+    sakuga-input::part(input) {
+        font-family: "Patrick Hand", "Caveat", "Kalam", cursive;
+        font-size: 16px;
+        letter-spacing: 0.02em;
+        border-radius: 225px 15px 255px 15px / 15px 255px 15px 225px;
+        border: 2.4px solid var(--sk-ink);
+        box-shadow: 3px 3px 0 var(--sk-soft);
+    }
+
+    sakuga-input:focus-within::part(input) {
+        box-shadow: 2px 2px 0 var(--sk-soft);
+        border-color: var(--sk-pri);
+    }
+
+    /* ── Sakuga Tabs hand-drawn overrides ── */
+    sakuga-tabs {
+        display: block;
+    }
+
+    /* ── Sakuga Toggle hand-drawn overrides ── */
+    sakuga-toggle {
+        display: inline-flex;
+        margin: 0 !important;  /* override the large default margins */
+    }
+
+    /* ── Sakuga Toast hand-drawn overrides ── */
+    sakuga-toast {
+        z-index: 9999;
+    }
+
+    /* ── Sakuga Tooltip hand-drawn overrides ── */
+    sakuga-tooltip {
+        display: inline-flex;
+        vertical-align: middle;
+    }
+
+    /* ── All Sakuga elements: shared hand-drawn tilt ── */
+    sakuga-input:nth-of-type(odd),
+    sakuga-tabs:nth-of-type(odd) {
+        transform: rotate(-0.3deg);
+    }
+
+    sakuga-input:nth-of-type(even),
+    sakuga-tabs:nth-of-type(even) {
+        transform: rotate(0.3deg);
     }
 }
