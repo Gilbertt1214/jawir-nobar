@@ -4,6 +4,27 @@
 
 @layer base {
     :root {
+        /* ── Sakuga VFX hand-drawn palette overrides ── */
+        /* Warm paper + dark ink for a sketchbook feel. All pass WCAG AA contrast. */
+        --sk-card: #faf6f0;          /* warm cream paper */
+        --sk-ink: #2a2522;           /* dark sepia ink */
+        --sk-dim: #8a7e72;           /* muted brown */
+        --sk-soft: #d4c8b8;          /* soft tan */
+        --sk-pri: hsl(var(--primary));
+        --sk-pri-ink: #2a2522;
+        --sk-acc: #e06040;           /* warm accent red-orange */
+        --sk-track: #d4c8b8;
+        --sk-r: 255px 15px 225px 15px / 15px 225px 15px 255px; /* asymmetric hand-drawn blob */
+        --sk-bw: 2.6px;
+        --sk-sh: 4px 4px 0 var(--sk-ink);
+        --sk-btn-sh: 4px 4px 0 var(--sk-ink);
+        --sk-btn-line: var(--sk-ink);
+        --sk-alt-sh: 3px 3px 0 var(--sk-dim);
+        --sk-alt-line: var(--sk-dim);
+        --sk-tick: var(--sk-ink);
+        --sk-fill: var(--sk-acc);
+        --sk-on-pri: #fff;
+
         --background: 220 14% 90%;
         --foreground: 222.2 84% 4.9%;
 
@@ -53,6 +74,26 @@
     }
 
     .dark {
+        /* ── Sakuga VFX dark-mode hand-drawn palette ── */
+        --sk-card: hsl(222.2 84% 4.9%);
+        --sk-ink: #e8e0d6;
+        --sk-dim: #8a7e72;
+        --sk-soft: #3d3530;
+        --sk-pri: hsl(var(--primary));
+        --sk-pri-ink: #e8e0d6;
+        --sk-acc: #ff7a5a;
+        --sk-track: #3d3530;
+        --sk-r: 255px 15px 225px 15px / 15px 225px 15px 255px;
+        --sk-bw: 2.6px;
+        --sk-sh: 4px 4px 0 var(--sk-soft);
+        --sk-btn-sh: 4px 4px 0 var(--sk-soft);
+        --sk-btn-line: var(--sk-ink);
+        --sk-alt-sh: 3px 3px 0 var(--sk-dim);
+        --sk-alt-line: var(--sk-dim);
+        --sk-tick: var(--sk-ink);
+        --sk-fill: var(--sk-acc);
+        --sk-on-pri: #1d1a4a;
+
         --background: 222.2 84% 4.9%;
         --foreground: 210 40% 98%;
 
@@ -341,5 +382,43 @@
 
     .will-change-opacity {
         will-change: opacity;
+    }
+
+    /* ── Hand-drawn Sakuga VFX button overrides ── */
+    /* These reach the shadow-DOM <button> via ::part(button) */
+    sakuga-button {
+        display: inline-flex;
+    }
+
+    sakuga-button::part(button) {
+        font-family: "Patrick Hand", "Caveat", "Kalam", cursive;
+        font-weight: 700;
+        font-style: normal;
+        font-size: 16px;
+        line-height: 1.2;
+        letter-spacing: 0.02em;
+        border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+        border: 2.6px solid var(--sk-btn-line);
+        box-shadow: 4px 4px 0 var(--sk-soft);
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    sakuga-button:hover::part(button) {
+        box-shadow: 2px 2px 0 var(--sk-soft);
+        transform: translate(2px, 2px);
+    }
+
+    sakuga-button:active::part(button) {
+        box-shadow: none;
+        transform: translate(4px, 4px);
+    }
+
+    /* Slight random tilt for organic feel — alternating with nth-of-type */
+    sakuga-button:nth-of-type(odd) {
+        transform: rotate(-0.5deg);
+    }
+
+    sakuga-button:nth-of-type(even) {
+        transform: rotate(0.5deg);
     }
 }
