@@ -4,7 +4,7 @@ import { movieAPI } from "@/services/api";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SketchTabs } from "@/components/ui/SketchTabs";
 import { Input } from "@/components/ui/input";
 import { SketchInput } from "@/components/ui/SketchInput";
 import {
@@ -38,6 +38,7 @@ export default function SeriesEpisodes() {
     const [sortBy, setSortBy] = useState<"episode" | "newest" | "oldest">(
         "episode"
     );
+    const [activeSeasonTab, setActiveSeasonTab] = useState<string>("");
 
     // ✅ Gunakan tipe 'Movie' karena 'Series' tidak didefinisikan
     const {
@@ -531,61 +532,27 @@ export default function SeriesEpisodes() {
             {/* Episodes Display */}
             {seasons.length > 1 && selectedSeason === "all" && !searchQuery ? (
                 // Tabbed view by season
-                <Tabs defaultValue={String(seasons[0])} className="w-full">
+                <div className="w-full">
                     <div className="mb-6">
                         <ScrollArea className="w-full">
-                            <TabsList className="inline-flex h-12 items-center justify-start rounded-lg bg-muted p-1 w-auto">
-                                {seasons.map((season) => {
-                                    const seasonInfo = seasonDetails[season];
-                                    return (
-                                        <TabsTrigger
-                                            key={season}
-                                            value={String(season)}
-                                            className="inline-flex items-center gap-2 px-4 py-2 whitespace-nowrap"
-                                        >
-                                            <div className="flex flex-col items-center">
-                                                {seasonInfo?.cover && (
-                                                    <img
-                                                        src={seasonInfo.cover}
-                                                        alt={`Cover ${seasonInfo.name}`}
-                                                        className="w-8 h-12 object-cover rounded mb-1"
-                                                        onError={(e) => {
-                                                            const target =
-                                                                e.target as HTMLImageElement;
-                                                            target.style.display =
-                                                                "none";
-                                                        }}
-                                                    />
-                                                )}
-                                                <span>Season {season}</span>
-                                                {seasonInfo?.episodeCount && (
-                                                    <span className="text-xs text-muted-foreground">
-                                                        {
-                                                            seasonInfo.episodeCount
-                                                        }{" "}
-                                                        eps
-                                                    </span>
-                                                )}
-                                            </div>
-                                            <Badge
-                                                variant="secondary"
-                                                className="ml-1 text-xs"
-                                            >
-                                                {seasonGroups[season].length}
-                                            </Badge>
-                                        </TabsTrigger>
-                                    );
-                                })}
-                            </TabsList>
+                            <SketchTabs
+                                tabs={seasons.map((season) => ({
+                                    value: String(season),
+                                    label: `Season ${season}`,
+                                }))}
+                                selected={activeSeasonTab || String(seasons[0])}
+                                onSelect={(value) => setActiveSeasonTab(value)}
+                            />
                         </ScrollArea>
                     </div>
 
                     {seasons.map((season) => {
                         const seasonInfo = seasonDetails[season];
+                        const currentTab = activeSeasonTab || String(seasons[0]);
+                        if (String(season) !== currentTab) return null;
                         return (
-                            <TabsContent
+                            <div
                                 key={season}
-                                value={String(season)}
                                 className="mt-0"
                             >
                                 {/* Info Card for Season */}
@@ -650,10 +617,10 @@ export default function SeriesEpisodes() {
                                         ))}
                                     </div>
                                 )}
-                            </TabsContent>
+                            </div>
                         );
                     })}
-                </Tabs>
+                </div>
             ) : (
                 // Regular view (filtered/searched results)
                 <>

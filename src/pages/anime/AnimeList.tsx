@@ -18,7 +18,7 @@ import {
 import { useState, useEffect, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { SketchInput } from "@/components/ui/SketchInput";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SketchTabs } from "@/components/ui/SketchTabs";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 type TabType = "ongoing" | "complete";
@@ -199,28 +199,16 @@ export default function AnimeList() {
                 </div>
 
                 {/* Tabs */}
-                <Tabs
-                    value={activeTab}
-                    onValueChange={handleTabChange}
-                    className="mb-6"
-                >
-                    <TabsList className="bg-secondary border border-border">
-                        <TabsTrigger
-                            value="ongoing"
-                            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                        >
-                            <Tv className="w-4 h-4 mr-2" />
-                            {t('ongoing')}
-                        </TabsTrigger>
-                        <TabsTrigger
-                            value="complete"
-                            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                        >
-                            <CheckCircle className="w-4 h-4 mr-2" />
-                            {t('complete')}
-                        </TabsTrigger>
-                    </TabsList>
-                </Tabs>
+                <div className="mb-6">
+                    <SketchTabs
+                        tabs={[
+                            { value: "ongoing", label: t('ongoing') },
+                            { value: "complete", label: t('complete') },
+                        ]}
+                        selected={activeTab}
+                        onSelect={(value) => handleTabChange(value)}
+                    />
+                </div>
 
                 {/* Search Bar */}
                 <form onSubmit={handleSearch} className="mb-8">

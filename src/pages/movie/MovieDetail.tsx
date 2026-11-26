@@ -31,7 +31,7 @@ import {
     CardTitle,
     CardDescription,
 } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SketchTabs } from "@/components/ui/SketchTabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Episode } from "@/services/api";
 import {
@@ -548,23 +548,16 @@ export default function MovieDetail() {
                                         </div>
                                     </div>
                                 ) : seasons.length > 0 ? (
-                                    <Tabs
-                                        value={selectedSeason}
-                                        onValueChange={setSelectedSeason}
-                                        className="w-full"
-                                    >
+                                    <div className="w-full">
                                         <ScrollArea className="w-full pb-4">
-                                            <TabsList className="inline-flex w-auto h-auto p-1 bg-muted/50 backdrop-blur-sm border border-border/50 rounded-xl">
-                                                {seasons.map((season) => (
-                                                    <TabsTrigger
-                                                        key={season}
-                                                        value={String(season)}
-                                                        className="px-4 py-2 text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg transition-all"
-                                                    >
-                                                        {t('season')?.replace('{season}', String(season)) || `Season ${season}`}
-                                                    </TabsTrigger>
-                                                ))}
-                                            </TabsList>
+                                            <SketchTabs
+                                                tabs={seasons.map((season) => ({
+                                                    value: String(season),
+                                                    label: t('season')?.replace('{season}', String(season)) || `Season ${season}`,
+                                                }))}
+                                                selected={selectedSeason}
+                                                onSelect={(value) => setSelectedSeason(value)}
+                                            />
                                         </ScrollArea>
 
                                         {seasons.map((season) => {
@@ -574,10 +567,10 @@ export default function MovieDetail() {
                                                         s.seasonNumber ===
                                                         season
                                                 );
+                                            if (String(season) !== selectedSeason) return null;
                                             return (
-                                                <TabsContent
+                                                <div
                                                     key={season}
-                                                    value={String(season)}
                                                     className="mt-4 space-y-6"
                                                 >
                                                     {/* Season Info */}
@@ -773,10 +766,10 @@ export default function MovieDetail() {
                                                                 </SketchButton>
                                                             </div>
                                                         )}
-                                                </TabsContent>
+                                                </div>
                                             );
                                         })}
-                                    </Tabs>
+                                    </div>
                                 ) : (
                                     <Alert>
                                         <AlertCircle className="h-4 w-4" />
