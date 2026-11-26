@@ -5,25 +5,24 @@
 @layer base {
     :root {
         /* ── Sakuga VFX hand-drawn palette overrides ── */
-        /* Warm paper + dark ink for a sketchbook feel. All pass WCAG AA contrast. */
-        --sk-card: #faf6f0;          /* warm cream paper */
-        --sk-ink: #2a2522;           /* dark sepia ink */
-        --sk-dim: #8a7e72;           /* muted brown */
-        --sk-soft: #d4c8b8;          /* soft tan */
+        --sk-card: #ffffff;
+        --sk-ink: #111827;
+        --sk-dim: #64748b;
+        --sk-soft: #cbd5e1;
         --sk-pri: hsl(var(--primary));
-        --sk-pri-ink: #2a2522;
-        --sk-acc: #e06040;           /* warm accent red-orange */
-        --sk-track: #d4c8b8;
-        --sk-r: 255px 15px 225px 15px / 15px 225px 15px 255px; /* asymmetric hand-drawn blob */
-        --sk-bw: 2.6px;
-        --sk-sh: 4px 4px 0 var(--sk-ink);
-        --sk-btn-sh: 4px 4px 0 var(--sk-ink);
-        --sk-btn-line: var(--sk-ink);
-        --sk-alt-sh: 3px 3px 0 var(--sk-dim);
-        --sk-alt-line: var(--sk-dim);
-        --sk-tick: var(--sk-ink);
-        --sk-fill: var(--sk-acc);
-        --sk-on-pri: #fff;
+        --sk-pri-ink: #ffffff;
+        --sk-acc: #ef4444;
+        --sk-track: #e2e8f0;
+        --sk-r: 12px 18px 14px 16px / 16px 12px 18px 14px;
+        --sk-bw: 2.2px;
+        --sk-sh: 3px 3px 0 #111827;
+        --sk-btn-sh: 3.5px 3.5px 0 #111827;
+        --sk-btn-line: #111827;
+        --sk-alt-sh: 3px 3px 0 #64748b;
+        --sk-alt-line: #334155;
+        --sk-tick: #111827;
+        --sk-fill: #2563eb;
+        --sk-on-pri: #ffffff;
 
         --background: 220 14% 90%;
         --foreground: 222.2 84% 4.9%;
@@ -75,24 +74,24 @@
 
     .dark {
         /* ── Sakuga VFX dark-mode hand-drawn palette ── */
-        --sk-card: hsl(222.2 84% 4.9%);
-        --sk-ink: #e8e0d6;
-        --sk-dim: #8a7e72;
-        --sk-soft: #3d3530;
+        --sk-card: #1e293b;
+        --sk-ink: #f8fafc;
+        --sk-dim: #94a3b8;
+        --sk-soft: #0f172a;
         --sk-pri: hsl(var(--primary));
-        --sk-pri-ink: #e8e0d6;
-        --sk-acc: #ff7a5a;
-        --sk-track: #3d3530;
-        --sk-r: 255px 15px 225px 15px / 15px 225px 15px 255px;
-        --sk-bw: 2.6px;
-        --sk-sh: 4px 4px 0 var(--sk-soft);
-        --sk-btn-sh: 4px 4px 0 var(--sk-soft);
-        --sk-btn-line: var(--sk-ink);
-        --sk-alt-sh: 3px 3px 0 var(--sk-dim);
-        --sk-alt-line: var(--sk-dim);
-        --sk-tick: var(--sk-ink);
-        --sk-fill: var(--sk-acc);
-        --sk-on-pri: #1d1a4a;
+        --sk-pri-ink: #ffffff;
+        --sk-acc: #f43f5e;
+        --sk-track: #334155;
+        --sk-r: 12px 18px 14px 16px / 16px 12px 18px 14px;
+        --sk-bw: 2.2px;
+        --sk-sh: 3px 3px 0 #020617;
+        --sk-btn-sh: 3.5px 3.5px 0 #020617;
+        --sk-btn-line: #0f172a;
+        --sk-alt-sh: 3px 3px 0 #020617;
+        --sk-alt-line: #64748b;
+        --sk-tick: #f8fafc;
+        --sk-fill: #38bdf8;
+        --sk-on-pri: #ffffff;
 
         --background: 222.2 84% 4.9%;
         --foreground: 210 40% 98%;
@@ -155,7 +154,6 @@
 
     body {
         @apply bg-background text-foreground antialiased selection:bg-primary/30 selection:text-primary-foreground overflow-x-hidden;
-        font-family: "Patrick Hand", "Caveat", "Kalam", cursive;
         -webkit-tap-highlight-color: transparent;
         touch-action: manipulation;
     }
@@ -385,42 +383,77 @@
         will-change: opacity;
     }
 
-    /* ── Hand-drawn Sakuga VFX button overrides ── */
-    /* These reach the shadow-DOM <button> via ::part(button) */
+    /* ── Hand-drawn Sakuga VFX controls: solid font & comic styling ── */
+    sakuga-button,
+    sakuga-input,
+    sakuga-tabs,
+    sakuga-toggle,
+    sakuga-slider,
+    sakuga-checkbox,
+    sakuga-radio,
+    sakuga-progress,
+    sakuga-rating,
+    sakuga-toast,
+    sakuga-tooltip {
+        font-family: "Kalam", "Patrick Hand", cursive;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+    }
+
     sakuga-button {
         display: inline-flex;
+        vertical-align: middle;
     }
 
     sakuga-button::part(button) {
-        font-family: "Patrick Hand", "Caveat", "Kalam", cursive;
+        font-family: "Kalam", "Patrick Hand", cursive;
         font-weight: 700;
-        font-style: normal;
         font-size: 16px;
-        line-height: 1.2;
+        line-height: 1.25;
         letter-spacing: 0.02em;
-        border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
-        border: 2.6px solid var(--sk-btn-line);
-        box-shadow: 4px 4px 0 var(--sk-soft);
-        transition: transform 0.15s ease, box-shadow 0.15s ease;
+        border-radius: 12px 18px 14px 16px / 16px 12px 18px 14px;
+        border: 2.2px solid var(--sk-btn-line);
+        box-shadow: 3.5px 3.5px 0 var(--sk-btn-sh);
+        transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.15s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+    }
+
+    /* Primary button: solid vibrant background + solid white text */
+    sakuga-button:not([variant="secondary"])::part(button) {
+        background: hsl(var(--primary));
+        color: #ffffff;
+        border-color: #0f172a;
+        box-shadow: 3.5px 3.5px 0 #020617;
+    }
+
+    /* Secondary button: clear solid card background + readable text */
+    sakuga-button[variant="secondary"]::part(button) {
+        background: hsl(var(--card));
+        color: hsl(var(--card-foreground));
+        border-color: hsl(var(--border));
+        box-shadow: 3.5px 3.5px 0 #020617;
+    }
+
+    .dark sakuga-button[variant="secondary"]::part(button) {
+        background: hsl(217.2 32.6% 17.5%);
+        color: #f8fafc;
+        border-color: #475569;
+        box-shadow: 3.5px 3.5px 0 #020617;
     }
 
     sakuga-button:hover::part(button) {
-        box-shadow: 2px 2px 0 var(--sk-soft);
+        box-shadow: 1.5px 1.5px 0 var(--sk-btn-sh);
         transform: translate(2px, 2px);
     }
 
     sakuga-button:active::part(button) {
-        box-shadow: none;
-        transform: translate(4px, 4px);
-    }
-
-    /* Slight random tilt for organic feel — alternating with nth-of-type */
-    sakuga-button:nth-of-type(odd) {
-        transform: rotate(-0.5deg);
-    }
-
-    sakuga-button:nth-of-type(even) {
-        transform: rotate(0.5deg);
+        box-shadow: 0 0 0 transparent;
+        transform: translate(3.5px, 3.5px);
     }
 
     /* ── Sakuga Input hand-drawn overrides ── */
@@ -430,49 +463,41 @@
     }
 
     sakuga-input::part(input) {
-        font-family: "Patrick Hand", "Caveat", "Kalam", cursive;
-        font-size: 16px;
-        letter-spacing: 0.02em;
-        border-radius: 225px 15px 255px 15px / 15px 255px 15px 225px;
-        border: 2.4px solid var(--sk-ink);
-        box-shadow: 3px 3px 0 var(--sk-soft);
+        font-family: "Kalam", "Patrick Hand", cursive;
+        font-weight: 700;
+        font-size: 15px;
+        border-radius: 12px 18px 14px 16px / 16px 12px 18px 14px;
+        border: 2px solid var(--sk-ink);
+        box-shadow: 2.5px 2.5px 0 var(--sk-sh);
+        background: var(--sk-card);
+        color: var(--sk-ink);
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
     }
 
     sakuga-input:focus-within::part(input) {
-        box-shadow: 2px 2px 0 var(--sk-soft);
+        box-shadow: 1.5px 1.5px 0 var(--sk-sh);
         border-color: var(--sk-pri);
     }
 
     /* ── Sakuga Tabs hand-drawn overrides ── */
     sakuga-tabs {
         display: block;
+        font-family: "Kalam", "Patrick Hand", cursive;
     }
 
     /* ── Sakuga Toggle hand-drawn overrides ── */
     sakuga-toggle {
         display: inline-flex;
-        margin: 0 !important;  /* override the large default margins */
+        margin: 0 !important;
     }
 
-    /* ── Sakuga Toast hand-drawn overrides ── */
+    /* ── Sakuga Toast & Tooltip ── */
     sakuga-toast {
         z-index: 9999;
     }
 
-    /* ── Sakuga Tooltip hand-drawn overrides ── */
     sakuga-tooltip {
         display: inline-flex;
         vertical-align: middle;
-    }
-
-    /* ── All Sakuga elements: shared hand-drawn tilt ── */
-    sakuga-input:nth-of-type(odd),
-    sakuga-tabs:nth-of-type(odd) {
-        transform: rotate(-0.3deg);
-    }
-
-    sakuga-input:nth-of-type(even),
-    sakuga-tabs:nth-of-type(even) {
-        transform: rotate(0.3deg);
     }
 }

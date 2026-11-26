@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
-import { SketchButton } from "@/components/ui/SketchButton";
+import { Button } from "@/components/ui/button";
 import { MovieCarousel } from "@/components/features/movie/MovieCarousel";
 import { FadeIn } from "@/components/animations/FadeIn";
 import { Movie } from "@/services/api";
@@ -38,14 +38,17 @@ export function Section({
                         </h2>
                     </div>
                     {children}
-                    <Link to={link} className="flex items-center gap-2">
-                        <SketchButton variant="secondary">
-                            <span className="flex items-center gap-2">
-                                <span className="text-sm font-medium">{t('viewAll')}</span>
-                                <ChevronRight className="w-4 h-4" />
-                            </span>
-                        </SketchButton>
-                    </Link>
+                    <Button
+                        asChild
+                        variant="ghost"
+                        size="sm"
+                        className="self-start sm:self-auto hover:bg-secondary hover:text-primary transition-all group/btn"
+                    >
+                        <Link to={link} className="flex items-center gap-2">
+                            <span className="text-sm font-medium">{t('viewAll')}</span>
+                            <ChevronRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
+                        </Link>
+                    </Button>
                 </div>
                 <MovieCarousel title="" movies={movies} />
             </section>

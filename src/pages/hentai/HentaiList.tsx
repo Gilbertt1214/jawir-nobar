@@ -17,7 +17,6 @@ import {
 } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { Input } from "@/components/ui/input";
-import { SketchInput } from "@/components/ui/SketchInput";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 // Helper to extract base title (remove episode number)
@@ -377,11 +376,13 @@ export default function HentaiList() {
                 <form onSubmit={handleSearch} className="mb-8">
                     <div className="relative max-w-xl">
                         <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                        <SketchInput
+                        <Input
                             type="text"
                             placeholder={t("searchHentai")}
                             value={localSearchQuery}
-                            onChange={(val) => setLocalSearchQuery(val)}
+                            onChange={(e) =>
+                                setLocalSearchQuery(e.target.value)
+                            }
                             onFocus={() => setIsInputFocused(true)}
                             onBlur={() => {
                                 setTimeout(() => setIsInputFocused(false), 200);
