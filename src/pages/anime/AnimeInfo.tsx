@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Breadcrumb } from "@/components/common/Breadcrumb";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { SketchInput } from "@/components/ui/SketchInput";
 import { Textarea } from "@/components/ui/textarea";
 import {
     AlertCircle,
@@ -516,21 +517,17 @@ export default function AnimeInfo() {
                                     <CardContent className="p-6 space-y-8">
                                         <div className="space-y-4">
                                             <div className="grid grid-cols-1 gap-4">
-                                                <Input
+                                                <SketchInput
                                                     placeholder={t("yourName")}
                                                     value={name}
-                                                    onChange={(e) =>
-                                                        setName(e.target.value)
-                                                    }
+                                                    onChange={(val) => setName(val)}
                                                     maxLength={50}
                                                     className="bg-background/50 border-white/10 focus:border-primary/50 h-11"
                                                 />
                                                 <Textarea
                                                     placeholder={t("writeComment")}
                                                     value={message}
-                                                    onChange={(e) =>
-                                                        setMessage(e.target.value)
-                                                    }
+                                                    onChange={(val) => setMessage(val)}
                                                     className="min-h-[120px] bg-background/50 border-white/10 focus:border-primary/50 resize-none p-4"
                                                     maxLength={500}
                                                 />

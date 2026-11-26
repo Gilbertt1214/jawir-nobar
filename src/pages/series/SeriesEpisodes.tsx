@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
+import { SketchInput } from "@/components/ui/SketchInput";
 import {
     Select,
     SelectContent,
@@ -428,13 +429,12 @@ export default function SeriesEpisodes() {
                             {/* Search */}
                             <div className="relative flex-1 max-w-sm">
                                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                <Input
+                                <SketchInput
                                     placeholder="Search episodes..."
                                     value={searchQuery}
-                                    onChange={(e) =>
-                                        setSearchQuery(e.target.value)
-                                    }
+                                    onChange={(val) => setSearchQuery(val)}
                                     className="pl-10 h-10"
+                                    style={{ width: "100%" }}
                                 />
                             </div>
 

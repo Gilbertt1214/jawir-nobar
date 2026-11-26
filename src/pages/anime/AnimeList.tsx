@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { Input } from "@/components/ui/input";
+import { SketchInput } from "@/components/ui/SketchInput";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -225,11 +226,11 @@ export default function AnimeList() {
                 <form onSubmit={handleSearch} className="mb-8">
                     <div className="relative max-w-xl">
                         <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                        <Input
+                        <SketchInput
                             type="text"
                             placeholder={t('searchAnime')}
                             value={localSearchQuery}
-                            onChange={(e) => handleSearchChange(e.target.value)}
+                            onChange={(val) => handleSearchChange(val)}
                             onFocus={() => setIsInputFocused(true)}
                             onBlur={() => {
                                 setTimeout(() => setIsInputFocused(false), 200);

@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { movieAPI } from "@/services/api";
 import { Button } from "@/components/ui/button";
+import { SketchInput } from "@/components/ui/SketchInput";
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
@@ -185,14 +186,13 @@ export function Navbar() {
                                 ? "bg-background/95 backdrop-blur-md border border-primary/20 shadow-lg rounded-full sm:bg-secondary sm:shadow-none sm:border-none" 
                                 : "bg-transparent sm:bg-secondary sm:rounded-full"
                         )}>
-                            <Input
+                            <SketchInput
                                 type="search"
                                 placeholder={t('search')}
                                 value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
+                                onChange={(val) => setSearchQuery(val)}
                                 onFocus={() => setIsSearchOpen(true)}
                                 onBlur={() => {
-                                    // Small delay to allow clicking search results
                                     setTimeout(() => {
                                         if (!searchQuery) {
                                             setIsSearchOpen(false);
@@ -200,12 +200,11 @@ export function Navbar() {
                                     }, 200);
                                 }}
                                 className={cn(
-                                    "transition-all duration-300 bg-transparent border-none focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground",
-                                    "h-10 sm:h-10 lg:h-11",
                                     isSearchOpen 
-                                        ? "w-full pl-4 pr-10 opacity-100" 
-                                        : "w-0 sm:w-full pl-0 sm:pl-4 opacity-0 sm:opacity-100 p-0 sm:p-2"
+                                        ? "w-full opacity-100" 
+                                        : "w-0 sm:w-full opacity-0 sm:opacity-100"
                                 )}
+                                style={{ width: "100%" }}
                             />
                             
                             {/* Mobile Search Toggle / Submit Button */}
