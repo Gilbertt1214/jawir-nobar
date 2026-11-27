@@ -179,11 +179,6 @@ export default function EpisodeDetail() {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center px-4 py-16">
         <div className="w-full max-w-[300px] flex flex-col items-center text-center space-y-4">
-          <img
-            src="/jawir-logo.png"
-            alt="Loading"
-            className="w-16 h-16 animate-bounce duration-1000"
-          />
           <div className="w-full flex justify-center scale-95 sm:scale-100">
             <SketchProgress
               demo

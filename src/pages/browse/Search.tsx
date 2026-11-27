@@ -213,7 +213,7 @@ export default function Search() {
                 {/* Live Search Input with anime dust animation */}
                 <div className="max-w-xl">
                     <SketchInput
-                        type="search"
+                        type="text"
                         placeholder={t('search')}
                         value={localQuery}
                         onChange={(val) => setLocalQuery(val)}

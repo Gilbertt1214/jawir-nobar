@@ -133,7 +133,7 @@ export default function MangaList() {
                 <form onSubmit={handleSearch} className="mb-8">
                     <div className="relative max-w-xl">
                         <SketchInput
-                            type="search"
+                            type="text"
                             placeholder={t("searchManga")}
                             value={localSearchQuery}
                             onChange={(val) => setLocalSearchQuery(val)}

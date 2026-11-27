@@ -14,8 +14,9 @@ class SakugaInput extends fx.Base {
   static formAssociated = true;
   static observedAttributes = ['value', 'placeholder', 'disabled', 'label'];
   static css = `
-    input { width: var(--sk-input-width, 230px); max-width: 100%; padding: 13px 16px; border: var(--sk-bw) solid var(--sk-ink); border-radius: var(--sk-r); background: var(--sk-card); box-shadow: var(--sk-sh); font-weight: 600; font-size: 16px; outline: none; caret-color: var(--sk-ink); will-change: transform; }
-    input::placeholder { color: var(--sk-dim); } input:disabled { opacity: .5; }`;
+    input { width: var(--sk-input-width, 230px); max-width: 100%; padding: 13px 16px; padding-right: var(--sk-input-pr, 16px); border: var(--sk-bw) solid var(--sk-ink); border-radius: var(--sk-r); background: var(--sk-card); box-shadow: var(--sk-sh); font-weight: 600; font-size: 16px; outline: none; caret-color: var(--sk-ink); will-change: transform; box-sizing: border-box; }
+    input::placeholder { color: var(--sk-dim); } input:disabled { opacity: .5; }
+    input::-webkit-search-cancel-button, input::-webkit-search-decoration, input::-webkit-search-results-button, input::-webkit-search-results-decoration { -webkit-appearance: none !important; appearance: none !important; display: none !important; width: 0 !important; height: 0 !important; }`;
   get value() { return this.inp ? this.inp.value : this.getAttribute('value') || ''; }
   set value(v) { if (this.inp) { this.inp.value = v; this.internals.setFormValue(this.inp.value); } else this.setAttribute('value', v); }
   get disabled() { return this.hasAttribute('disabled'); }

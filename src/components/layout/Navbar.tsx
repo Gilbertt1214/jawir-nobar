@@ -189,7 +189,7 @@ export function Navbar() {
                                 isSearchOpen ? "block" : "hidden sm:block"
                             )}>
                                 <SketchInput
-                                    type="search"
+                                    type="text"
                                     placeholder={t('search')}
                                     value={searchQuery}
                                     onChange={(val) => setSearchQuery(val)}
@@ -203,7 +203,7 @@ export function Navbar() {
                                         }, 200);
                                     }}
                                     className="w-full"
-                                    style={{ width: "100%" }}
+                                    style={{ width: "100%", "--sk-input-pr": "44px" } as React.CSSProperties}
                                 />
                             </div>
                             

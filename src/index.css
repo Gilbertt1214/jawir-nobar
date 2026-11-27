@@ -600,4 +600,15 @@
         background-image: radial-gradient(hsl(var(--foreground) / 0.12) 1.5px, transparent 1.5px);
         background-size: 12px 12px;
     }
+
+    input[type="search"]::-webkit-search-cancel-button,
+    input[type="search"]::-webkit-search-decoration,
+    input[type="search"]::-webkit-search-results-button,
+    input[type="search"]::-webkit-search-results-decoration {
+        -webkit-appearance: none !important;
+        appearance: none !important;
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+    }
 }
