@@ -37,6 +37,7 @@ const AnimeWatch = lazy(() => import("./pages/anime/AnimeWatch"));
 const MangaList = lazy(() => import("./pages/manga/MangaList"));
 const MangaDetail = lazy(() => import("./pages/manga/MangaDetail"));
 const MangaRead = lazy(() => import("./pages/manga/MangaRead"));
+const SakugaShowcase = lazy(() => import("./pages/manga/SakugaShowcase"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const Snowfall = lazy(() => import("react-snowfall"));
@@ -176,6 +177,22 @@ const AnimatedRoutes = () => {
                     element={
                         <PageTransition>
                             <MangaRead />
+                        </PageTransition>
+                    }
+                />
+                <Route
+                    path="/sakuga"
+                    element={
+                        <PageTransition>
+                            <SakugaShowcase />
+                        </PageTransition>
+                    }
+                />
+                <Route
+                    path="/components"
+                    element={
+                        <PageTransition>
+                            <SakugaShowcase />
                         </PageTransition>
                     }
                 />

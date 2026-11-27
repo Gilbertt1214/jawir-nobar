@@ -4,126 +4,126 @@
 
 @layer base {
     :root {
-        /* ── Sakuga VFX hand-drawn palette overrides ── */
+        /* ── Sakuga VFX solid hand-drawn manga palette ── */
         --sk-card: #ffffff;
-        --sk-ink: #111827;
+        --sk-ink: #0f172a;
         --sk-dim: #64748b;
-        --sk-soft: #cbd5e1;
-        --sk-pri: hsl(var(--primary));
+        --sk-soft: #f1f5f9;
+        --sk-pri: #2563eb;
         --sk-pri-ink: #ffffff;
         --sk-acc: #ef4444;
         --sk-track: #e2e8f0;
-        --sk-r: 12px 18px 14px 16px / 16px 12px 18px 14px;
-        --sk-bw: 2.2px;
-        --sk-sh: 3px 3px 0 #111827;
-        --sk-btn-sh: 3.5px 3.5px 0 #111827;
-        --sk-btn-line: #111827;
-        --sk-alt-sh: 3px 3px 0 #64748b;
+        --sk-r: 10px 14px 12px 14px / 14px 10px 14px 12px;
+        --sk-bw: 2.5px;
+        --sk-sh: 3.5px 3.5px 0 #0f172a;
+        --sk-btn-sh: 4px 4px 0 #0f172a;
+        --sk-btn-line: #0f172a;
+        --sk-alt-sh: 3.5px 3.5px 0 #64748b;
         --sk-alt-line: #334155;
-        --sk-tick: #111827;
+        --sk-tick: #0f172a;
         --sk-fill: #2563eb;
         --sk-on-pri: #ffffff;
 
-        --background: 220 14% 90%;
+        --background: 40 25% 97%; /* Warm manga comic paper */
         --foreground: 222.2 84% 4.9%;
 
-        --card: 220 14% 98%;
-        --card-foreground: 0 0% 0%;
+        --card: 0 0% 100%;
+        --card-foreground: 222.2 84% 4.9%;
 
-        --popover: 220 14% 98%;
-        --popover-foreground: 0 0% 0%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 222.2 84% 4.9%;
 
-        --primary: 217.2 91.2% 59.8%;
+        --primary: 221.2 83.2% 53.3%;
         --primary-foreground: 0 0% 100%;
 
-        --secondary: 220 14% 94%;
-        --secondary-foreground: 0 0% 0%;
+        --secondary: 40 15% 93%;
+        --secondary-foreground: 222.2 84% 4.9%;
 
-        --muted: 220 14% 94%;
-        --muted-foreground: 215 16% 35%;
+        --muted: 40 15% 91%;
+        --muted-foreground: 215 16% 40%;
 
-        --accent: 0 0% 96%;
-        --accent-foreground: 0 0% 0%;
+        --accent: 45 93% 47%;
+        --accent-foreground: 222.2 84% 4.9%;
 
         --destructive: 0 84.2% 60.2%;
         --destructive-foreground: 0 0% 100%;
 
-        --border: 0 0% 89.8%;
-        --input: 0 0% 89.8%;
-        --ring: 217.2 91.2% 59.8%;
+        --border: 222.2 84% 8%;
+        --input: 222.2 84% 8%;
+        --ring: 221.2 83.2% 53.3%;
 
         --radius: 0.75rem;
 
         --gradient-primary: linear-gradient(
             135deg,
-            hsl(217.2 91.2% 59.8%),
+            hsl(221.2 83.2% 53.3%),
             hsl(210 40% 98%)
         );
         --gradient-hero: linear-gradient(
             180deg,
             hsl(0 0% 0% / 0),
-            hsl(0 0% 0% / 0.4),
+            hsl(0 0% 0% / 0.5),
             hsl(var(--background))
         );
         --hero-foreground: 0 0% 100%;
         --hero-muted: 0 0% 90%;
         
-        --shadow-card: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-        --shadow-card-hover: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        --shadow-card: 3px 3px 0 #0f172a;
+        --shadow-card-hover: 6px 6px 0 #0f172a;
     }
 
     .dark {
-        /* ── Sakuga VFX dark-mode hand-drawn palette ── */
-        --sk-card: #1e293b;
-        --sk-ink: #f8fafc;
-        --sk-dim: #94a3b8;
-        --sk-soft: #0f172a;
-        --sk-pri: hsl(var(--primary));
-        --sk-pri-ink: #ffffff;
+        /* ── Sakuga VFX solid dark manga palette ── */
+        --sk-card: #18181b;
+        --sk-ink: #f4f4f5;
+        --sk-dim: #a1a1aa;
+        --sk-soft: #27272a;
+        --sk-pri: #38bdf8;
+        --sk-pri-ink: #09090b;
         --sk-acc: #f43f5e;
-        --sk-track: #334155;
-        --sk-r: 12px 18px 14px 16px / 16px 12px 18px 14px;
-        --sk-bw: 2.2px;
-        --sk-sh: 3px 3px 0 #020617;
-        --sk-btn-sh: 3.5px 3.5px 0 #020617;
-        --sk-btn-line: #0f172a;
-        --sk-alt-sh: 3px 3px 0 #020617;
-        --sk-alt-line: #64748b;
-        --sk-tick: #f8fafc;
+        --sk-track: #27272a;
+        --sk-r: 10px 14px 12px 14px / 14px 10px 14px 12px;
+        --sk-bw: 2.5px;
+        --sk-sh: 3.5px 3.5px 0 #000000;
+        --sk-btn-sh: 4px 4px 0 #000000;
+        --sk-btn-line: #f4f4f5;
+        --sk-alt-sh: 3.5px 3.5px 0 #000000;
+        --sk-alt-line: #71717a;
+        --sk-tick: #f4f4f5;
         --sk-fill: #38bdf8;
-        --sk-on-pri: #ffffff;
+        --sk-on-pri: #09090b;
 
-        --background: 222.2 84% 4.9%;
+        --background: 240 10% 8%; /* Manga dark ink canvas */
         --foreground: 210 40% 98%;
 
-        --card: 217.2 32.6% 12.5%;
+        --card: 240 10% 12%;
         --card-foreground: 210 40% 98%;
 
-        --popover: 222.2 84% 4.9%;
+        --popover: 240 10% 12%;
         --popover-foreground: 210 40% 98%;
 
-        --primary: 217.2 91.2% 59.8%;
+        --primary: 199 89% 48%;
         --primary-foreground: 222.2 47.4% 11.2%;
 
-        --secondary: 217.2 32.6% 17.5%;
+        --secondary: 240 6% 16%;
         --secondary-foreground: 210 40% 98%;
 
-        --muted: 217.2 32.6% 17.5%;
+        --muted: 240 6% 16%;
         --muted-foreground: 215 20.2% 65.1%;
 
-        --accent: 217.2 32.6% 17.5%;
+        --accent: 45 93% 47%;
         --accent-foreground: 210 40% 98%;
 
         --destructive: 0 62.8% 30.6%;
         --destructive-foreground: 210 40% 98%;
 
-        --border: 217.2 32.6% 17.5%;
-        --input: 217.2 32.6% 17.5%;
-        --ring: 224.3 76.3% 48%;
+        --border: 240 6% 28%;
+        --input: 240 6% 28%;
+        --ring: 199 89% 48%;
 
         --gradient-primary: linear-gradient(
             135deg,
-            hsl(217.2 91.2% 59.8%),
+            hsl(199 89% 48%),
             hsl(222.2 84% 4.9%)
         );
         --gradient-hero: linear-gradient(
@@ -135,8 +135,8 @@
         --hero-foreground: 210 40% 98%;
         --hero-muted: 215 20.2% 65.1%;
 
-        --shadow-card: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-        --shadow-card-hover: 0 20px 25px -5px rgb(0 0 0 / 0.6), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        --shadow-card: 3px 3px 0 #000000;
+        --shadow-card-hover: 6px 6px 0 #000000;
     }
 }
 
@@ -144,18 +144,29 @@
     * {
         @apply border-border;
         box-sizing: border-box;
+        font-family: 'Patrick Hand', cursive, sans-serif !important;
     }
 
     html {
         font-size: 100%; /* Ensure standard 16px base */
         -webkit-text-size-adjust: 100%;
         text-size-adjust: 100%;
+        font-family: 'Patrick Hand', cursive, sans-serif !important;
     }
 
     body {
         @apply bg-background text-foreground antialiased selection:bg-primary/30 selection:text-primary-foreground overflow-x-hidden;
         -webkit-tap-highlight-color: transparent;
         touch-action: manipulation;
+        font-family: 'Patrick Hand', cursive, sans-serif !important;
+        letter-spacing: 0.015em;
+        background-image: radial-gradient(hsl(var(--foreground) / 0.08) 1.2px, transparent 1.2px);
+        background-size: 16px 16px;
+    }
+
+    /* Universal Patrick Hand font for headings and typography */
+    h1, h2, h3, h4, h5, h6, button, input, textarea, select, label, p, span, a {
+        font-family: 'Patrick Hand', cursive, sans-serif !important;
     }
 
 
@@ -383,7 +394,7 @@
         will-change: opacity;
     }
 
-    /* ── Hand-drawn Sakuga VFX controls: solid font & comic styling ── */
+    /* ── Hand-drawn Sakuga VFX controls: Solid Manga styling & Patrick Hand font ── */
     sakuga-button,
     sakuga-input,
     sakuga-tabs,
@@ -395,7 +406,7 @@
     sakuga-rating,
     sakuga-toast,
     sakuga-tooltip {
-        font-family: "Kalam", "Patrick Hand", cursive;
+        font-family: "Patrick Hand", cursive !important;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         text-rendering: optimizeLegibility;
@@ -407,13 +418,13 @@
     }
 
     sakuga-button::part(button) {
-        font-family: "Kalam", "Patrick Hand", cursive;
+        font-family: "Patrick Hand", cursive !important;
         font-weight: 700;
-        font-size: 16px;
+        font-size: 17px;
         line-height: 1.25;
         letter-spacing: 0.02em;
-        border-radius: 12px 18px 14px 16px / 16px 12px 18px 14px;
-        border: 2.2px solid var(--sk-btn-line);
+        border-radius: 10px 14px 12px 14px / 14px 10px 14px 12px;
+        border: 2.5px solid var(--sk-btn-line);
         box-shadow: 3.5px 3.5px 0 var(--sk-btn-sh);
         transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.15s ease;
         display: inline-flex;
@@ -428,22 +439,29 @@
         background: hsl(var(--primary));
         color: #ffffff;
         border-color: #0f172a;
-        box-shadow: 3.5px 3.5px 0 #020617;
+        box-shadow: 3.5px 3.5px 0 #0f172a;
+    }
+
+    .dark sakuga-button:not([variant="secondary"])::part(button) {
+        background: hsl(var(--primary));
+        color: #09090b;
+        border-color: #f4f4f5;
+        box-shadow: 3.5px 3.5px 0 #000000;
     }
 
     /* Secondary button: clear solid card background + readable text */
     sakuga-button[variant="secondary"]::part(button) {
         background: hsl(var(--card));
         color: hsl(var(--card-foreground));
-        border-color: hsl(var(--border));
-        box-shadow: 3.5px 3.5px 0 #020617;
+        border-color: #0f172a;
+        box-shadow: 3.5px 3.5px 0 #0f172a;
     }
 
     .dark sakuga-button[variant="secondary"]::part(button) {
-        background: hsl(217.2 32.6% 17.5%);
+        background: hsl(var(--card));
         color: #f8fafc;
-        border-color: #475569;
-        box-shadow: 3.5px 3.5px 0 #020617;
+        border-color: #f4f4f5;
+        box-shadow: 3.5px 3.5px 0 #000000;
     }
 
     sakuga-button:hover::part(button) {
@@ -456,19 +474,21 @@
         transform: translate(3.5px, 3.5px);
     }
 
-    /* ── Sakuga Input hand-drawn overrides ── */
+    /* ── Sakuga Input solid manga styling ── */
     sakuga-input {
         display: inline-block;
         --sk-input-width: 100%;
+        font-family: "Patrick Hand", cursive !important;
     }
 
     sakuga-input::part(input) {
-        font-family: "Kalam", "Patrick Hand", cursive;
+        font-family: "Patrick Hand", cursive !important;
         font-weight: 700;
-        font-size: 15px;
-        border-radius: 12px 18px 14px 16px / 16px 12px 18px 14px;
-        border: 2px solid var(--sk-ink);
-        box-shadow: 2.5px 2.5px 0 var(--sk-sh);
+        font-size: 16px;
+        letter-spacing: 0.02em;
+        border-radius: 10px 14px 12px 14px / 14px 10px 14px 12px;
+        border: 2.5px solid var(--sk-ink);
+        box-shadow: 3px 3px 0 var(--sk-sh);
         background: var(--sk-card);
         color: var(--sk-ink);
         transition: border-color 0.15s ease, box-shadow 0.15s ease;
@@ -479,25 +499,99 @@
         border-color: var(--sk-pri);
     }
 
-    /* ── Sakuga Tabs hand-drawn overrides ── */
+    /* ── Sakuga Tabs solid manga styling ── */
     sakuga-tabs {
         display: block;
-        font-family: "Kalam", "Patrick Hand", cursive;
+        font-family: "Patrick Hand", cursive !important;
     }
 
-    /* ── Sakuga Toggle hand-drawn overrides ── */
+    /* ── Sakuga Toggle solid styling ── */
     sakuga-toggle {
         display: inline-flex;
         margin: 0 !important;
     }
 
+    /* ── Sakuga Checkbox & Radio solid styling ── */
+    sakuga-checkbox,
+    sakuga-radio {
+        display: inline-flex;
+        font-family: "Patrick Hand", cursive !important;
+    }
+
+    /* ── Sakuga Slider solid styling ── */
+    sakuga-slider {
+        display: block;
+        font-family: "Patrick Hand", cursive !important;
+    }
+
+    /* ── Sakuga Progress solid styling ── */
+    sakuga-progress {
+        display: block;
+        font-family: "Patrick Hand", cursive !important;
+    }
+
+    /* ── Sakuga Rating solid styling ── */
+    sakuga-rating {
+        display: inline-flex;
+        vertical-align: middle;
+        font-family: "Patrick Hand", cursive !important;
+    }
+
     /* ── Sakuga Toast & Tooltip ── */
     sakuga-toast {
         z-index: 9999;
+        font-family: "Patrick Hand", cursive !important;
     }
 
     sakuga-tooltip {
         display: inline-flex;
         vertical-align: middle;
+        font-family: "Patrick Hand", cursive !important;
+    }
+
+    /* ── Manga Aesthetic Utility Classes ── */
+    .manga-panel {
+        border: 2.5px solid var(--sk-ink);
+        box-shadow: 4px 4px 0 var(--sk-sh);
+        border-radius: 12px 16px 14px 18px / 16px 12px 18px 14px;
+        background-color: hsl(var(--card));
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .manga-panel:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 6px 6px 0 var(--sk-sh);
+    }
+
+    .manga-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-family: "Patrick Hand", cursive !important;
+        font-weight: 700;
+        border: 2px solid var(--sk-ink);
+        box-shadow: 2.5px 2.5px 0 var(--sk-sh);
+        border-radius: 6px 10px 8px 10px;
+    }
+
+    .manga-sfx {
+        font-family: "Patrick Hand", cursive !important;
+        font-weight: 900;
+        letter-spacing: -0.02em;
+        text-shadow: 2px 2px 0 var(--sk-card), -1px -1px 0 var(--sk-card), 1px -1px 0 var(--sk-card), -1px 1px 0 var(--sk-card);
+        color: var(--sk-acc);
+    }
+
+    .manga-bubble {
+        position: relative;
+        border: 2.5px solid var(--sk-ink);
+        box-shadow: 3.5px 3.5px 0 var(--sk-sh);
+        border-radius: 16px 20px 18px 22px / 20px 16px 22px 18px;
+        background: var(--sk-card);
+    }
+
+    .manga-screentone {
+        background-image: radial-gradient(hsl(var(--foreground) / 0.12) 1.5px, transparent 1.5px);
+        background-size: 12px 12px;
     }
 }

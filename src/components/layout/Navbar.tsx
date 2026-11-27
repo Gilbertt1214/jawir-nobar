@@ -9,6 +9,7 @@ import {
     BookOpen,
     Languages,
     X,
+    Sparkles,
 } from "lucide-react";
 import { movieAPI } from "@/services/api";
 import { Button } from "@/components/ui/button";
@@ -349,6 +350,18 @@ export function Navbar() {
                                 {t('manga')}
                             </Button>
                         </Link>
+                        <Link to="/sakuga">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className={cn(
+                                    "text-sm px-3 xl:px-4 rounded-full transition-all duration-300 font-bold text-red-500",
+                                    isScrolled ? "hover:bg-red-500/10 hover:text-red-600" : "text-red-400 hover:bg-white/10 hover:text-red-300"
+                                )}
+                            >
+                                ✨ Sakuga VFX
+                            </Button>
+                        </Link>
                         <Link to="/genres">
                             <Button
                                 variant="ghost"
@@ -450,6 +463,15 @@ export function Navbar() {
                                     >
                                         <BookOpen className="h-4 w-4 sm:h-5 sm:w-5" />
                                         {t('manga')}
+                                    </Button>
+                                </Link>
+                                <Link to="/sakuga" onClick={handleMenuItemClick}>
+                                    <Button
+                                        variant="ghost"
+                                        className="w-full justify-start gap-3 sm:gap-4 h-11 sm:h-12 text-sm sm:text-base font-bold text-red-500 rounded-xl hover:bg-red-500/10 hover:text-red-600 transition-all"
+                                    >
+                                        <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-red-500" />
+                                        Sakuga VFX Controls
                                     </Button>
                                 </Link>
                                 <Link to="/genres" onClick={handleMenuItemClick}>

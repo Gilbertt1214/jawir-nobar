@@ -19,6 +19,13 @@ export function Footer() {
 
                     {/* Right Side - Legal + Discord */}
                     <div className="flex items-center gap-2 sm:gap-3">
+                        <Link
+                            to="/sakuga"
+                            className="hover:text-red-500 font-bold transition-colors text-primary"
+                        >
+                            ✨ Sakuga VFX
+                        </Link>
+                        <span>•</span>
                         <a
                             href="#"
                             className="hover:text-primary transition-colors"

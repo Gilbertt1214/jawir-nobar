@@ -16,7 +16,7 @@ class SakugaTabs extends fx.Base {
     :host { margin-top: 10px; }
     .tabs { position: relative; display: flex; border: var(--sk-bw) solid var(--sk-ink); border-radius: 12px; background: var(--sk-card); box-shadow: var(--sk-sh); }
     .ind { position: absolute; top: -11px; bottom: -1px; left: 0; width: 10px; border: var(--sk-bw) solid var(--sk-ink); border-bottom: 0; border-radius: 13px 13px 0 0; background: var(--sk-card); margin: 0 0 0 calc(var(--sk-bw) * -1); will-change: transform, width; }
-    button { position: relative; padding: 10px 15px; border: 0; border-left: 2.4px solid var(--sk-ink); background: none; font: 600 16px/1.2 "Kalam","Patrick Hand",cursive; white-space: nowrap; cursor: pointer; transition: translate .18s cubic-bezier(.3, 1.6, .5, 1); }
+    button { position: relative; padding: 10px 15px; border: 0; border-left: 2.4px solid var(--sk-ink); background: none; font: 600 16px/1.2 "Patrick Hand", cursive; white-space: nowrap; cursor: pointer; transition: translate .18s cubic-bezier(.3, 1.6, .5, 1); }
     button:first-of-type { border-left-color: transparent; }
     button[aria-selected=true] { font-weight: 800; translate: 0 -5px; border-left-color: transparent; } button[aria-selected=true] + button { border-left-color: transparent; }`;
   get selected() { return this.tabs ? this.tabs.findIndex((t) => t.getAttribute('aria-selected') === 'true') : +(this.getAttribute('selected') || 0); }
@@ -285,7 +285,7 @@ function squashy(el, { low = 0.82, k = 520, d = 15, wide = 0.55 } = {}) {
   return { s, pop, tilt, step(dt) { const y = s.step(dt), p = pop.step(dt), r = tilt.step(dt), still = Math.abs(y - 1) < 0.001 && Math.abs(s.v) < 0.01 && Math.abs(p - 1) < 0.001 && Math.abs(r) < 0.02;
     el.style.transform = still ? '' : `rotate(${r}deg) scale(${(1 + (1 - y) * wide) * p}, ${y * p})`; } };
 }
-const BASE_CSS = `:host{display:inline-block;position:relative;isolation:isolate;vertical-align:middle;color:var(--sk-ink);font:500 15px/1.4 "Kalam","Patrick Hand",cursive;-webkit-tap-highlight-color:transparent}
+const BASE_CSS = `:host{display:inline-block;position:relative;isolation:isolate;vertical-align:middle;color:var(--sk-ink);font:500 15px/1.4 "Patrick Hand", cursive;-webkit-tap-highlight-color:transparent}
 :host([hidden]){display:none}*{box-sizing:border-box}button,input{font:inherit;color:inherit;-webkit-tap-highlight-color:transparent}
 :focus-visible{outline:2.5px solid var(--sk-acc);outline-offset:3px}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 canvas.back{position:absolute;left:-160px;top:-160px;width:calc(100% + 320px);height:calc(100% + 320px);pointer-events:none;z-index:-1}`;

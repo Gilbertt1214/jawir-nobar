@@ -98,8 +98,9 @@ export default {
                 "accordion-up": "accordion-up 0.2s ease-out",
             },
             fontFamily: {
-                sans: ["Outfit", "sans-serif"],
-                heading: ["Plus Jakarta Sans", "sans-serif"],
+                sans: ["'Patrick Hand'", "cursive", "sans-serif"],
+                heading: ["'Patrick Hand'", "cursive", "sans-serif"],
+                manga: ["'Patrick Hand'", "cursive", "sans-serif"],
             },
         },
     },

@@ -33,9 +33,7 @@ export function MovieCard({ movie, className, aspectRatio = "portrait" }: MovieC
             to={`/${movie.type}/${movie.id}`}
             state={{ from: location }}
             className={cn(
-                "group relative block h-full bg-card rounded-xl overflow-hidden isolate",
-                "shadow-sm dark:shadow-none", // Light mode depth
-                "hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.5)] transition-shadow duration-300",
+                "group relative block h-full bg-card rounded-xl overflow-hidden isolate border-2 border-[#0f172a] dark:border-zinc-700 shadow-[3.5px_3.5px_0px_#0f172a] dark:shadow-[3.5px_3.5px_0px_#000000] hover:shadow-[6px_6px_0px_#0f172a] dark:hover:shadow-[6px_6px_0px_#000000] transition-all duration-200",
                 className
             )}
             whileHover={{ scale: 1.05, y: -5 }}

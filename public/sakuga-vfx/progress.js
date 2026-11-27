@@ -22,7 +22,7 @@ class SakugaProgress extends fx.Base {
     .bar i { position: relative; display: block; height: 100%; width: calc(var(--v, 0) * 100%); background: var(--sk-fill); }
     .bar i::before, .bar i::after { content: ""; position: absolute; top: 5px; height: 11px; width: 9px; background: #fff; border-radius: 2px; transform: skewX(-28deg); left: 22px; opacity: .92; }
     .bar i::after { left: 37px; width: 6px; }
-    .pct { display: table; margin: 64px auto 0; padding: 3px 13px 4px; border: 2.5px solid var(--sk-ink); background: var(--sk-card); box-shadow: 5px 5px 0 var(--sk-fill); transform: skewX(-12deg); font: 700 21px/1.1 "Kalam","Patrick Hand",cursive; letter-spacing: -.01em; white-space: nowrap; will-change: transform; }`;
+    .pct { display: table; margin: 64px auto 0; padding: 3px 13px 4px; border: 2.5px solid var(--sk-ink); background: var(--sk-card); box-shadow: 5px 5px 0 var(--sk-fill); transform: skewX(-12deg); font: 700 21px/1.1 "Patrick Hand", cursive; letter-spacing: -.01em; white-space: nowrap; will-change: transform; }`;
   get value() { return this.goal; }
   get done() { return !!this.doneAt; }
   attributeChangedCallback(name, _, v) { if (!this.box) return; if (name === 'value') this.set(v === null ? 0 : +v); else this.box.setAttribute('aria-label', v || 'Loading'); }
@@ -326,7 +326,7 @@ function squashy(el, { low = 0.82, k = 520, d = 15, wide = 0.55 } = {}) {
   return { s, pop, tilt, step(dt) { const y = s.step(dt), p = pop.step(dt), r = tilt.step(dt), still = Math.abs(y - 1) < 0.001 && Math.abs(s.v) < 0.01 && Math.abs(p - 1) < 0.001 && Math.abs(r) < 0.02;
     el.style.transform = still ? '' : `rotate(${r}deg) scale(${(1 + (1 - y) * wide) * p}, ${y * p})`; } };
 }
-const BASE_CSS = `:host{display:inline-block;position:relative;isolation:isolate;vertical-align:middle;color:var(--sk-ink);font:500 15px/1.4 "Kalam","Patrick Hand",cursive;-webkit-tap-highlight-color:transparent}
+const BASE_CSS = `:host{display:inline-block;position:relative;isolation:isolate;vertical-align:middle;color:var(--sk-ink);font:500 15px/1.4 "Patrick Hand", cursive;-webkit-tap-highlight-color:transparent}
 :host([hidden]){display:none}*{box-sizing:border-box}button,input{font:inherit;color:inherit;-webkit-tap-highlight-color:transparent}
 :focus-visible{outline:2.5px solid var(--sk-acc);outline-offset:3px}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 canvas.back{position:absolute;left:-160px;top:-160px;width:calc(100% + 320px);height:calc(100% + 320px);pointer-events:none;z-index:-1}`;
