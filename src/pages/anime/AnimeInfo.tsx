@@ -19,6 +19,7 @@ import {
     Clock,
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { SketchProgress } from "@/components/ui/SketchProgress";
 import { useState, useEffect, useMemo, useRef } from "react";
 import { commentsService } from "@/services/firebase/comments.service";
 import { FadeIn } from "@/components/animations/FadeIn";
@@ -186,17 +187,23 @@ export default function AnimeInfo() {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-background">
-                <div className="relative h-[30vh] sm:h-[40vh] w-full bg-muted animate-pulse" />
-                <div className="container mx-auto px-4 -mt-24 sm:-mt-32 relative z-10">
-                    <div className="grid grid-cols-1 md:grid-cols-[250px_1fr] lg:grid-cols-[300px_1fr] gap-6">
-                        <div className="aspect-[2/3] w-full max-w-[250px] mx-auto md:mx-0 rounded-xl bg-muted animate-pulse shadow-lg" />
-                        <div className="space-y-4 pt-4 md:pt-8">
-                            <div className="h-8 w-3/4 bg-muted animate-pulse rounded" />
-                            <div className="h-6 w-1/2 bg-muted animate-pulse rounded" />
-                            <div className="h-32 bg-muted animate-pulse rounded" />
-                        </div>
+            <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4 py-16">
+                <div className="w-full max-w-[300px] flex flex-col items-center text-center space-y-4">
+                    <img
+                        src="/jawir-logo.png"
+                        alt="Loading"
+                        className="w-16 h-16 animate-bounce duration-1000"
+                    />
+                    <div className="w-full flex justify-center scale-95 sm:scale-100">
+                        <SketchProgress
+                            demo
+                            label="Memuat Anime..."
+                            doneLabel="Siap Ditonton ✓"
+                        />
                     </div>
+                    <p className="font-bold text-base text-foreground mt-2">
+                        Memuat Info Anime...
+                    </p>
                 </div>
             </div>
         );

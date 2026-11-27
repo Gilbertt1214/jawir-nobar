@@ -31,6 +31,7 @@ class SakugaInput extends fx.Base {
   }
   setup() {
     const inp = this.inp = this.$('input'), m = document.createElement('canvas').getContext('2d'); this.s = new Spring(1, 700, 16); this.internals.setFormValue(inp.value);
+    this.focus = () => inp.focus(); this.blur = () => inp.blur();
     inp.addEventListener('focus', () => { const c = at(inp, 1, 0); this.s.x = 1.04; ticks(c.x - 6, c.y - 4, { dir: -1.05, n: 3, r: 5, len: 17, fan: 0.36, life: 0.5 }); });
     inp.addEventListener('input', () => {   // every key kicks up a little dust where the caret is
       this.internals.setFormValue(inp.value);

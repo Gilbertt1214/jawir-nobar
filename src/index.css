@@ -193,6 +193,12 @@
     .lenis.lenis-smooth [data-lenis-prevent] {
         overscroll-behavior: contain;
     }
+
+    [data-lenis-prevent],
+    [data-radix-select-viewport] {
+        overscroll-behavior: contain !important;
+        -webkit-overflow-scrolling: touch;
+    }
       
     .lenis.lenis-stopped {
         overflow: hidden;

@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Search as SearchIcon, Film, Tv, Clapperboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SketchButton } from "@/components/ui/SketchButton";
+import { SketchInput } from "@/components/ui/SketchInput";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -207,6 +208,17 @@ export default function Search() {
                             </span>
                         )}
                     </p>
+                </div>
+
+                {/* Live Search Input with anime dust animation */}
+                <div className="max-w-xl">
+                    <SketchInput
+                        type="search"
+                        placeholder={t('search')}
+                        value={localQuery}
+                        onChange={(val) => setLocalQuery(val)}
+                        style={{ width: "100%" }}
+                    />
                 </div>
 
                 {/* Category Filter Buttons */}

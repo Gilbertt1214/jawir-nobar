@@ -467,9 +467,6 @@ export default function Home() {
                 {latestMovies?.data && latestMovies.data.length > 0 && (
                     <Section
                         title={t('latestMovies')}
-                        icon={
-                            <Sparkles className="w-6 h-6 text-primary animate-pulse" />
-                        }
                         movies={latestMovies.data.slice(0, 10)}
                         link="/browse/latest-movies"
                         delay={0.1}
@@ -480,7 +477,6 @@ export default function Home() {
                 {popularMovies?.data && popularMovies.data.length > 0 && (
                     <Section
                         title={t('popularMovies')}
-                        icon={<TrendingUp className="w-6 h-6 text-primary" />}
                         movies={popularMovies.data.slice(0, 10)}
                         link="/browse/popular-movies"
                         delay={0.2}
@@ -491,7 +487,6 @@ export default function Home() {
                 {latestSeries?.data && latestSeries.data.length > 0 && (
                     <Section
                         title={t('latestSeries')}
-                        icon={<Tv className="w-6 h-6 text-primary" />}
                         movies={latestSeries.data.slice(0, 10)}
                         link="/browse/latest-series"
                         delay={0.3}
@@ -504,13 +499,9 @@ export default function Home() {
                         <section className="space-y-6">
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                 <div className="flex items-center gap-3 group cursor-pointer">
-                                    <div className="h-8 w-1.5 bg-primary rounded-full group-hover:h-10 transition-all duration-300" />
                                     <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground group-hover:text-primary transition-colors">
                                         Anime
                                     </h2>
-                                    <div className="text-primary opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300">
-                                        <Film className="w-6 h-6" />
-                                    </div>
                                 </div>
 
                                 <Button
@@ -549,7 +540,6 @@ export default function Home() {
                     ongoingAnime.length > 0 && (
                         <Section
                             title={t('ongoingAnime')}
-                            icon={<Tv className="w-6 h-6 text-primary" />}
                             movies={ongoingAnime.slice(0, 10)}
                             link="/anime"
                             delay={0.5}
@@ -561,7 +551,6 @@ export default function Home() {
                 {indo?.data && indo.data.length > 0 && (
                     <Section
                         title={t('indonesianMovies')}
-                        icon={<Globe className="w-6 h-6 text-primary" />}
                         movies={indo.data.slice(0, 10)}
                         link="/browse/indonesian-movies"
                         delay={0.6}
@@ -572,7 +561,6 @@ export default function Home() {
                 {kdrama?.data && kdrama.data.length > 0 && (
                     <Section
                         title={t('koreanDrama')}
-                        icon={<Heart className="w-6 h-6 text-primary" />}
                         movies={kdrama.data.slice(0, 10)}
                         link="/browse/korean-drama"
                         delay={0.7}
@@ -583,7 +571,6 @@ export default function Home() {
                 {adult?.data && adult.data.length > 0 && (
                     <Section
                         title={t('romance')}
-                        icon={<Heart className="w-6 h-6 text-rose-500" />}
                         movies={adult.data.slice(0, 10)}
                         link="/browse/adult-movies"
                         delay={0.8}

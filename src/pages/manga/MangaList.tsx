@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { SkeletonGrid } from "@/components/features/movie/SkeletonCard";
 import { AlertCircle, Search, RefreshCw, BookOpen, Star } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
-import { Input } from "@/components/ui/input";
+import { SketchInput } from "@/components/ui/SketchInput";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function MangaList() {
@@ -132,19 +132,17 @@ export default function MangaList() {
                 {/* Search Bar */}
                 <form onSubmit={handleSearch} className="mb-8">
                     <div className="relative max-w-xl">
-                        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                        <Input
-                            type="text"
+                        <SketchInput
+                            type="search"
                             placeholder={t("searchManga")}
                             value={localSearchQuery}
-                            onChange={(e) =>
-                                setLocalSearchQuery(e.target.value)
-                            }
+                            onChange={(val) => setLocalSearchQuery(val)}
                             onFocus={() => setIsInputFocused(true)}
                             onBlur={() => {
                                 setTimeout(() => setIsInputFocused(false), 200);
                             }}
-                            className="pl-12 py-6 text-base rounded-xl border-border bg-secondary text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary"
+                            className="w-full"
+                            style={{ width: "100%" }}
                         />
 
                         {/* Search Preview Dropdown */}

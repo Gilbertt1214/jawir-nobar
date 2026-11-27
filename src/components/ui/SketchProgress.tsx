@@ -15,6 +15,7 @@ declare global {
           value?: number | string;
           label?: string;
           demo?: boolean;
+          "done-label"?: string;
         },
         HTMLElement
       >;
@@ -30,6 +31,7 @@ export interface SketchProgressHandle {
 interface SketchProgressProps {
   value?: number; // 0 to 1
   label?: string;
+  doneLabel?: string;
   demo?: boolean;
   onDone?: () => void;
   className?: string;
@@ -37,7 +39,7 @@ interface SketchProgressProps {
 }
 
 export const SketchProgress = forwardRef<SketchProgressHandle, SketchProgressProps>(
-  ({ value, label = "Loading", demo = false, onDone, className, style }, fwdRef) => {
+  ({ value, label = "Loading", doneLabel, demo = false, onDone, className, style }, fwdRef) => {
     const ref = useRef<
       HTMLElement & {
         set?: (n: number, instant?: boolean) => void;
@@ -71,6 +73,7 @@ export const SketchProgress = forwardRef<SketchProgressHandle, SketchProgressPro
         ref={ref}
         class={className}
         label={label}
+        done-label={doneLabel}
         {...(demo ? { demo: true } : {})}
         style={{
           display: "block",

@@ -29,6 +29,7 @@ declare global {
 interface SketchInputProps {
   value?: string;
   onChange?: (value: string) => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLElement>) => void;
   onFocus?: () => void;
   onBlur?: () => void;
   placeholder?: string;
@@ -39,25 +40,35 @@ interface SketchInputProps {
   className?: string;
   maxLength?: number;
   autoComplete?: string;
+  autoFocus?: boolean;
   style?: React.CSSProperties;
 }
 
-export function SketchInput({
-  value,
-  onChange,
-  onFocus,
-  onBlur,
-  placeholder,
-  label,
-  type = "text",
-  name,
-  disabled = false,
-  className,
-  maxLength,
-  autoComplete,
-  style,
-}: SketchInputProps) {
-  const ref = useRef<HTMLElement & { value?: string }>(null);
+export const SketchInput = React.forwardRef<
+  HTMLElement & { focus?: () => void; blur?: () => void; value?: string },
+  SketchInputProps
+>(function SketchInput(
+  {
+    value,
+    onChange,
+    onKeyDown,
+    onFocus,
+    onBlur,
+    placeholder,
+    label,
+    type = "text",
+    name,
+    disabled = false,
+    className,
+    maxLength,
+    autoComplete,
+    autoFocus,
+    style,
+  },
+  fwdRef
+) {
+  const localRef = useRef<HTMLElement & { focus?: () => void; blur?: () => void; value?: string }>(null);
+  const ref = (fwdRef as React.RefObject<HTMLElement & { focus?: () => void; blur?: () => void; value?: string }>) || localRef;
 
   // Sync value from React → custom element
   useEffect(() => {
@@ -65,9 +76,16 @@ export function SketchInput({
     if (el && value !== undefined && el.value !== value) {
       el.value = value;
     }
-  }, [value]);
+  }, [value, ref]);
 
-  // Listen for input events from the shadow-DOM <input>
+  // Handle autoFocus
+  useEffect(() => {
+    if (autoFocus && ref.current?.focus) {
+      ref.current.focus();
+    }
+  }, [autoFocus, ref]);
+
+  // Listen for input and keydown events
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
@@ -77,16 +95,28 @@ export function SketchInput({
     };
     const handleFocus = () => onFocus?.();
     const handleBlur = () => onBlur?.();
+    const handleKeyDown = (e: Event) => {
+      const ke = e as unknown as React.KeyboardEvent<HTMLElement>;
+      onKeyDown?.(ke);
+      if ((e as KeyboardEvent).key === "Enter") {
+        const form = el.closest("form");
+        if (form) {
+          form.requestSubmit();
+        }
+      }
+    };
 
     el.addEventListener("input", handleInput);
     el.addEventListener("focus", handleFocus, true);
     el.addEventListener("blur", handleBlur, true);
+    el.addEventListener("keydown", handleKeyDown);
     return () => {
       el.removeEventListener("input", handleInput);
       el.removeEventListener("focus", handleFocus, true);
       el.removeEventListener("blur", handleBlur, true);
+      el.removeEventListener("keydown", handleKeyDown);
     };
-  }, [onChange, onFocus, onBlur]);
+  }, [onChange, onFocus, onBlur, onKeyDown, ref]);
 
   // Sync disabled
   useEffect(() => {
@@ -94,7 +124,7 @@ export function SketchInput({
     if (!el) return;
     if (disabled) el.setAttribute("disabled", "");
     else el.removeAttribute("disabled");
-  }, [disabled]);
+  }, [disabled, ref]);
 
   return (
     <sakuga-input
@@ -108,6 +138,6 @@ export function SketchInput({
       style={style}
     />
   );
-}
+});
 
 export default SketchInput;

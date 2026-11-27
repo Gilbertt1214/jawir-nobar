@@ -8,10 +8,19 @@ import { useLanguage } from "@/contexts/LanguageContext"
 import { useQuery } from "@tanstack/react-query"
 import { movieAPI, type StreamingProvider, type Episode } from "@/services/api"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import {
   AlertCircle,
   ChevronDown,
   MonitorPlay,
+  Play,
   RefreshCw,
   ChevronLeft,
   ChevronRight,
@@ -19,6 +28,7 @@ import {
 } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { SketchProgress } from "@/components/ui/SketchProgress"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -167,17 +177,24 @@ export default function EpisodeDetail() {
 
   if (isLoading) {
     return (
-      <div className="w-full max-w-full px-3 py-4">
-        <Skeleton className="h-8 w-48 mb-6" />
-
-        <div className="flex items-center justify-between mb-4">
-          <Skeleton className="h-4 w-32" />
-          <Skeleton className="h-10 w-40" />
+      <div className="min-h-[70vh] flex flex-col items-center justify-center px-4 py-16">
+        <div className="w-full max-w-[300px] flex flex-col items-center text-center space-y-4">
+          <img
+            src="/jawir-logo.png"
+            alt="Loading"
+            className="w-16 h-16 animate-bounce duration-1000"
+          />
+          <div className="w-full flex justify-center scale-95 sm:scale-100">
+            <SketchProgress
+              demo
+              label="Memuat Episode..."
+              doneLabel="Siap Ditonton ✓"
+            />
+          </div>
+          <p className="font-bold text-base text-foreground mt-2">
+            {t('loading') || "Memuat Episode..."}
+          </p>
         </div>
-
-        <Skeleton className="aspect-video w-full rounded-lg mb-6" />
-        <Skeleton className="h-6 w-3/4 mb-3" />
-        <Skeleton className="h-3 w-1/3" />
       </div>
     )
   }
@@ -229,20 +246,20 @@ export default function EpisodeDetail() {
 
             <div className="flex items-center gap-2">
                 <Button
-                    variant="ghost"
+                    variant="outline"
                     size="sm"
                     onClick={() => window.open(selectedProvider?.url, "_blank")}
-                    className="text-xs gap-2"
+                    className="text-xs gap-1.5 h-10 px-3 border-2 border-[#0f172a] dark:border-zinc-700 shadow-[2px_2px_0px_#0f172a] dark:shadow-[2px_2px_0px_#000]"
                     disabled={!selectedProvider}
                 >
                     <MonitorPlay className="h-3.5 w-3.5" />
                     Open in New Tab
                 </Button>
-                 <Button
-                    variant="ghost"
+                <Button
+                    variant="outline"
                     size="sm"
                     onClick={handleRetryProviders}
-                    className="text-xs gap-2"
+                    className="text-xs gap-1.5 h-10 px-3 border-2 border-[#0f172a] dark:border-zinc-700 shadow-[2px_2px_0px_#0f172a] dark:shadow-[2px_2px_0px_#000]"
                 >
                     <RefreshCw className="h-3.5 w-3.5" />
                     Refresh
@@ -251,44 +268,69 @@ export default function EpisodeDetail() {
           </div>
 
           <div className="space-y-4">
-             <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground/80">
-                <MonitorPlay className="h-4 w-4 text-primary" />
-                Select Server:
-            </div>
+             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border-2 border-[#0f172a] dark:border-zinc-700 bg-card shadow-[3px_3px_0px_#0f172a] dark:shadow-[3px_3px_0px_#000]">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3 flex-1">
+                   <div className="flex items-center gap-2 text-sm sm:text-base font-bold text-foreground flex-shrink-0">
+                      <MonitorPlay className="h-4 w-4 text-primary" />
+                      <span>Select Server:</span>
+                   </div>
 
-             {providers && providers.length > 0 ? (
-                <div className="flex flex-wrap gap-2">
-                  {providers.map((provider, index) => (
-                    <Button
-                      key={`${provider.name}-${index}`}
-                      variant={selectedProvider?.name === provider.name ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => handleProviderChange(provider)}
-                      className={cn(
-                        "gap-2 transition-all",
-                         selectedProvider?.name === provider.name
-                          ? "bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 scale-105"
-                          : "bg-background/50 border-white/10 hover:bg-white/10 hover:text-white dark:hover:bg-white/10"
-                      )}
-                    >
-                       <MonitorPlay className={cn("h-3 w-3", selectedProvider?.name === provider.name ? "fill-current" : "")} />
-                      Server {index + 1} ({provider.name})
-                      {provider.quality && (
-                        <span className={cn(
-                          "ml-1 text-[10px] h-4 px-1 rounded flex items-center justify-center leading-none pointer-events-none",
-                           selectedProvider?.name === provider.name ? "bg-white/20 text-white" : "bg-white/10 text-white/60"
-                        )}>
-                          {provider.quality}
-                        </span>
-                      )}
-                    </Button>
-                  ))}
+                   {providers && providers.length > 0 ? (
+                      <div className="w-full sm:w-[320px]">
+                        <Select
+                          value={selectedProvider?.name || providers[0]?.name}
+                          onValueChange={(val) => {
+                            const p = providers.find((x) => x.name === val)
+                            if (p) handleProviderChange(p)
+                          }}
+                        >
+                          <SelectTrigger className="w-full h-11 border-2 border-[#0f172a] dark:border-zinc-700 bg-background shadow-[2.5px_2.5px_0px_#0f172a] dark:shadow-[2.5px_2.5px_0px_#000] font-bold text-sm sm:text-base rounded-xl">
+                            <SelectValue placeholder="Pilih Server">
+                              {selectedProvider && (
+                                <div className="flex items-center justify-between w-full pr-2">
+                                  <span className="flex items-center gap-2 truncate">
+                                    <Play className="h-3.5 w-3.5 fill-current text-primary flex-shrink-0" />
+                                    Server {providers.findIndex((p) => p.name === selectedProvider.name) + 1} ({selectedProvider.name})
+                                  </span>
+                                  {selectedProvider.quality && (
+                                    <Badge variant="secondary" className="text-[10px] h-4 px-1 leading-none py-0 ml-2">
+                                      {selectedProvider.quality}
+                                    </Badge>
+                                  )}
+                                </div>
+                              )}
+                            </SelectValue>
+                          </SelectTrigger>
+                          <SelectContent className="border-2 border-[#0f172a] dark:border-zinc-700 shadow-[4px_4px_0px_#0f172a] dark:shadow-[4px_4px_0px_#000] rounded-xl max-h-[300px]">
+                            {providers.map((provider, index) => (
+                              <SelectItem
+                                key={`${provider.name}-${index}`}
+                                value={provider.name}
+                                className="font-bold text-sm sm:text-base cursor-pointer py-2"
+                              >
+                                <div className="flex items-center justify-between w-full gap-3">
+                                  <span className="flex items-center gap-2">
+                                    <Play className={cn("h-3.5 w-3.5", selectedProvider?.name === provider.name ? "fill-current text-primary" : "text-muted-foreground")} />
+                                    Server {index + 1} ({provider.name})
+                                  </span>
+                                  {provider.quality && (
+                                    <Badge variant="secondary" className="text-[10px] h-4 px-1 leading-none py-0">
+                                      {provider.quality}
+                                    </Badge>
+                                  )}
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                   ) : (
+                      <Button variant="outline" size="sm" disabled className="h-10 text-xs">
+                        {t('streamUnavailable')}
+                      </Button>
+                   )}
                 </div>
-              ) : (
-                <Button variant="outline" size="sm" disabled className="h-8 text-xs">
-                  {t('streamUnavailable')}
-                </Button>
-              )}
+             </div>
             <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
                 <div className="flex items-start gap-3">
                     <Info className="h-5 w-5 text-blue-400 mt-0.5 flex-shrink-0" />
@@ -315,12 +357,12 @@ export default function EpisodeDetail() {
       </div>
 
         {providersLoading && (
-          <Alert>
-            <RefreshCw className="h-4 w-4 animate-spin" />
-            <AlertDescription>
+          <div className="w-full max-w-[280px] mx-auto my-6 flex flex-col items-center justify-center text-center space-y-2">
+            <SketchProgress demo label={t('searchingStreams')} />
+            <p className="text-sm font-medium text-muted-foreground">
               {t('searchingStreams')}
-            </AlertDescription>
-          </Alert>
+            </p>
+          </div>
         )}
 
         {providersError && (

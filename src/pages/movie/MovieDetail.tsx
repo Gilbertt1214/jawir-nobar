@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { movieAPI } from "@/services/api";
 import { Button } from "@/components/ui/button";
 import { SketchButton } from "@/components/ui/SketchButton";
+import { SketchProgress } from "@/components/ui/SketchProgress";
 import { Badge } from "@/components/ui/badge";
 import { Breadcrumb } from "@/components/common/Breadcrumb";
 import {
@@ -271,18 +272,23 @@ export default function MovieDetail() {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-background">
-                <div className="relative h-[40vh] sm:h-[50vh] w-full bg-muted animate-pulse" />
-                <div className="container mx-auto px-4 -mt-32 relative z-10">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <Skeleton className="aspect-[2/3] w-full rounded-xl shadow-lg" />
-                        <div className="md:col-span-2 space-y-6 pt-12">
-                            <Skeleton className="h-10 w-3/4" />
-                            <Skeleton className="h-6 w-1/2" />
-                            <Skeleton className="h-32 w-full" />
-                            <Skeleton className="h-64 w-full" />
-                        </div>
+            <div className="min-h-screen bg-background flex flex-col items-center justify-center py-20 px-4">
+                <div className="w-full max-w-[300px] flex flex-col items-center text-center space-y-4">
+                    <img
+                        src="/jawir-logo.png"
+                        alt="Loading"
+                        className="w-16 h-16 animate-bounce duration-1000"
+                    />
+                    <div className="w-full flex justify-center scale-95 sm:scale-100">
+                        <SketchProgress
+                            demo
+                            label="Memuat Film..."
+                            doneLabel="Siap Ditonton ✓"
+                        />
                     </div>
+                    <p className="font-bold text-lg text-foreground tracking-wide mt-2">
+                        {isSeriesRoute ? (t("loadingSeries") || "Memuat Series...") : (t("loadingMovie") || "Memuat Film...")}
+                    </p>
                 </div>
             </div>
         );
@@ -802,11 +808,11 @@ export default function MovieDetail() {
                                 <CardContent className="p-0">
                                     <div className="space-y-0">
                                         {/* Video Player */}
-                                        <div className="relative aspect-video bg-black flex items-center justify-center">
+                                        <div className="relative aspect-video bg-black flex items-center justify-center p-4 overflow-hidden">
                                             {isLoadingProviders ? (
-                                                <div className="text-center text-white/50 space-y-4">
-                                                    <RefreshCw className="h-10 w-10 mx-auto animate-spin" />
-                                                    <p className="text-sm font-medium">
+                                                <div className="w-full max-w-[280px] flex flex-col items-center justify-center text-center text-white space-y-2 scale-90 sm:scale-100">
+                                                    <SketchProgress demo label={t("searchingStreams")} />
+                                                    <p className="text-sm font-medium text-white/80">
                                                         {t("searchingStreams")}
                                                     </p>
                                                 </div>
@@ -870,13 +876,62 @@ export default function MovieDetail() {
                                             <div className="p-4 bg-background/50 backdrop-blur-md border-t border-white/5">
                                                 <div className="flex flex-col gap-4">
                                                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                                        <div className="flex items-center gap-2 text-sm font-medium text-white/80">
-                                                            <Tv className="h-4 w-4 text-primary" />
-                                                            Select Server:
+                                                        <div className="flex flex-col sm:flex-row sm:items-center gap-3 flex-1">
+                                                            <div className="flex items-center gap-2 text-sm sm:text-base font-bold text-foreground flex-shrink-0">
+                                                                <Tv className="h-4 w-4 text-primary" />
+                                                                <span>Select Server:</span>
+                                                            </div>
+
+                                                            <div className="w-full sm:w-[320px]">
+                                                                <Select
+                                                                    value={String(selectedProvider)}
+                                                                    onValueChange={(val) => handleProviderChange(val)}
+                                                                >
+                                                                    <SelectTrigger className="w-full h-11 border-2 border-[#0f172a] dark:border-zinc-700 bg-card shadow-[2.5px_2.5px_0px_#0f172a] dark:shadow-[2.5px_2.5px_0px_#000] font-bold text-sm sm:text-base rounded-xl">
+                                                                        <SelectValue placeholder="Pilih Server">
+                                                                            {streamingProviders[selectedProvider] && (
+                                                                                <div className="flex items-center justify-between w-full pr-2">
+                                                                                    <span className="flex items-center gap-2 truncate">
+                                                                                        <Play className="h-3.5 w-3.5 fill-current text-primary flex-shrink-0" />
+                                                                                        Server {selectedProvider + 1} ({streamingProviders[selectedProvider]?.name})
+                                                                                    </span>
+                                                                                    {streamingProviders[selectedProvider]?.quality && (
+                                                                                        <Badge variant="secondary" className="text-[10px] h-4 px-1 leading-none py-0 ml-2">
+                                                                                            {streamingProviders[selectedProvider]?.quality}
+                                                                                        </Badge>
+                                                                                    )}
+                                                                                </div>
+                                                                            )}
+                                                                        </SelectValue>
+                                                                    </SelectTrigger>
+                                                                    <SelectContent className="border-2 border-[#0f172a] dark:border-zinc-700 shadow-[4px_4px_0px_#0f172a] dark:shadow-[4px_4px_0px_#000] rounded-xl max-h-[300px]">
+                                                                        {streamingProviders.map((provider, index) => (
+                                                                            <SelectItem
+                                                                                key={index}
+                                                                                value={String(index)}
+                                                                                className="font-bold text-sm sm:text-base cursor-pointer py-2"
+                                                                            >
+                                                                                <div className="flex items-center justify-between w-full gap-3">
+                                                                                    <span className="flex items-center gap-2">
+                                                                                        <Play className={cn("h-3.5 w-3.5", selectedProvider === index ? "fill-current text-primary" : "text-muted-foreground")} />
+                                                                                        Server {index + 1} ({provider.name})
+                                                                                    </span>
+                                                                                    {provider.quality && (
+                                                                                        <Badge variant="secondary" className="text-[10px] h-4 px-1 leading-none py-0">
+                                                                                            {provider.quality}
+                                                                                        </Badge>
+                                                                                    )}
+                                                                                </div>
+                                                                            </SelectItem>
+                                                                        ))}
+                                                                    </SelectContent>
+                                                                </Select>
+                                                            </div>
                                                         </div>
-                                                        <div className="flex items-center gap-2">
+
+                                                        <div className="flex items-center gap-2 flex-shrink-0">
                                                             <Button
-                                                                variant="ghost"
+                                                                variant="outline"
                                                                 size="sm"
                                                                 onClick={() =>
                                                                     window.open(
@@ -886,7 +941,7 @@ export default function MovieDetail() {
                                                                         "_blank"
                                                                     )
                                                                 }
-                                                                className="text-xs gap-2 hover:bg-white/10"
+                                                                className="text-xs gap-1.5 h-10 px-3 border-2 border-[#0f172a] dark:border-zinc-700 shadow-[2px_2px_0px_#0f172a] dark:shadow-[2px_2px_0px_#000]"
                                                                 disabled={
                                                                     !streamingProviders[
                                                                         selectedProvider
@@ -897,48 +952,17 @@ export default function MovieDetail() {
                                                                 Open in New Tab
                                                             </Button>
                                                             <Button
-                                                                variant="ghost"
+                                                                variant="outline"
                                                                 size="sm"
                                                                 onClick={() =>
                                                                     window.location.reload()
                                                                 }
-                                                                className="text-xs gap-2 hover:bg-white/10"
+                                                                className="text-xs gap-1.5 h-10 px-3 border-2 border-[#0f172a] dark:border-zinc-700 shadow-[2px_2px_0px_#0f172a] dark:shadow-[2px_2px_0px_#000]"
                                                             >
                                                                 <RefreshCw className="h-3.5 w-3.5" />
                                                                 Refresh
                                                             </Button>
                                                         </div>
-                                                    </div>
-
-                                                    <div className="flex flex-wrap gap-2">
-                                                        {streamingProviders.map((provider, index) => (
-                                                            <Button
-                                                                key={index}
-                                                                variant={selectedProvider === index ? "default" : "outline"}
-                                                                size="sm"
-                                                                onClick={() => handleProviderChange(String(index))}
-                                                                className={cn(
-                                                                    "gap-2 transition-all",
-                                                                    selectedProvider === index 
-                                                                        ? "bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 scale-105" 
-                                                                        : "bg-background/50 border-white/10 hover:bg-white/10 hover:text-white dark:hover:bg-white/10"
-                                                                )}
-                                                            >
-                                                                <Play className={cn("h-3 w-3", selectedProvider === index ? "fill-current" : "")} />
-                                                                Server {index + 1} ({provider.name})
-                                                                {provider.quality && (
-                                                                    <Badge 
-                                                                        variant="secondary" 
-                                                                        className={cn(
-                                                                            "ml-1 text-[10px] h-4 px-1 leading-none pointer-events-none",
-                                                                            selectedProvider === index ? "bg-white/20 text-white" : "bg-white/10 text-white/60"
-                                                                        )}
-                                                                    >
-                                                                        {provider.quality}
-                                                                    </Badge>
-                                                                )}
-                                                            </Button>
-                                                        ))}
                                                     </div>
                                                 </div>
 

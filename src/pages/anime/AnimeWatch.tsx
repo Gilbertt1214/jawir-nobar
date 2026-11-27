@@ -12,6 +12,7 @@ import {
     Play,
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { SketchProgress } from "@/components/ui/SketchProgress";
 import { useState, useEffect, useMemo } from "react";
 import type { StreamingProvider } from "@/services/api";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -152,12 +153,23 @@ export default function AnimeWatch() {
     // Loading state
     if (loadingEpisode) {
         return (
-            <div className="min-h-screen bg-background">
-                <div className="container mx-auto px-4 py-8">
-                    <div className="max-w-6xl mx-auto">
-                        <div className="aspect-video bg-muted animate-pulse rounded-lg" />
-                        <div className="mt-4 h-12 bg-muted animate-pulse rounded-lg w-48" />
+            <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4 py-16">
+                <div className="w-full max-w-[300px] flex flex-col items-center text-center space-y-4">
+                    <img
+                        src="/jawir-logo.png"
+                        alt="Loading"
+                        className="w-16 h-16 animate-bounce duration-1000"
+                    />
+                    <div className="w-full flex justify-center scale-95 sm:scale-100">
+                        <SketchProgress
+                            demo
+                            label="Memuat Streaming Anime..."
+                            doneLabel="Siap Ditonton ✓"
+                        />
                     </div>
+                    <p className="font-bold text-base text-foreground mt-2">
+                        Memuat Streaming Anime...
+                    </p>
                 </div>
             </div>
         );

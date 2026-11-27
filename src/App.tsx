@@ -13,8 +13,9 @@ import { Breadcrumb } from "@/components/common/Breadcrumb";
 import { PageTransition } from "@/components/layout/PageTransition";
 import { useEffect, Suspense, lazy } from "react";
 import Lenis from "lenis";
-import { Loader2 } from "lucide-react";
 import { AnimatePresence } from "framer-motion";
+import { InitialLoader } from "@/components/common/InitialLoader";
+import { SketchProgress } from "@/components/ui/SketchProgress";
 
 const Home = lazy(() => import("./pages/home/Home"));
 const MovieDetail = lazy(() => import("./pages/movie/MovieDetail"));
@@ -53,8 +54,10 @@ const queryClient = new QueryClient({
 });
 
 const PageLoader = () => (
-    <div className="flex items-center justify-center min-h-[50vh] w-full">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+    <div className="flex flex-col items-center justify-center min-h-[50vh] w-full px-4 py-12">
+        <div className="w-[280px] max-w-full flex flex-col items-center scale-95 sm:scale-100">
+            <SketchProgress demo label="Memuat Halaman..." />
+        </div>
     </div>
 );
 
@@ -336,6 +339,7 @@ const App = () => {
                         >
                             <ScrollToTop />
                             <ContextMenu />
+                            <InitialLoader />
                             <div className="flex min-h-screen flex-col bg-background font-sans antialiased">
                                     {/* Christmas Snowfall Effect 🎄 */}
                                     <Suspense fallback={null}>

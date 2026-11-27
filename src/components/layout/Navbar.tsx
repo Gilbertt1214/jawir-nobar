@@ -5,16 +5,14 @@ import {
     Globe,
     Calendar,
     Tag,
-    Tv,
     BookOpen,
     Languages,
     X,
-    Sparkles,
 } from "lucide-react";
 import { movieAPI } from "@/services/api";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
-import { Input } from "@/components/ui/input";
+import { SketchInput } from "@/components/ui/SketchInput";
 import { useNavigate } from "react-router-dom";
 import {
     Sheet,
@@ -181,35 +179,34 @@ export function Navbar() {
                         )} />
                         
                         <div className={cn(
-                            "relative flex items-center w-full transition-all duration-300 overflow-hidden",
+                            "relative flex items-center w-full transition-all duration-300",
                             isSearchOpen 
-                                ? "bg-background/95 backdrop-blur-md border border-primary/20 shadow-lg rounded-full sm:bg-secondary sm:shadow-none sm:border-none" 
-                                : "bg-transparent sm:bg-secondary sm:rounded-full"
+                                ? "w-full" 
+                                : "w-auto sm:w-full"
                         )}>
-                            <Input
-                                type="search"
-                                placeholder={t('search')}
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                onFocus={() => setIsSearchOpen(true)}
-                                onBlur={() => {
-                                    // Small delay to allow clicking search results
-                                    setTimeout(() => {
-                                        if (!searchQuery) {
-                                            setIsSearchOpen(false);
-                                        }
-                                    }, 200);
-                                }}
-                                className={cn(
-                                    "transition-all duration-300 bg-transparent border-none focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground",
-                                    "h-10 sm:h-10 lg:h-11",
-                                    isSearchOpen 
-                                        ? "w-full pl-4 pr-10 opacity-100" 
-                                        : "w-0 sm:w-full pl-0 sm:pl-4 opacity-0 sm:opacity-100 p-0 sm:p-2"
-                                )}
-                            />
+                            <div className={cn(
+                                "w-full transition-all duration-300",
+                                isSearchOpen ? "block" : "hidden sm:block"
+                            )}>
+                                <SketchInput
+                                    type="search"
+                                    placeholder={t('search')}
+                                    value={searchQuery}
+                                    onChange={(val) => setSearchQuery(val)}
+                                    onFocus={() => setIsSearchOpen(true)}
+                                    onBlur={() => {
+                                        // Small delay to allow clicking search results
+                                        setTimeout(() => {
+                                            if (!searchQuery) {
+                                                setIsSearchOpen(false);
+                                            }
+                                        }, 200);
+                                    }}
+                                    className="w-full"
+                                    style={{ width: "100%" }}
+                                />
+                            </div>
                             
-                            {/* Mobile Search Toggle / Submit Button */}
                             {/* Mobile Search Toggle / Submit Button */}
                              <Button
                                 type={isSearchOpen && searchQuery ? "submit" : "button"}
@@ -220,8 +217,8 @@ export function Navbar() {
                                         e.preventDefault();
                                         setIsSearchOpen(true);
                                         setTimeout(() => {
-                                            const input = e.currentTarget.parentElement?.querySelector('input');
-                                            input?.focus();
+                                            const sakugaInput = e.currentTarget.parentElement?.querySelector('sakuga-input') as HTMLElement;
+                                            sakugaInput?.focus?.();
                                         }, 10);
                                     } else if (isSearchOpen && !searchQuery) {
                                         e.preventDefault();
@@ -326,18 +323,6 @@ export function Navbar() {
                 <div className="flex items-center gap-1 flex-shrink-0">
                     {/* Desktop Menu - Hidden on mobile/tablet */}
                     <div className="hidden lg:flex items-center gap-1">
-                        <Link to="/anime">
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                className={cn(
-                                    "text-sm px-3 xl:px-4 rounded-full transition-all duration-300",
-                                    isScrolled ? "text-foreground/80 hover:bg-secondary hover:text-primary" : "text-white/90 hover:bg-white/10 hover:text-white"
-                                )}
-                            >
-                                {t('anime')}
-                            </Button>
-                        </Link>
                         <Link to="/manga">
                             <Button
                                 variant="ghost"
@@ -348,18 +333,6 @@ export function Navbar() {
                                 )}
                             >
                                 {t('manga')}
-                            </Button>
-                        </Link>
-                        <Link to="/sakuga">
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                className={cn(
-                                    "text-sm px-3 xl:px-4 rounded-full transition-all duration-300 font-bold text-red-500",
-                                    isScrolled ? "hover:bg-red-500/10 hover:text-red-600" : "text-red-400 hover:bg-white/10 hover:text-red-300"
-                                )}
-                            >
-                                ✨ Sakuga VFX
                             </Button>
                         </Link>
                         <Link to="/genres">
@@ -447,15 +420,6 @@ export function Navbar() {
                                 </SheetTitle>
                             </SheetHeader>
                             <div className="flex flex-col gap-1 sm:gap-2 mt-6 sm:mt-8">
-                                <Link to="/anime" onClick={handleMenuItemClick}>
-                                    <Button
-                                        variant="ghost"
-                                        className="w-full justify-start gap-3 sm:gap-4 h-11 sm:h-12 text-sm sm:text-base font-medium rounded-xl hover:bg-primary/10 hover:text-primary transition-all"
-                                    >
-                                        <Tv className="h-4 w-4 sm:h-5 sm:w-5" />
-                                        {t('anime')}
-                                    </Button>
-                                </Link>
                                 <Link to="/manga" onClick={handleMenuItemClick}>
                                     <Button
                                         variant="ghost"
@@ -463,15 +427,6 @@ export function Navbar() {
                                     >
                                         <BookOpen className="h-4 w-4 sm:h-5 sm:w-5" />
                                         {t('manga')}
-                                    </Button>
-                                </Link>
-                                <Link to="/sakuga" onClick={handleMenuItemClick}>
-                                    <Button
-                                        variant="ghost"
-                                        className="w-full justify-start gap-3 sm:gap-4 h-11 sm:h-12 text-sm sm:text-base font-bold text-red-500 rounded-xl hover:bg-red-500/10 hover:text-red-600 transition-all"
-                                    >
-                                        <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-red-500" />
-                                        Sakuga VFX Controls
                                     </Button>
                                 </Link>
                                 <Link to="/genres" onClick={handleMenuItemClick}>
